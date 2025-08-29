@@ -26,7 +26,7 @@ jobs:
       
       - name: Create HTML site
         run: |
-          # Create homepage with article list
+          # Create clean homepage with simple article list
           cat > index.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -37,119 +37,63 @@ jobs:
               <style>
                   body { 
                       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-                      max-width: 800px; 
+                      max-width: 600px; 
                       margin: 0 auto; 
-                      padding: 2rem; 
+                      padding: 3rem 2rem; 
                       line-height: 1.6; 
-                      background: #f6f6f6;
+                      background: #fff;
                   }
                   .header { 
                       text-align: center; 
-                      margin-bottom: 3rem; 
-                      background: #fff;
-                      padding: 2rem;
-                      border-radius: 8px;
-                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                      margin-bottom: 3rem;
                   }
-                  .article-grid {
-                      display: grid;
-                      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                      gap: 1.5rem;
-                      margin-bottom: 2rem;
+                  h1 {
+                      color: #202122;
+                      margin-bottom: 0.5rem;
                   }
-                  .article-card {
-                      background: #fff;
+                  .article-list {
+                      list-style: none;
+                      padding: 0;
+                      margin: 0;
+                  }
+                  .article-item {
+                      margin-bottom: 1rem;
+                  }
+                  .article-link {
+                      display: block;
+                      padding: 1rem;
+                      color: #0645ad;
+                      text-decoration: none;
+                      font-size: 1.1rem;
                       border: 1px solid #a2a9b1;
                       border-radius: 6px;
-                      padding: 1.5rem;
-                      transition: box-shadow 0.2s, transform 0.2s;
-                      cursor: pointer;
+                      transition: background-color 0.2s;
                   }
-                  .article-card:hover {
-                      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                      transform: translateY(-2px);
-                  }
-                  .article-title {
-                      font-size: 1.3rem;
-                      font-weight: 600;
-                      color: #0645ad;
-                      margin-bottom: 0.5rem;
-                      text-decoration: none;
-                      display: block;
-                  }
-                  .article-title:hover {
+                  .article-link:hover {
+                      background-color: #f8f9fa;
                       text-decoration: underline;
-                  }
-                  .article-type {
-                      background: #eaecf0;
-                      color: #54595d;
-                      padding: 0.25rem 0.75rem;
-                      border-radius: 12px;
-                      font-size: 0.75rem;
-                      text-transform: uppercase;
-                      font-weight: 500;
-                      display: inline-block;
-                      margin-bottom: 0.75rem;
-                  }
-                  .article-description {
-                      color: #202122;
-                      margin-bottom: 1rem;
-                      font-size: 0.95rem;
-                  }
-                  .article-issues {
-                      font-size: 0.85rem;
-                      color: #d33;
-                      background: #fef6e7;
-                      padding: 0.75rem;
-                      border-radius: 4px;
-                      border-left: 3px solid #fc3;
-                  }
-                  .stub-indicator {
-                      color: #a55858;
-                      font-size: 0.8rem;
-                      margin-top: 0.5rem;
                   }
               </style>
           </head>
           <body>
               <div class="header">
                   <h1>Reader Discovery Research</h1>
-                  <p>Test articles for identifying content gaps and improvement opportunities</p>
               </div>
 
-              <div class="article-grid">
-                  <div class="article-card" onclick="window.location.href='ed-gallagher.html'">
-                      <div class="article-type">Biography Stub</div>
-                      <a href="ed-gallagher.html" class="article-title">Ed Gallagher (scientist)</a>
-                      <div class="article-description">British environmental scientist and former chief executive of the Environment Agency.</div>
-                      <div class="article-issues">⚠️ Missing: Early life, education details, personal life, career timeline</div>
-                      <div class="stub-indicator">📝 267 words • Needs expansion</div>
-                  </div>
-                  
-                  <div class="article-card" onclick="window.location.href='visual-technology.html'">
-                      <div class="article-type">Technology Stub</div>
-                      <a href="visual-technology.html" class="article-title">Visual technology</a>
-                      <div class="article-description">Engineering discipline dealing with visual representation and related technologies.</div>
-                      <div class="article-issues">⚠️ Missing: History, applications, technical details, industry examples</div>
-                      <div class="stub-indicator">📝 90 words • Needs major expansion</div>
-                  </div>
-                  
-                  <div class="article-card" onclick="window.location.href='richard-james.html'">
-                      <div class="article-type">Biography Stub</div>
-                      <a href="richard-james.html" class="article-title">Richard D. James (scientist)</a>
-                      <div class="article-description">Mechanician and materials scientist, Russell J. Penrose Professor.</div>
-                      <div class="article-issues">⚠️ Missing: Research details, major publications, academic contributions</div>
-                      <div class="stub-indicator">📝 177 words • Needs expansion</div>
-                  </div>
-                  
-                  <div class="article-card" onclick="window.location.href='s-vt.html'">
-                      <div class="article-type">Technology Stub</div>
-                      <a href="s-vt.html" class="article-title">S-VT (Sequential Valve Timing)</a>
-                      <div class="article-description">Automobile variable valve timing technology developed by Mazda.</div>
-                      <div class="article-issues">⚠️ Missing: Technical diagrams, implementation details, comparison with other systems</div>
-                      <div class="stub-indicator">📝 89 words • Needs technical expansion</div>
-                  </div>
-              </div>
+              <ul class="article-list">
+                  <li class="article-item">
+                      <a href="ed-gallagher.html" class="article-link">Ed Gallagher (scientist)</a>
+                  </li>
+                  <li class="article-item">
+                      <a href="visual-technology.html" class="article-link">Visual technology</a>
+                  </li>
+                  <li class="article-item">
+                      <a href="richard-james.html" class="article-link">Richard D. James (scientist)</a>
+                  </li>
+                  <li class="article-item">
+                      <a href="s-vt.html" class="article-link">S-VT (Sequential Valve Timing)</a>
+                  </li>
+              </ul>
           </body>
           </html>
           EOF
