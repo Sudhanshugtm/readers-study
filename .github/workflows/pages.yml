@@ -26,10 +26,8 @@ jobs:
       
       - name: Create HTML site
         run: |
-          # Copy boilerplate files
+          # Copy boilerplate files (they're already in the right location)
           cp ve-boilerplate.html index.html
-          cp reading-styles.css .
-          cp reading-script.js .
           
           # Create article list page
           cat > articles.html << 'EOF'
