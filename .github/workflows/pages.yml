@@ -26,17 +26,23 @@ jobs:
       
       - name: Create HTML site
         run: |
-          cat > index.html << 'EOF'
+          # Copy boilerplate files
+          cp ve-boilerplate.html index.html
+          cp reading-styles.css .
+          cp reading-script.js .
+          
+          # Create article list page
+          cat > articles.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Reader Discovery Research - WE2.1.3</title>
+              <title>Test Articles - Reader Discovery Research</title>
               <style>
                   body { 
                       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-                      max-width: 600px; 
+                      max-width: 800px; 
                       margin: 0 auto; 
                       padding: 2rem; 
                       line-height: 1.6; 
@@ -44,37 +50,106 @@ jobs:
                   .header { 
                       text-align: center; 
                       margin-bottom: 3rem; 
+                      border-bottom: 2px solid #eee;
+                      padding-bottom: 2rem;
                   }
-                  .article-list { 
-                      background: #f8f9fa; 
-                      padding: 2rem; 
-                      border-radius: 8px; 
+                  .article-grid {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                      gap: 1.5rem;
                       margin-bottom: 2rem;
                   }
-                  .status {
-                      color: #666;
-                      font-style: italic;
-                      text-align: center;
-                      margin-top: 2rem;
+                  .article-card {
+                      background: #f8f9fa;
+                      border: 1px solid #a2a9b1;
+                      border-radius: 6px;
+                      padding: 1.5rem;
+                      transition: box-shadow 0.2s;
+                  }
+                  .article-card:hover {
+                      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                  }
+                  .article-title {
+                      font-size: 1.2rem;
+                      font-weight: 600;
+                      color: #0645ad;
+                      margin-bottom: 0.5rem;
+                      text-decoration: none;
+                  }
+                  .article-title:hover {
+                      text-decoration: underline;
+                  }
+                  .article-type {
+                      background: #eaecf0;
+                      color: #54595d;
+                      padding: 0.25rem 0.5rem;
+                      border-radius: 3px;
+                      font-size: 0.75rem;
+                      text-transform: uppercase;
+                      font-weight: 500;
+                      display: inline-block;
+                      margin-bottom: 0.75rem;
+                  }
+                  .article-issues {
+                      font-size: 0.875rem;
+                      color: #d33;
+                      margin-top: 0.5rem;
+                  }
+                  .back-link {
+                      color: #0645ad;
+                      text-decoration: none;
+                      margin-bottom: 2rem;
+                      display: inline-block;
+                  }
+                  .back-link:hover {
+                      text-decoration: underline;
                   }
               </style>
           </head>
           <body>
+              <a href="index.html" class="back-link">← Back to Research Home</a>
+              
               <div class="header">
-                  <h1>Reader Discovery Research</h1>
+                  <h1>Test Articles</h1>
+                  <p>Wikipedia-style articles for reader discovery testing</p>
               </div>
 
-              <div class="article-list">
-                  <h2>Article List</h2>
-                  <p>Test articles will be listed here.</p>
-              </div>
-
-              <div class="status">
-                  <p>To be updated</p>
+              <div class="article-grid">
+                  <div class="article-card">
+                      <div class="article-type">Stub Article</div>
+                      <a href="index.html" class="article-title">Sample Topic</a>
+                      <p>Minimal content article for testing knowledge gap identification.</p>
+                      <div class="article-issues">• Missing sections • No infobox • Limited content</div>
+                  </div>
+                  
+                  <div class="article-card">
+                      <div class="article-type">Missing Images</div>
+                      <a href="index.html" class="article-title">Sample Topic (No Images)</a>
+                      <p>Article with comprehensive text but missing visual elements.</p>
+                      <div class="article-issues">• No images • Missing diagrams • No media files</div>
+                  </div>
+                  
+                  <div class="article-card">
+                      <div class="article-type">No Infobox</div>
+                      <a href="index.html" class="article-title">Sample Topic (Basic)</a>
+                      <p>Well-developed article missing structured information panel.</p>
+                      <div class="article-issues">• No infobox • Missing key facts • Limited structure</div>
+                  </div>
+                  
+                  <div class="article-card">
+                      <div class="article-type">Content Gaps</div>
+                      <a href="index.html" class="article-title">Sample Topic (Incomplete)</a>
+                      <p>Article with obvious missing sections and incomplete information.</p>
+                      <div class="article-issues">• Missing sections • Incomplete background • No references</div>
+                  </div>
               </div>
           </body>
           </html>
           EOF
+          
+          # Update main index.html to link to articles
+          sed -i.bak 's/<p>Test articles will be listed here.<\/p>/<p><a href="articles.html" style="color: #0645ad; text-decoration: none; font-weight: 500;">View Test Articles →<\/a><\/p><p style="margin-top: 1rem; color: #54595d; font-size: 0.875rem;">Wikipedia-style articles with intentional gaps for reader testing<\/p>/' index.html
+          sed -i.bak 's/<title>VE Boilerplate — Wikipedia‑style Visual Editor<\/title>/<title>Reader Discovery Research<\/title>/' index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
