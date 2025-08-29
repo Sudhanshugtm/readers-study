@@ -187,6 +187,22 @@ jobs:
           # Add the script to the page
           cat temp-article-data.js >> ed-gallagher.html
           rm temp-article-data.js
+          
+          # Create additional article pages with simplified approach
+          # Visual Technology
+          cp ve-boilerplate.html visual-technology.html
+          sed -i 's/Sample Topic/Visual technology/g' visual-technology.html
+          sed -i 's/VE Boilerplate — Wikipedia‑style Visual Editor/Visual technology - Wikipedia/' visual-technology.html
+          
+          # Richard James
+          cp ve-boilerplate.html richard-james.html
+          sed -i 's/Sample Topic/Richard D. James (scientist)/g' richard-james.html
+          sed -i 's/VE Boilerplate — Wikipedia‑style Visual Editor/Richard D. James (scientist) - Wikipedia/' richard-james.html
+          
+          # S-VT
+          cp ve-boilerplate.html s-vt.html
+          sed -i 's/Sample Topic/S-VT (Sequential Valve Timing)/g' s-vt.html
+          sed -i 's/VE Boilerplate — Wikipedia‑style Visual Editor/S-VT (Sequential Valve Timing) - Wikipedia/' s-vt.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
