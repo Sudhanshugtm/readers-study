@@ -147,9 +147,16 @@ jobs:
           </html>
           EOF
           
-          # Update main index.html to link to articles
-          sed -i.bak 's/<p>Test articles will be listed here.<\/p>/<p><a href="articles.html" style="color: #0645ad; text-decoration: none; font-weight: 500;">View Test Articles →<\/a><\/p><p style="margin-top: 1rem; color: #54595d; font-size: 0.875rem;">Wikipedia-style articles with intentional gaps for reader testing<\/p>/' index.html
-          sed -i.bak 's/<title>VE Boilerplate — Wikipedia‑style Visual Editor<\/title>/<title>Reader Discovery Research<\/title>/' index.html
+          # Update main index.html to link to articles and change title
+          sed -i 's/<title>VE Boilerplate — Wikipedia‑style Visual Editor<\/title>/<title>Reader Discovery Research<\/title>/' index.html
+          
+          # Add article link after the tagline
+          sed -i '/<p class="tagline">From Wikipedia, the free encyclopedia<\/p>/a \
+          <div style="text-align: center; margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 6px;">\
+            <h3 style="margin: 0 0 1rem; color: #202122;">Research Test Articles</h3>\
+            <p style="margin: 0 0 1rem; color: #54595d;">Wikipedia-style articles with intentional gaps for reader testing</p>\
+            <a href="articles.html" style="color: #0645ad; text-decoration: none; font-weight: 500; font-size: 1.1rem;">View Test Articles →</a>\
+          </div>' index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
