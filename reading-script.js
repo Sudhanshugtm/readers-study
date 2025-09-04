@@ -219,61 +219,55 @@ function wireWhisperSheet() {
   const sheet = document.getElementById('whisperSheet');
   const backdrop = document.getElementById('whisperSheetBackdrop');
   const closeBtn = document.getElementById('whisperSheetClose');
-  const chipGroup = document.getElementById('whisperChipGroup');
+  // Options: checkboxes
+  const optMoreDetails = document.getElementById('optMoreDetails');
+  const optMoreImages = document.getElementById('optMoreImages');
   const note = document.getElementById('whisperNoteInput');
   const charCount = document.getElementById('whisperCharCount');
   const submit = document.getElementById('whisperSubmit');
   if (!sheet || !backdrop) return;
 
-  // Populate chips (single-select): primary visible, secondary hidden until expanded
-  chipGroup.innerHTML = '';
-  function addChip(label, hidden=false) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'whisper-chip';
-    if (hidden) b.style.display = 'none';
-    b.setAttribute('role', 'button');
-    b.setAttribute('aria-pressed', 'false');
-    b.textContent = label;
-    b.addEventListener('click', () => {
-      document.querySelectorAll('#whisperChipGroup .whisper-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
-      whisperState.chips.clear();
-      b.setAttribute('aria-pressed', 'true');
-      whisperState.chips.add(label);
-      updateWhisperSubmitState();
-      // Auto-reveal note area once a choice is made
-      revealNote();
-    });
-    chipGroup.appendChild(b);
-  }
-  PRIMARY_CHIPS.forEach(label => addChip(label, false));
-  SECONDARY_CHIPS.forEach(label => addChip(label, true));
-
-  const moreBtn = document.getElementById('whisperMoreOptions');
-  if (moreBtn) {
-    moreBtn.onclick = () => {
-      const hiddenChip = chipGroup.querySelector('.whisper-chip[style*="display: none"]');
-      if (hiddenChip) {
-        chipGroup.querySelectorAll('.whisper-chip').forEach(c => c.style.display = 'inline-flex');
-        moreBtn.textContent = 'Fewer options';
-        moreBtn.setAttribute('aria-expanded', 'true');
-      } else {
-        const chips = chipGroup.querySelectorAll('.whisper-chip');
-        chips.forEach((c, idx) => { if (idx >= PRIMARY_CHIPS.length) c.style.display = 'none'; });
-        moreBtn.textContent = 'More options';
-        moreBtn.setAttribute('aria-expanded', 'false');
-      }
-    };
-  }
-
-  // Sentence starters removed to reduce cognitive load
-
-  // Reveal note when a chip is selected
   const noteBlock = document.getElementById('whisperNoteBlock');
-  function revealNote() {
-    if (noteBlock && noteBlock.style.display === 'none') {
-      noteBlock.style.display = 'block';
-      note.focus();
+  function updateHelper() {
+    const helperEl = document.querySelector('.whisper-helper');
+    if (!helperEl) return;
+    if (optMoreDetails && optMoreDetails.checked && optMoreImages && optMoreImages.checked) {
+      helperEl.textContent = 'Okay — we\'ll tell editors: add more details and pictures here. You can add a note (optional).';
+    } else if (optMoreDetails && optMoreDetails.checked) {
+      helperEl.textContent = 'Okay — we\'ll tell editors: add more details to this section. You can add a note (optional).';
+    } else if (optMoreImages && optMoreImages.checked) {
+      helperEl.textContent = 'Okay — we\'ll tell editors: add pictures to this section. You can add a note (optional).';
+    } else {
+      helperEl.textContent = 'Pick what would help most. You can add a note.';
+    }
+  }
+  function updateOptionsState() {
+    whisperState.chips.clear();
+    if (optMoreDetails && optMoreDetails.checked) whisperState.chips.add('more_details');
+    if (optMoreImages && optMoreImages.checked) whisperState.chips.add('more_images');
+    updateHelper();
+    updateWhisperSubmitState();
+  }
+  if (optMoreDetails) optMoreDetails.addEventListener('change', updateOptionsState);
+  if (optMoreImages) optMoreImages.addEventListener('change', updateOptionsState);
+
+  // Conversational helper line
+  function nicePhrase(label) {
+    switch (label) {
+      case 'Add example': return 'add an example';
+      case 'Define term': return 'define this term';
+      case 'Update info': return 'update this information';
+      case 'Add picture/diagram': return 'add a picture or diagram';
+      case 'Compare with…': return 'add a comparison';
+      case 'Simplify wording': return 'simplify the wording';
+      case 'Local context': return 'add local context';
+      default: return label.toLowerCase();
+    }
+  }
+  function setHelperFor(label) {
+    const helperEl = document.querySelector('.whisper-helper');
+    if (helperEl) {
+      helperEl.textContent = 'Okay — we\'ll ask editors to ' + nicePhrase(label) + '. Anything to add? (optional)';
     }
   }
 
@@ -304,7 +298,7 @@ function wireWhisperSheet() {
 
 function updateWhisperSubmitState() {
   const submit = document.getElementById('whisperSubmit');
-  const hasContent = whisperState.chips.size > 0 || (whisperState.note && whisperState.note.trim().length > 0);
+  const hasContent = (whisperState.chips && whisperState.chips.size > 0) || (whisperState.note && whisperState.note.trim().length > 0);
   submit.disabled = !hasContent;
   if (hasContent) submit.classList.add('enabled'); else submit.classList.remove('enabled');
 }
@@ -337,26 +331,20 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
     }
   }
 
-  // Reset chips
-  document.querySelectorAll('.whisper-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+  // Reset options (checkboxes)
+  const optMoreDetails = document.getElementById('optMoreDetails');
+  const optMoreImages = document.getElementById('optMoreImages');
+  if (optMoreDetails) optMoreDetails.checked = false;
+  if (optMoreImages) optMoreImages.checked = false;
   // Reset note
   note.value = '';
   charCount.textContent = '0/140';
   // Talk link removed, nothing to update
 
-  // Collapse note area initially; will reveal when a chip is selected
-  const noteBlock = document.getElementById('whisperNoteBlock');
-  if (noteBlock) {
-    noteBlock.style.display = 'none';
-  }
-  const moreBtn = document.getElementById('whisperMoreOptions');
-  const chipGroup = document.getElementById('whisperChipGroup');
-  if (moreBtn && chipGroup) {
-    const chips = chipGroup.querySelectorAll('.whisper-chip');
-    chips.forEach((c, idx) => { if (idx >= (typeof PRIMARY_CHIPS !== 'undefined' ? PRIMARY_CHIPS.length : 3)) c.style.display = 'none'; else c.style.display = 'inline-flex'; });
-    moreBtn.textContent = 'More options';
-    moreBtn.setAttribute('aria-expanded', 'false');
-  }
+  // Note area is always visible; reset helper and button state
+  const helperEl = document.querySelector('.whisper-helper');
+  if (helperEl) helperEl.textContent = 'Pick what would help most. You can add a note.';
+  updateWhisperSubmitState();
 
   updateWhisperSubmitState();
 

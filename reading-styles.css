@@ -1351,11 +1351,7 @@ body {
   margin: 4px 0 12px 0;
 }
 
-.whisper-helper {
-  color: var(--subtle);
-  font-size: 13px;
-  margin: 6px 0 10px 0;
-}
+.whisper-helper { color: var(--subtle); font-size: 13px; margin: 6px 0 10px 0; }
 
 .whisper-quote {
   font-size: 12px;
@@ -1396,15 +1392,8 @@ body {
   border-color: var(--progressive);
 }
 
-.whisper-more {
-  background: transparent;
-  border: none;
-  color: var(--progressive);
-  cursor: pointer;
-  padding: 8px 0;
-  font: inherit;
-  text-align: left;
-}
+.whisper-more { background: transparent; border: none; color: var(--subtle); cursor: pointer; padding: 8px 0; font: inherit; text-align: left; }
+.whisper-more:hover { text-decoration: underline; }
 
 .whisper-note { margin-top: 12px; }
 .whisper-note__label { font-size: 13px; color: var(--subtle); display:block; margin-bottom: 6px; }
@@ -1424,12 +1413,8 @@ body {
 }
 .whisper-note__meta { text-align: right; font-size: 12px; color: var(--subtle); margin-top: 4px; }
 
-.whisper-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
+.whisper-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 12px; }
+.whisper-actions__left { color: var(--subtle); font-size: 13px; }
 
 /* Talk link removed for now */
 
@@ -1473,3 +1458,6 @@ body {
   }
   .whisper-sheet__title { font-size: 16px; }
 }
+.whisper-options { display:flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.whisper-option { font-size: 14px; color: var(--text); display:flex; align-items: flex-start; gap: 8px; }
+.whisper-option input[type="checkbox"] { width: 16px; height: 16px; margin-top: 2px; }
