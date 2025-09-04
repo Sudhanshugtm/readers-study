@@ -231,45 +231,19 @@ function wireWhisperSheet() {
   function updateHelper() {
     const helperEl = document.querySelector('.whisper-helper');
     if (!helperEl) return;
-    if (optMoreDetails && optMoreDetails.checked && optMoreImages && optMoreImages.checked) {
-      helperEl.textContent = 'Okay — we\'ll tell editors: add more details and pictures here. You can add a note (optional).';
-    } else if (optMoreDetails && optMoreDetails.checked) {
-      helperEl.textContent = 'Okay — we\'ll tell editors: add more details to this section. You can add a note (optional).';
-    } else if (optMoreImages && optMoreImages.checked) {
-      helperEl.textContent = 'Okay — we\'ll tell editors: add pictures to this section. You can add a note (optional).';
-    } else {
-      helperEl.textContent = 'Pick what would help most. You can add a note.';
-    }
+    // Keep helper fixed and neutral
+    helperEl.textContent = 'Pick what would help most. You can add a note.';
   }
   function updateOptionsState() {
     whisperState.chips.clear();
     if (optMoreDetails && optMoreDetails.checked) whisperState.chips.add('more_details');
     if (optMoreImages && optMoreImages.checked) whisperState.chips.add('more_images');
-    updateHelper();
     updateWhisperSubmitState();
   }
   if (optMoreDetails) optMoreDetails.addEventListener('change', updateOptionsState);
   if (optMoreImages) optMoreImages.addEventListener('change', updateOptionsState);
 
-  // Conversational helper line
-  function nicePhrase(label) {
-    switch (label) {
-      case 'Add example': return 'add an example';
-      case 'Define term': return 'define this term';
-      case 'Update info': return 'update this information';
-      case 'Add picture/diagram': return 'add a picture or diagram';
-      case 'Compare with…': return 'add a comparison';
-      case 'Simplify wording': return 'simplify the wording';
-      case 'Local context': return 'add local context';
-      default: return label.toLowerCase();
-    }
-  }
-  function setHelperFor(label) {
-    const helperEl = document.querySelector('.whisper-helper');
-    if (helperEl) {
-      helperEl.textContent = 'Okay — we\'ll ask editors to ' + nicePhrase(label) + '. Anything to add? (optional)';
-    }
-  }
+  // Removed directive helper variants; helper stays neutral
 
   // Note input
   note.addEventListener('input', () => {
@@ -290,7 +264,6 @@ function wireWhisperSheet() {
     recordWhisperSignal();
     closeSheet();
     showWhisperToast('Signal sent to editors. Thanks!');
-    revealSectionBadge(whisperState.sectionId);
   });
 
   // Talk link removed for now
