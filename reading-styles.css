@@ -1351,6 +1351,22 @@ body {
   margin: 4px 0 12px 0;
 }
 
+.whisper-helper {
+  color: var(--subtle);
+  font-size: 13px;
+  margin: 6px 0 10px 0;
+}
+
+.whisper-quote {
+  font-size: 12px;
+  color: var(--subtle);
+  background: var(--background-color-neutral-subtle, #f8f9fa);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-top: 6px;
+}
+
 .whisper-sheet__close {
   border: 1px solid var(--border-soft);
   border-radius: 6px;
@@ -1380,6 +1396,16 @@ body {
   border-color: var(--progressive);
 }
 
+.whisper-more {
+  background: transparent;
+  border: none;
+  color: var(--progressive);
+  cursor: pointer;
+  padding: 8px 0;
+  font: inherit;
+  text-align: left;
+}
+
 .whisper-note { margin-top: 12px; }
 .whisper-note__label { font-size: 13px; color: var(--subtle); display:block; margin-bottom: 6px; }
 .whisper-note__input {
@@ -1401,12 +1427,11 @@ body {
 .whisper-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-top: 12px;
 }
 
-.whisper-talklink { font-size: 12px; color: var(--progressive); text-decoration: none; }
-.whisper-talklink:hover { text-decoration: underline; }
+/* Talk link removed for now */
 
 .whisper-submit {
   background: #c8ccd1;
@@ -1421,6 +1446,14 @@ body {
   padding: 10px 14px; border-radius: 999px; box-shadow: var(--shadow-2);
 }
 
+/* Tweak widths and overflow to feel aligned */
+.whisper-sheet, .whisper-note__input, .whisper-chips, .whisper-actions {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.whisper-note__input { box-sizing: border-box; }
+.whisper-starters { display: none !important; }
+
 @media (max-width: 768px) {
   .whisper-dot { right: 0; }
 }
@@ -1431,11 +1464,12 @@ body {
   .whisper-sheet {
     position: fixed;
     width: 420px;
-    max-width: 92vw;
+    max-width: calc(100vw - 32px);
     border: 1px solid var(--border-soft);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0,0,0,.18);
     padding: 14px 16px 16px 16px;
+    z-index: 2000;
   }
   .whisper-sheet__title { font-size: 16px; }
 }

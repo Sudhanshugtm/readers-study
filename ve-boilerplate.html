@@ -61,23 +61,23 @@
         <button class="whisper-sheet__close" id="whisperSheetClose" aria-label="Close">×</button>
       </div>
       <div class="whisper-sheet__sub" id="whisperSheetSub">On this section</div>
+      <div id="whisperQuote" class="whisper-quote" style="display:none;"></div>
+      <div class="whisper-helper">Pick what would help most. You can add a note.</div>
 
       <div class="whisper-chips" id="whisperChipGroup" role="group" aria-label="Pick what is missing">
         <!-- Chips injected by script -->
       </div>
 
-      <div class="whisper-note">
-        <label for="whisperNoteInput" class="whisper-note__label">Optional note (≤140)</label>
-        <textarea id="whisperNoteInput" class="whisper-note__input" maxlength="140" rows="3" placeholder="Add a short note…"></textarea>
-        <div class="whisper-starters" id="whisperStarters">
-          <!-- Starters injected by script -->
-        </div>
+      <button id="whisperMoreOptions" class="whisper-more" type="button" aria-expanded="false">More options</button>
+
+      <div class="whisper-note" id="whisperNoteBlock" style="display:none;">
+        <label for="whisperNoteInput" class="whisper-note__label">Note (≤140)</label>
+        <textarea id="whisperNoteInput" class="whisper-note__input" maxlength="140" rows="3" placeholder="Type a short note…"></textarea>
         <div class="whisper-note__meta"><span id="whisperCharCount">0/140</span></div>
       </div>
 
       <div class="whisper-actions">
-        <a id="whisperTalkLink" class="whisper-talklink" href="#" target="_blank" rel="noopener">Open a Talk topic</a>
-        <button id="whisperSubmit" class="whisper-submit" disabled>Submit</button>
+        <button id="whisperSubmit" class="whisper-submit" disabled>Send</button>
       </div>
     </div>
 

@@ -207,15 +207,11 @@ function nearestSectionFromSelection() {
   return { id: closest.id, title: closest.textContent.trim() };
 }
 
-const WHISPER_CHIPS = [
-  'Examples', 'Diagram/image', 'Lay summary', 'Define terms', 'Compare with…', 'Recent research', 'Local context'
-];
+// Show more relevant chips by default; keep a couple behind More options
+const PRIMARY_CHIPS = [ 'Add example', 'Define term', 'Update info', 'Add picture/diagram', 'Compare with…' ];
+const SECONDARY_CHIPS = [ 'Simplify wording', 'Local context' ];
 
-const WHISPER_STARTERS = [
-  'Please add an example of…',
-  'A simple definition of…',
-  'How does this compare with…'
-];
+// Starters removed
 
 let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), note: '', quote: '' };
 
@@ -224,52 +220,62 @@ function wireWhisperSheet() {
   const backdrop = document.getElementById('whisperSheetBackdrop');
   const closeBtn = document.getElementById('whisperSheetClose');
   const chipGroup = document.getElementById('whisperChipGroup');
-  const starters = document.getElementById('whisperStarters');
   const note = document.getElementById('whisperNoteInput');
   const charCount = document.getElementById('whisperCharCount');
   const submit = document.getElementById('whisperSubmit');
-  const talkLink = document.getElementById('whisperTalkLink');
   if (!sheet || !backdrop) return;
 
-  // Populate chips
+  // Populate chips (single-select): primary visible, secondary hidden until expanded
   chipGroup.innerHTML = '';
-  WHISPER_CHIPS.forEach(label => {
+  function addChip(label, hidden=false) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'whisper-chip';
+    if (hidden) b.style.display = 'none';
     b.setAttribute('role', 'button');
     b.setAttribute('aria-pressed', 'false');
     b.textContent = label;
     b.addEventListener('click', () => {
-      if (whisperState.chips.has(label)) {
-        whisperState.chips.delete(label);
-        b.setAttribute('aria-pressed', 'false');
-      } else {
-        whisperState.chips.add(label);
-        b.setAttribute('aria-pressed', 'true');
-      }
+      document.querySelectorAll('#whisperChipGroup .whisper-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+      whisperState.chips.clear();
+      b.setAttribute('aria-pressed', 'true');
+      whisperState.chips.add(label);
       updateWhisperSubmitState();
+      // Auto-reveal note area once a choice is made
+      revealNote();
     });
     chipGroup.appendChild(b);
-  });
+  }
+  PRIMARY_CHIPS.forEach(label => addChip(label, false));
+  SECONDARY_CHIPS.forEach(label => addChip(label, true));
 
-  // Starters
-  starters.innerHTML = '';
-  WHISPER_STARTERS.forEach(s => {
-    const span = document.createElement('button');
-    span.type = 'button';
-    span.className = 'whisper-starter';
-    span.textContent = s;
-    span.addEventListener('click', () => {
-      if (!note.value) note.value = s + ' ';
-      else if (!note.value.includes(s)) note.value = (note.value + ' ' + s + ' ').trim() + ' ';
-      whisperState.note = note.value;
-      charCount.textContent = note.value.length + '/140';
-      updateWhisperSubmitState();
+  const moreBtn = document.getElementById('whisperMoreOptions');
+  if (moreBtn) {
+    moreBtn.onclick = () => {
+      const hiddenChip = chipGroup.querySelector('.whisper-chip[style*="display: none"]');
+      if (hiddenChip) {
+        chipGroup.querySelectorAll('.whisper-chip').forEach(c => c.style.display = 'inline-flex');
+        moreBtn.textContent = 'Fewer options';
+        moreBtn.setAttribute('aria-expanded', 'true');
+      } else {
+        const chips = chipGroup.querySelectorAll('.whisper-chip');
+        chips.forEach((c, idx) => { if (idx >= PRIMARY_CHIPS.length) c.style.display = 'none'; });
+        moreBtn.textContent = 'More options';
+        moreBtn.setAttribute('aria-expanded', 'false');
+      }
+    };
+  }
+
+  // Sentence starters removed to reduce cognitive load
+
+  // Reveal note when a chip is selected
+  const noteBlock = document.getElementById('whisperNoteBlock');
+  function revealNote() {
+    if (noteBlock && noteBlock.style.display === 'none') {
+      noteBlock.style.display = 'block';
       note.focus();
-    });
-    starters.appendChild(span);
-  });
+    }
+  }
 
   // Note input
   note.addEventListener('input', () => {
@@ -293,19 +299,7 @@ function wireWhisperSheet() {
     revealSectionBadge(whisperState.sectionId);
   });
 
-  // Talk link
-  talkLink.addEventListener('click', (e) => {
-    const payload = currentWhisperPayload();
-    const title = (typeof articleData !== 'undefined' ? articleData.title : (defaultArticle.title || 'Article'));
-    const text = encodeURIComponent(
-      'Section: #' + payload.sectionId + '\n' +
-      'Chips: ' + payload.chips.join(', ') + '\n' +
-      (payload.quote ? ('Quote: "' + payload.quote + '"\n') : '') +
-      (payload.note ? ('Note: ' + payload.note + '\n') : '')
-    );
-    const url = 'https://en.wikipedia.org/w/index.php?action=edit&section=new&title=Talk:' + encodeURIComponent(title) + '&text=' + text;
-    e.currentTarget.href = url;
-  });
+  // Talk link removed for now
 }
 
 function updateWhisperSubmitState() {
@@ -323,18 +317,46 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
   const subEl = document.getElementById('whisperSheetSub');
   const note = document.getElementById('whisperNoteInput');
   const charCount = document.getElementById('whisperCharCount');
-  const talkLink = document.getElementById('whisperTalkLink');
 
-  titleEl.textContent = 'Ask for more on:';
-  subEl.textContent = sectionTitle + '  #' + sectionId;
+  // Reader-friendly single line
+  titleEl.textContent = 'Missing something in ' + sectionTitle + '?';
+  // Keep anchor id for logic but hide subtitle in UI on desktop and mobile
+  subEl.textContent = '#' + sectionId;
+  subEl.style.display = 'none';
+
+  // Quote preview
+  const quoteEl = document.getElementById('whisperQuote');
+  if (quoteEl) {
+    if (quote) {
+      const trimmed = quote.length > 160 ? quote.slice(0,157) + '…' : quote;
+      quoteEl.textContent = 'About selected text: "' + trimmed + '"';
+      quoteEl.style.display = 'block';
+    } else {
+      quoteEl.style.display = 'none';
+      quoteEl.textContent = '';
+    }
+  }
 
   // Reset chips
   document.querySelectorAll('.whisper-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
   // Reset note
   note.value = '';
   charCount.textContent = '0/140';
-  // Update talk link placeholder
-  talkLink.href = '#';
+  // Talk link removed, nothing to update
+
+  // Collapse note area initially; will reveal when a chip is selected
+  const noteBlock = document.getElementById('whisperNoteBlock');
+  if (noteBlock) {
+    noteBlock.style.display = 'none';
+  }
+  const moreBtn = document.getElementById('whisperMoreOptions');
+  const chipGroup = document.getElementById('whisperChipGroup');
+  if (moreBtn && chipGroup) {
+    const chips = chipGroup.querySelectorAll('.whisper-chip');
+    chips.forEach((c, idx) => { if (idx >= (typeof PRIMARY_CHIPS !== 'undefined' ? PRIMARY_CHIPS.length : 3)) c.style.display = 'none'; else c.style.display = 'inline-flex'; });
+    moreBtn.textContent = 'More options';
+    moreBtn.setAttribute('aria-expanded', 'false');
+  }
 
   updateWhisperSubmitState();
 
@@ -368,8 +390,16 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
     let left = Math.floor((window.innerWidth - PANEL_W) / 2);
     let top = 80; // fallback
     if (anchorRect) {
-      // Align start with anchor; clamp horizontally
-      left = Math.min(Math.max(MARGIN, Math.floor(anchorRect.left)), window.innerWidth - PANEL_W - MARGIN);
+      // Align to anchor; prefer keeping the panel's right edge near the anchor if near screen edge
+      left = Math.floor(anchorRect.left);
+      const maxLeft = window.innerWidth - PANEL_W - MARGIN;
+      const minLeft = MARGIN;
+      if (left > maxLeft) {
+        // Try aligning the panel's right edge to the anchor's right
+        left = Math.floor(anchorRect.right - PANEL_W);
+      }
+      // Final clamp within viewport
+      left = Math.max(minLeft, Math.min(left, maxLeft));
       // Prefer below anchor; if overflow, flip above if possible
       const belowTop = Math.floor(anchorRect.bottom + SPACING);
       const spaceBelow = window.innerHeight - belowTop - MARGIN;
