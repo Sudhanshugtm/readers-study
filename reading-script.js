@@ -25,6 +25,7 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 document.addEventListener('DOMContentLoaded', function() {
   loadArticleContent();
   setupEventListeners();
+  initWhisperChips();
 });
 
 function loadArticleContent() {
@@ -76,6 +77,392 @@ function convertMediaWikiToHTML(mediaWikiText) {
   html += '</div></section>';
   
   return html;
+}
+
+// Whisper Chips: utilities
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function nowTs() { return Date.now(); }
+function storageKey(pageId) { return 'rs-whisper-' + pageId; }
+function loadQueue(pageId) {
+  try { return JSON.parse(localStorage.getItem(storageKey(pageId)) || '[]'); } catch { return []; }
+}
+function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.stringify(arr)); }
+
+// Whisper Chips: main init
+function initWhisperChips() {
+  // Ensure headings have ids and attach dots/badges
+  const article = document.getElementById('articleBody');
+  if (!article) return;
+
+  const headings = article.querySelectorAll('.article-section__title, .article-subsection__title');
+  headings.forEach(h => {
+    const text = h.textContent.trim();
+    const id = h.id || slugify(text);
+    h.id = id;
+    h.setAttribute('tabindex', '-1');
+    h.setAttribute('data-section-id', id);
+
+    // Add whisper dot button
+    const dot = document.createElement('button');
+    dot.className = 'whisper-dot';
+    dot.type = 'button';
+    dot.title = 'Ask for more on this section';
+    dot.setAttribute('aria-label', 'Ask for more on ' + text);
+    dot.textContent = '…';
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = dot.getBoundingClientRect();
+      openWhisperSheet({ sectionId: id, sectionTitle: text, anchorRect: rect });
+    });
+    h.appendChild(dot);
+
+    // Badge container (hidden until demand)
+    const badge = document.createElement('div');
+    badge.className = 'whisper-badge';
+    badge.style.display = 'none';
+    badge.innerHTML = '<span class="sparkle">✨</span><span>More requested</span>';
+    h.insertAdjacentElement('afterend', badge);
+  });
+
+  // Observe headings to show/hide dots only when in view
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const h = entry.target;
+      const dot = h.querySelector('.whisper-dot');
+      if (!dot) return;
+      dot.style.display = entry.isIntersecting ? 'inline-flex' : 'none';
+    });
+  }, { rootMargin: '0px 0px -70% 0px', threshold: 0.0 });
+  headings.forEach(h => io.observe(h));
+
+  // Selection popover: show Need more? when user selects text inside article
+  setupSelectionPopover();
+
+  // Sheet wiring
+  wireWhisperSheet();
+}
+
+function setupSelectionPopover() {
+  const pop = document.getElementById('whisperSelectionPopover');
+  const btn = document.getElementById('whisperNeedMoreBtn');
+  if (!pop || !btn) return;
+
+  document.addEventListener('selectionchange', () => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) { pop.style.display = 'none'; return; }
+    const range = sel.rangeCount ? sel.getRangeAt(0) : null;
+    if (!range) { pop.style.display = 'none'; return; }
+    // Ensure selection is within article
+    const container = range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+    if (!document.getElementById('articleBody').contains(container)) { pop.style.display = 'none'; return; }
+    const rect = range.getBoundingClientRect();
+    if (!rect || (rect.x === 0 && rect.y === 0 && rect.width === 0 && rect.height === 0)) { pop.style.display = 'none'; return; }
+    // Position popover above selection
+    const top = window.scrollY + rect.top - 36;
+    const left = window.scrollX + rect.left + rect.width/2 - 50;
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+    pop.style.display = 'block';
+  });
+
+  btn.addEventListener('click', () => {
+    const sel = window.getSelection();
+    let quote = '';
+    if (sel && !sel.isCollapsed) quote = sel.toString().trim();
+    const range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+    const rect = range ? range.getBoundingClientRect() : null;
+    pop.style.display = 'none';
+    // Find nearest section heading
+    const section = nearestSectionFromSelection();
+    openWhisperSheet({ sectionId: section.id, sectionTitle: section.title, quote, anchorRect: rect });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!pop.contains(e.target)) pop.style.display = 'none';
+  });
+}
+
+function nearestSectionFromSelection() {
+  const headings = Array.from(document.querySelectorAll('#articleBody .article-section__title, #articleBody .article-subsection__title'));
+  const sel = window.getSelection();
+  const node = sel && sel.anchorNode ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
+  let closest = headings[0] || null;
+  if (node) {
+    let el = node;
+    while (el && el !== document.body) {
+      const h = el.closest('.article-section__title, .article-subsection__title');
+      if (h) { closest = h; break; }
+      el = el.parentElement;
+    }
+  }
+  if (!closest) return { id: 'article', title: 'Article' };
+  return { id: closest.id, title: closest.textContent.trim() };
+}
+
+const WHISPER_CHIPS = [
+  'Examples', 'Diagram/image', 'Lay summary', 'Define terms', 'Compare with…', 'Recent research', 'Local context'
+];
+
+const WHISPER_STARTERS = [
+  'Please add an example of…',
+  'A simple definition of…',
+  'How does this compare with…'
+];
+
+let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), note: '', quote: '' };
+
+function wireWhisperSheet() {
+  const sheet = document.getElementById('whisperSheet');
+  const backdrop = document.getElementById('whisperSheetBackdrop');
+  const closeBtn = document.getElementById('whisperSheetClose');
+  const chipGroup = document.getElementById('whisperChipGroup');
+  const starters = document.getElementById('whisperStarters');
+  const note = document.getElementById('whisperNoteInput');
+  const charCount = document.getElementById('whisperCharCount');
+  const submit = document.getElementById('whisperSubmit');
+  const talkLink = document.getElementById('whisperTalkLink');
+  if (!sheet || !backdrop) return;
+
+  // Populate chips
+  chipGroup.innerHTML = '';
+  WHISPER_CHIPS.forEach(label => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'whisper-chip';
+    b.setAttribute('role', 'button');
+    b.setAttribute('aria-pressed', 'false');
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      if (whisperState.chips.has(label)) {
+        whisperState.chips.delete(label);
+        b.setAttribute('aria-pressed', 'false');
+      } else {
+        whisperState.chips.add(label);
+        b.setAttribute('aria-pressed', 'true');
+      }
+      updateWhisperSubmitState();
+    });
+    chipGroup.appendChild(b);
+  });
+
+  // Starters
+  starters.innerHTML = '';
+  WHISPER_STARTERS.forEach(s => {
+    const span = document.createElement('button');
+    span.type = 'button';
+    span.className = 'whisper-starter';
+    span.textContent = s;
+    span.addEventListener('click', () => {
+      if (!note.value) note.value = s + ' ';
+      else if (!note.value.includes(s)) note.value = (note.value + ' ' + s + ' ').trim() + ' ';
+      whisperState.note = note.value;
+      charCount.textContent = note.value.length + '/140';
+      updateWhisperSubmitState();
+      note.focus();
+    });
+    starters.appendChild(span);
+  });
+
+  // Note input
+  note.addEventListener('input', () => {
+    whisperState.note = note.value;
+    charCount.textContent = note.value.length + '/140';
+    updateWhisperSubmitState();
+  });
+
+  // Close actions
+  function closeSheet() { sheet.style.display = 'none'; backdrop.style.display = 'none'; }
+  closeBtn.addEventListener('click', closeSheet);
+  backdrop.addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+
+  // Submit
+  submit.addEventListener('click', () => {
+    if (submit.disabled) return;
+    recordWhisperSignal();
+    closeSheet();
+    showWhisperToast('Signal sent to editors. Thanks!');
+    revealSectionBadge(whisperState.sectionId);
+  });
+
+  // Talk link
+  talkLink.addEventListener('click', (e) => {
+    const payload = currentWhisperPayload();
+    const title = (typeof articleData !== 'undefined' ? articleData.title : (defaultArticle.title || 'Article'));
+    const text = encodeURIComponent(
+      'Section: #' + payload.sectionId + '\n' +
+      'Chips: ' + payload.chips.join(', ') + '\n' +
+      (payload.quote ? ('Quote: "' + payload.quote + '"\n') : '') +
+      (payload.note ? ('Note: ' + payload.note + '\n') : '')
+    );
+    const url = 'https://en.wikipedia.org/w/index.php?action=edit&section=new&title=Talk:' + encodeURIComponent(title) + '&text=' + text;
+    e.currentTarget.href = url;
+  });
+}
+
+function updateWhisperSubmitState() {
+  const submit = document.getElementById('whisperSubmit');
+  const hasContent = whisperState.chips.size > 0 || (whisperState.note && whisperState.note.trim().length > 0);
+  submit.disabled = !hasContent;
+  if (hasContent) submit.classList.add('enabled'); else submit.classList.remove('enabled');
+}
+
+function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = null }) {
+  whisperState = { sectionId, sectionTitle, chips: new Set(), note: '', quote };
+  const sheet = document.getElementById('whisperSheet');
+  const backdrop = document.getElementById('whisperSheetBackdrop');
+  const titleEl = document.getElementById('whisperSheetTitle');
+  const subEl = document.getElementById('whisperSheetSub');
+  const note = document.getElementById('whisperNoteInput');
+  const charCount = document.getElementById('whisperCharCount');
+  const talkLink = document.getElementById('whisperTalkLink');
+
+  titleEl.textContent = 'Ask for more on:';
+  subEl.textContent = sectionTitle + '  #' + sectionId;
+
+  // Reset chips
+  document.querySelectorAll('.whisper-chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+  // Reset note
+  note.value = '';
+  charCount.textContent = '0/140';
+  // Update talk link placeholder
+  talkLink.href = '#';
+
+  updateWhisperSubmitState();
+
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (isMobile) {
+    // Bottom sheet mode
+    sheet.style.left = '0';
+    sheet.style.right = '0';
+    sheet.style.transform = 'none';
+    backdrop.style.display = 'block';
+    sheet.style.display = 'block';
+  } else {
+    // Anchored panel near heading/selection
+    backdrop.style.display = 'none';
+    sheet.style.display = 'block';
+    sheet.style.transform = 'none';
+    sheet.style.position = 'fixed';
+    sheet.style.right = 'auto';
+    sheet.style.bottom = 'auto';
+
+    const MARGIN = 16;
+    const SPACING = 8;
+    const PANEL_W = Math.min(420, Math.floor(window.innerWidth * 0.92));
+    sheet.style.width = PANEL_W + 'px';
+    // Temporarily hide to measure height without flicker
+    const prevVis = sheet.style.visibility;
+    sheet.style.visibility = 'hidden';
+    // Ensure it has a width before measuring
+    let measuredH = sheet.offsetHeight || 0;
+
+    let left = Math.floor((window.innerWidth - PANEL_W) / 2);
+    let top = 80; // fallback
+    if (anchorRect) {
+      // Align start with anchor; clamp horizontally
+      left = Math.min(Math.max(MARGIN, Math.floor(anchorRect.left)), window.innerWidth - PANEL_W - MARGIN);
+      // Prefer below anchor; if overflow, flip above if possible
+      const belowTop = Math.floor(anchorRect.bottom + SPACING);
+      const spaceBelow = window.innerHeight - belowTop - MARGIN;
+      if (measuredH && spaceBelow < measuredH && (anchorRect.top - SPACING - measuredH) > MARGIN) {
+        // Place above
+        top = Math.max(MARGIN, Math.floor(anchorRect.top - SPACING - measuredH));
+      } else {
+        // Place below and clamp to viewport bottom
+        top = Math.min(belowTop, window.innerHeight - MARGIN - (measuredH || 0));
+        if (top < MARGIN) top = MARGIN;
+      }
+    }
+    // Apply final position
+    sheet.style.top = top + 'px';
+    sheet.style.left = left + 'px';
+    // Restore visibility
+    sheet.style.visibility = prevVis || 'visible';
+
+    // Click-away close for non-modal panel
+    const clickAway = (ev) => {
+      if (!sheet.contains(ev.target)) {
+        sheet.style.display = 'none';
+        document.removeEventListener('click', clickAway, true);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', clickAway, true), 0);
+  }
+
+  // focus for a11y
+  sheet.focus();
+}
+
+function currentWhisperPayload() {
+  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+  return {
+    pageId: page.id || 'page',
+    pageTitle: page.title,
+    sectionId: whisperState.sectionId,
+    sectionTitle: whisperState.sectionTitle,
+    chips: Array.from(whisperState.chips),
+    note: (whisperState.note || '').trim(),
+    quote: (whisperState.quote || '').trim(),
+    ts: nowTs(),
+    anon: true,
+    device: { w: window.innerWidth, h: window.innerHeight }
+  };
+}
+
+function isDuplicateRecent(queue, payload) {
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  const norm = (payload.note || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const chipsKey = payload.chips.slice().sort().join('|');
+  return queue.some(item => (
+    item.sectionId === payload.sectionId &&
+    (item.ts && (payload.ts - item.ts) < ONE_DAY) &&
+    ((item.chips || []).slice().sort().join('|') === chipsKey) &&
+    ((item.note || '').toLowerCase().replace(/\s+/g, ' ').trim() === norm)
+  ));
+}
+
+function recordWhisperSignal() {
+  const payload = currentWhisperPayload();
+  const queue = loadQueue(payload.pageId);
+  // Rate limit per device+section: max 1 per minute
+  const lastSection = queue.filter(q => q.sectionId === payload.sectionId).sort((a,b) => b.ts - a.ts)[0];
+  if (lastSection && (payload.ts - lastSection.ts) < 60 * 1000) {
+    showWhisperToast('Thanks — recently received for this section');
+    return;
+  }
+  if (isDuplicateRecent(queue, payload)) {
+    showWhisperToast('Already sent recently');
+    return;
+  }
+  payload.status = 'queued'; // concept: offline queue
+  queue.push(payload);
+  saveQueue(payload.pageId, queue);
+}
+
+function revealSectionBadge(sectionId) {
+  const h = document.getElementById(sectionId);
+  if (!h) return;
+  const badge = h.nextElementSibling;
+  if (badge && badge.classList.contains('whisper-badge')) {
+    badge.style.display = 'inline-flex';
+  }
+}
+
+function showWhisperToast(text) {
+  const toast = document.getElementById('whisperToast');
+  if (!toast) return;
+  toast.textContent = text;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 2000);
 }
 
 function convertArticleToQuillFormat(article) {

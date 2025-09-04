@@ -47,6 +47,42 @@
   <main class="content-wrap" id="readingContent">
     <p class="tagline">From Wikipedia, the free encyclopedia</p>
     <article class="article-content" id="articleBody"></article>
+
+    <!-- Whisper Chips UI: selection popover (hidden by default) -->
+    <div id="whisperSelectionPopover" class="whisper-popover" role="dialog" aria-label="Need more options" style="display:none;">
+      <button class="btn-popover" id="whisperNeedMoreBtn">Need more?</button>
+    </div>
+
+    <!-- Whisper Chips UI: bottom sheet (hidden by default) -->
+    <div id="whisperSheetBackdrop" class="whisper-backdrop" style="display:none;"></div>
+    <div id="whisperSheet" class="whisper-sheet" role="dialog" aria-modal="true" aria-labelledby="whisperSheetTitle" style="display:none;">
+      <div class="whisper-sheet__header">
+        <div class="whisper-sheet__title" id="whisperSheetTitle">Ask for more</div>
+        <button class="whisper-sheet__close" id="whisperSheetClose" aria-label="Close">×</button>
+      </div>
+      <div class="whisper-sheet__sub" id="whisperSheetSub">On this section</div>
+
+      <div class="whisper-chips" id="whisperChipGroup" role="group" aria-label="Pick what is missing">
+        <!-- Chips injected by script -->
+      </div>
+
+      <div class="whisper-note">
+        <label for="whisperNoteInput" class="whisper-note__label">Optional note (≤140)</label>
+        <textarea id="whisperNoteInput" class="whisper-note__input" maxlength="140" rows="3" placeholder="Add a short note…"></textarea>
+        <div class="whisper-starters" id="whisperStarters">
+          <!-- Starters injected by script -->
+        </div>
+        <div class="whisper-note__meta"><span id="whisperCharCount">0/140</span></div>
+      </div>
+
+      <div class="whisper-actions">
+        <a id="whisperTalkLink" class="whisper-talklink" href="#" target="_blank" rel="noopener">Open a Talk topic</a>
+        <button id="whisperSubmit" class="whisper-submit" disabled>Submit</button>
+      </div>
+    </div>
+
+    <!-- Whisper Chips UI: toast -->
+    <div id="whisperToast" class="whisper-toast" role="status" aria-live="polite" style="display:none;">Signal sent to editors. Thanks!</div>
   </main>
 
   <!-- Visual Editor Interface (hidden by default) -->
