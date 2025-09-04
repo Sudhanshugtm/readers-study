@@ -263,7 +263,7 @@ function wireWhisperSheet() {
     if (submit.disabled) return;
     recordWhisperSignal();
     closeSheet();
-    showWhisperToast('Signal sent to editors. Thanks!');
+    showWhisperToast('Thanks — your request was recorded.');
   });
 
   // Talk link removed for now
