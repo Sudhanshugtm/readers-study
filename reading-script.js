@@ -143,12 +143,13 @@ function setDesign(design) {
   document.querySelectorAll('.inline-feedback-link').forEach(link => link.remove());
 
   if (design === 'master') {
-    // Master design: feedback panel via help button
+    // Master design: show feedback panel immediately
+    openFeedbackPanel();
   } else if (design === 'modal') {
-    // Whisper modal: selection popover
+    // Whisper modal: enable selection popover
     setupSelectionPopover();
   } else if (design === 'inline') {
-    // Whisper inline: links at section ends
+    // Whisper inline: add links at section ends
     addInlineLinks();
   }
 }
