@@ -166,9 +166,7 @@ function addInlineLinks() {
     link.style.color = 'var(--progressive)';
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      const sectionId = title.id || slugify(title.textContent);
-      title.id = sectionId;
-      openWhisperSheet({ sectionId, sectionTitle: title.textContent });
+      openFeedbackPanel();
     });
     title.parentElement.appendChild(link);
   });
