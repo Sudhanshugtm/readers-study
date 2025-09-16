@@ -11,8 +11,15 @@
 
   <!-- Local styles (minimal) -->
   <link rel="stylesheet" href="reading-styles.css">
-</head>
+  </head>
 <body>
+
+  <!-- Design Comparison Tabs -->
+  <nav class="design-tabs" aria-label="Feedback design variants">
+    <button class="design-tab active" data-design="master">Master Design</button>
+    <button class="design-tab" data-design="modal">Whisper Modal</button>
+    <button class="design-tab" data-design="inline">Whisper Inline</button>
+  </nav>
 
   <!-- Header + Tabs (Reading mode) -->
   <header class="container page-header" role="banner">
@@ -35,10 +42,13 @@
           <span class="action-tab-text">View history</span>
           <span class="action-tab-icon cdx-icon" data-icon="cdxIconHistory"></span>
         </button>
-        <button class="action-tab star">
-          <span class="action-tab-text">⭐</span>
-          <span class="action-tab-icon cdx-icon" data-icon="cdxIconStar"></span>
-        </button>
+         <button class="action-tab star">
+           <span class="action-tab-text">⭐</span>
+           <span class="action-tab-icon cdx-icon" data-icon="cdxIconStar"></span>
+         </button>
+         <button class="action-tab help-improve" id="helpImproveBtn" title="Help improve this article">
+           <span class="action-tab-icon cdx-icon" data-icon="cdxIconFeedback"></span>
+         </button>
       </nav>
     </div>
   </header>
@@ -81,9 +91,24 @@
       </div>
     </div>
 
-    <!-- Whisper Chips UI: toast -->
-    <div id="whisperToast" class="whisper-toast" role="status" aria-live="polite" style="display:none;">Signal sent to editors. Thanks!</div>
-  </main>
+     <!-- Feedback Panel -->
+     <div id="feedbackPanel" class="feedback-panel" style="display:none;">
+       <div class="feedback-panel__header">
+         <h3>Help improve this article</h3>
+         <button class="feedback-panel__close" id="feedbackPanelClose">&times;</button>
+       </div>
+       <div class="feedback-panel__content" id="feedbackPanelContent">
+         <p>Select sections you'd like to provide feedback on:</p>
+         <!-- Sections will be populated here -->
+       </div>
+       <div class="feedback-panel__actions">
+         <button id="feedbackSubmit" class="feedback-submit-btn" disabled>Submit feedback</button>
+       </div>
+     </div>
+
+     <!-- Feedback Toast -->
+     <div id="whisperToast" class="whisper-toast" role="status" aria-live="polite" style="display:none;">Signal sent to editors. Thanks!</div>
+   </main>
 
   <!-- Visual Editor Interface (hidden by default) -->
   <div class="ve-interface" id="veInterface" style="display: none;">

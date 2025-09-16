@@ -24,8 +24,19 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadArticleContent();
-  setupEventListeners();
-  initWhisperChips();
+  initHelpImprove();
+
+  // Design tabs
+  document.querySelectorAll('.design-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.design-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setDesign(btn.dataset.design);
+    });
+  });
+
+  // Initial design
+  setDesign('master');
 });
 
 function loadArticleContent() {
@@ -96,58 +107,71 @@ function loadQueue(pageId) {
 }
 function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.stringify(arr)); }
 
-// Whisper Chips: main init
-function initWhisperChips() {
-  // Ensure headings have ids and attach dots/badges
-  const article = document.getElementById('articleBody');
-  if (!article) return;
-
-  const headings = article.querySelectorAll('.article-section__title, .article-subsection__title');
-  headings.forEach(h => {
-    const text = h.textContent.trim();
-    const id = h.id || slugify(text);
-    h.id = id;
-    h.setAttribute('tabindex', '-1');
-    h.setAttribute('data-section-id', id);
-
-    // Add whisper dot button
-    const dot = document.createElement('button');
-    dot.className = 'whisper-dot';
-    dot.type = 'button';
-    dot.title = 'Ask for more on this section';
-    dot.setAttribute('aria-label', 'Ask for more on ' + text);
-    dot.textContent = '…';
-    dot.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const rect = dot.getBoundingClientRect();
-      openWhisperSheet({ sectionId: id, sectionTitle: text, anchorRect: rect });
+// Help improve: init
+function initHelpImprove() {
+  const helpBtn = document.getElementById('helpImproveBtn');
+  if (helpBtn) {
+    helpBtn.addEventListener('click', () => {
+      openFeedbackPanel();
     });
-    h.appendChild(dot);
+  }
 
-    // Badge container (hidden until demand)
-    const badge = document.createElement('div');
-    badge.className = 'whisper-badge';
-    badge.style.display = 'none';
-    badge.innerHTML = '<span class="sparkle">✨</span><span>More requested</span>';
-    h.insertAdjacentElement('afterend', badge);
+  const closeBtn = document.getElementById('feedbackPanelClose');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      closeFeedbackPanel();
+    });
+  }
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    const panel = document.getElementById('feedbackPanel');
+    if (panel && panel.style.display !== 'none' && !panel.contains(e.target) && !helpBtn.contains(e.target)) {
+      closeFeedbackPanel();
+    }
   });
+}
 
-  // Observe headings to show/hide dots only when in view
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const h = entry.target;
-      const dot = h.querySelector('.whisper-dot');
-      if (!dot) return;
-      dot.style.display = entry.isIntersecting ? 'inline-flex' : 'none';
+function setDesign(design) {
+  // Hide all feedback UIs
+  document.getElementById('feedbackPanel').style.display = 'none';
+  document.getElementById('whisperSheetBackdrop').style.display = 'none';
+  document.getElementById('whisperSheet').style.display = 'none';
+  document.getElementById('whisperSelectionPopover').style.display = 'none';
+
+  // Remove inline links if exist
+  document.querySelectorAll('.inline-feedback-link').forEach(link => link.remove());
+
+  if (design === 'master') {
+    // Master design: feedback panel via help button
+  } else if (design === 'modal') {
+    // Whisper modal: selection popover
+    setupSelectionPopover();
+  } else if (design === 'inline') {
+    // Whisper inline: links at section ends
+    addInlineLinks();
+  }
+}
+
+function addInlineLinks() {
+  const sections = document.querySelectorAll('#articleBody .article-section__title');
+  sections.forEach(title => {
+    const link = document.createElement('a');
+    link.href = '#';
+    link.textContent = 'Help improve this section';
+    link.className = 'inline-feedback-link';
+    link.style.display = 'block';
+    link.style.marginTop = '8px';
+    link.style.fontSize = '12px';
+    link.style.color = 'var(--progressive)';
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sectionId = title.id || slugify(title.textContent);
+      title.id = sectionId;
+      openWhisperSheet({ sectionId, sectionTitle: title.textContent });
     });
-  }, { rootMargin: '0px 0px -70% 0px', threshold: 0.0 });
-  headings.forEach(h => io.observe(h));
-
-  // Selection popover: show Need more? when user selects text inside article
-  setupSelectionPopover();
-
-  // Sheet wiring
-  wireWhisperSheet();
+    title.parentElement.appendChild(link);
+  });
 }
 
 function setupSelectionPopover() {
@@ -421,8 +445,20 @@ function isDuplicateRecent(queue, payload) {
   ));
 }
 
-function recordWhisperSignal() {
-  const payload = currentWhisperPayload();
+function recordWhisperSignal(options = {}) {
+  const payload = options.sectionId ? {
+    pageId: (typeof articleData !== 'undefined') ? articleData.id : 'page',
+    pageTitle: (typeof articleData !== 'undefined') ? articleData.title : 'Article',
+    sectionId: options.sectionId,
+    sectionTitle: options.sectionTitle,
+    chips: options.chips || [],
+    note: options.note || '',
+    quote: options.quote || '',
+    ts: nowTs(),
+    anon: true,
+    device: { w: window.innerWidth, h: window.innerHeight }
+  } : currentWhisperPayload();
+
   const queue = loadQueue(payload.pageId);
   // Rate limit per device+section: max 1 per minute
   const lastSection = queue.filter(q => q.sectionId === payload.sectionId).sort((a,b) => b.ts - a.ts)[0];
@@ -446,6 +482,120 @@ function revealSectionBadge(sectionId) {
   if (badge && badge.classList.contains('whisper-badge')) {
     badge.style.display = 'inline-flex';
   }
+}
+
+function openFeedbackPanel() {
+  const panel = document.getElementById('feedbackPanel');
+  const content = document.getElementById('feedbackPanelContent');
+  const submitBtn = document.getElementById('feedbackSubmit');
+  const helpBtn = document.getElementById('helpImproveBtn');
+
+  if (!panel || !content) return;
+
+  // Mark button as active
+  if (helpBtn) helpBtn.classList.add('active');
+
+  // Get all sections, including introduction
+  const sections = document.querySelectorAll('.article-section');
+  let sectionsHTML = '';
+
+  // Add introduction section if there's content before first section
+  const articleBody = document.getElementById('articleBody');
+  if (articleBody) {
+    const firstSection = articleBody.querySelector('.article-section');
+    if (firstSection) {
+      const introContent = [];
+      let current = firstSection.previousSibling;
+      while (current) {
+        if (current.nodeType === 1 && current.tagName === 'P') {
+          introContent.unshift(current.textContent.trim());
+        }
+        current = current.previousSibling;
+      }
+      if (introContent.length > 0) {
+        sectionsHTML += `
+          <div class="feedback-section" data-section-id="introduction" data-section-title="Introduction">
+            <h4>Introduction</h4>
+            <div class="feedback-options">
+              <label><input type="checkbox" data-type="details"> More details needed</label>
+              <label><input type="checkbox" data-type="images"> Add pictures</label>
+            </div>
+            <div class="feedback-note">
+              <textarea placeholder="Note (optional)" maxlength="140" rows="2"></textarea>
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Add actual sections
+  sectionsHTML += Array.from(sections).map(section => {
+    const title = section.querySelector('.article-section__title').textContent.trim();
+    const id = section.querySelector('.article-section__title').id || slugify(title);
+    return `
+      <div class="feedback-section" data-section-id="${id}" data-section-title="${title}">
+        <h4>${title}</h4>
+        <div class="feedback-options">
+          <label><input type="checkbox" data-type="details"> More details needed</label>
+          <label><input type="checkbox" data-type="images"> Add pictures or diagrams</label>
+          <label><input type="checkbox" data-type="examples"> Add examples</label>
+          <label><input type="checkbox" data-type="sources"> Add sources or citations</label>
+        </div>
+        <div class="feedback-note">
+          <textarea placeholder="Note (optional)" maxlength="140" rows="2"></textarea>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  content.innerHTML = '<p>Select sections you\'d like to provide feedback on:</p>' + sectionsHTML;
+
+  // Add event listeners to checkboxes and textareas
+  const allCheckboxes = content.querySelectorAll('input[type="checkbox"]');
+  const allTextareas = content.querySelectorAll('textarea');
+
+  function updateSubmitState() {
+    const hasAnyFeedback = Array.from(allCheckboxes).some(cb => cb.checked) ||
+                          Array.from(allTextareas).some(ta => ta.value.trim());
+    submitBtn.disabled = !hasAnyFeedback;
+    submitBtn.classList.toggle('enabled', hasAnyFeedback);
+  }
+
+  allCheckboxes.forEach(cb => cb.addEventListener('change', updateSubmitState));
+  allTextareas.forEach(ta => ta.addEventListener('input', updateSubmitState));
+
+  submitBtn.addEventListener('click', () => {
+    const feedbackData = Array.from(content.querySelectorAll('.feedback-section')).map(section => {
+      const sectionId = section.dataset.sectionId;
+      const sectionTitle = section.dataset.sectionTitle;
+      const checkboxes = section.querySelectorAll('input[type="checkbox"]:checked');
+      const chips = Array.from(checkboxes).map(cb => cb.dataset.type);
+      const note = section.querySelector('textarea').value.trim();
+      return { sectionId, sectionTitle, chips, note };
+    }).filter(item => item.chips.length > 0 || item.note);
+
+    feedbackData.forEach(item => {
+      recordWhisperSignal(item);
+    });
+
+    closeFeedbackPanel();
+    showWhisperToast('Thanks for helping improve the article!');
+  });
+
+  // Show panel
+  panel.style.display = 'block';
+  submitBtn.disabled = true;
+}
+
+function closeFeedbackPanel() {
+  const panel = document.getElementById('feedbackPanel');
+  const helpBtn = document.getElementById('helpImproveBtn');
+  if (panel) {
+    panel.style.display = 'none';
+  }
+  // Remove active state from button
+  if (helpBtn) helpBtn.classList.remove('active');
 }
 
 function showWhisperToast(text) {
@@ -1270,8 +1420,43 @@ async function loadCodexIcons(iconNames) {
 // Apply icons on load
 (function applyIcons() {
   const nodes = Array.from(document.querySelectorAll('.cdx-icon[data-icon]'));
+
+  // First, set fallbacks immediately
+  nodes.forEach(n => {
+    const iconName = n.getAttribute('data-icon');
+    const fallbacks = {
+      'cdxIconFeedback': '💬',
+      'cdxIconHelp': '💡',
+      'cdxIconArticle': '📄',
+      'cdxIconEdit': '✏️',
+      'cdxIconHistory': '🕐',
+      'cdxIconStar': '⭐',
+      'cdxIconClose': '×',
+      'cdxIconUndo': '↶',
+      'cdxIconRedo': '↷',
+      'cdxIconTextStyle': 'A',
+      'cdxIconQuotes': '"',
+      'cdxIconLink': '🔗',
+      'cdxIconAdd': '+',
+      'cdxIconSettings': '⚙️',
+      'cdxIconNext': '→',
+      'cdxIconTextHeading': 'H',
+      'cdxIconListNumbered': '1.',
+      'cdxIconListBullet': '•',
+      'cdxIconReference': '[1]',
+      'cdxIconMedia': '🖼️',
+      'cdxIconTemplate': '📋',
+      'cdxIconMath': '∑',
+      'cdxIconTable': '📊',
+      'cdxIconSpecialCharacter': 'Ω'
+    };
+    if (!n.textContent.trim()) {
+      n.textContent = fallbacks[iconName] || '?';
+    }
+  });
+
   const names = Array.from(new Set(nodes.map(n => n.getAttribute('data-icon'))));
-  
+
   loadCodexIcons(names).then(paths => {
     nodes.forEach(n => {
       const name = n.getAttribute('data-icon');
