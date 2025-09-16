@@ -108,6 +108,31 @@ function loadQueue(pageId) {
 function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.stringify(arr)); }
 
 // Help improve: init
+function openFeedbackPanel() {
+  const panel = document.getElementById('feedbackPanel');
+  panel.style.display = 'block';
+  // Populate sections
+  const content = document.getElementById('feedbackPanelContent');
+  content.innerHTML = '<p>Select sections you\'d like to provide feedback on:</p>';
+  const sections = document.querySelectorAll('#articleBody .article-section__title');
+  sections.forEach(title => {
+    const div = document.createElement('div');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'section-' + slugify(title.textContent);
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = title.textContent;
+    div.appendChild(checkbox);
+    div.appendChild(label);
+    content.appendChild(div);
+  });
+}
+
+function closeFeedbackPanel() {
+  document.getElementById('feedbackPanel').style.display = 'none';
+}
+
 function initHelpImprove() {
   const helpBtn = document.getElementById('helpImproveBtn');
   if (helpBtn) {
@@ -119,6 +144,22 @@ function initHelpImprove() {
   const closeBtn = document.getElementById('feedbackPanelClose');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
+      closeFeedbackPanel();
+    });
+  }
+
+  // Submit button
+  const submitBtn = document.getElementById('feedbackSubmit');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    document.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox') {
+        const checked = document.querySelectorAll('#feedbackPanel input[type="checkbox"]:checked').length > 0;
+        submitBtn.disabled = !checked;
+      }
+    });
+    submitBtn.addEventListener('click', () => {
+      alert('Feedback submitted!');
       closeFeedbackPanel();
     });
   }
