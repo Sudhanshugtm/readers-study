@@ -23,20 +23,10 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+  // Baseline variant: render article and enable whisper dots + selection sheet
   loadArticleContent();
-  initHelpImprove();
-
-  // Design tabs
-  document.querySelectorAll('.design-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.design-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      setDesign(btn.dataset.design);
-    });
-  });
-
-  // Initial design
-  setDesign('master');
+  setupEventListeners();
+  initWhisperChips();
 });
 
 function loadArticleContent() {
@@ -173,27 +163,7 @@ function initHelpImprove() {
   });
 }
 
-function setDesign(design) {
-  // Hide all feedback UIs
-  document.getElementById('feedbackPanel').style.display = 'none';
-  document.getElementById('whisperSheetBackdrop').style.display = 'none';
-  document.getElementById('whisperSheet').style.display = 'none';
-  document.getElementById('whisperSelectionPopover').style.display = 'none';
-
-  // Remove inline links if exist
-  document.querySelectorAll('.inline-feedback-link').forEach(link => link.remove());
-
-  if (design === 'master') {
-    // Master design: show feedback panel immediately
-    openFeedbackPanel();
-  } else if (design === 'modal') {
-    // Whisper modal: enable selection popover
-    setupSelectionPopover();
-  } else if (design === 'inline') {
-    // Whisper inline: add links at section ends
-    addInlineLinks();
-  }
-}
+// setDesign removed for baseline; baseline uses whisper dots + selection sheet only
 
 function addInlineLinks() {
   const sections = document.querySelectorAll('#articleBody .article-section__title');
