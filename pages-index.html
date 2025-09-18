@@ -62,9 +62,9 @@
       const frames = new Map(Array.from(document.querySelectorAll('.variant-frame')).map(f => [f.id.replace('panel-', ''), f]));
       const meta = document.getElementById('variantMeta');
       const labels = {
-        master: 'Baseline',
-        'whisper-modal': 'Whisper Modal',
-        'whisper-inline': 'Whisper Inline'
+        master: 'Heading Menu',
+        'whisper-modal': 'Dialog Panel',
+        'whisper-inline': 'Inline Prompt'
       };
       function activate(target) {
         tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.target === target)));
@@ -92,9 +92,9 @@
 <body>
   <div class="page">
     <div class="tablist" role="tablist" aria-label="Feedback design variants">
-      <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true">Baseline</button>
-      <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false">Whisper Modal</button>
-      <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false">Whisper Inline</button>
+      <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true">Heading Menu</button>
+      <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false">Dialog Panel</button>
+      <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false">Inline Prompt</button>
     </div>
     <div class="panels">
       <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html?embed=1" loading="lazy"></iframe>
