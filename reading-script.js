@@ -97,6 +97,59 @@ function loadQueue(pageId) {
 }
 function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.stringify(arr)); }
 
+// Whisper Chips: main init – add overflow dots on section headings,
+// show selection popover, and wire the feedback sheet.
+function initWhisperChips() {
+  const article = document.getElementById('articleBody');
+  if (!article) return;
+
+  const headings = article.querySelectorAll('.article-section__title, .article-subsection__title');
+  headings.forEach(h => {
+    const text = h.textContent.trim();
+    const id = h.id || slugify(text);
+    h.id = id;
+    h.setAttribute('tabindex', '-1');
+    h.setAttribute('data-section-id', id);
+
+    // Add whisper overflow dot button
+    const dot = document.createElement('button');
+    dot.className = 'whisper-dot';
+    dot.type = 'button';
+    dot.title = 'Ask for more on this section';
+    dot.setAttribute('aria-label', 'Ask for more on ' + text);
+    dot.textContent = '…';
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = dot.getBoundingClientRect();
+      openWhisperSheet({ sectionId: id, sectionTitle: text, anchorRect: rect });
+    });
+    h.appendChild(dot);
+
+    // Badge container (hidden until demand)
+    const badge = document.createElement('div');
+    badge.className = 'whisper-badge';
+    badge.style.display = 'none';
+    badge.innerHTML = '<span class="sparkle">✨</span><span>More requested</span>';
+    h.insertAdjacentElement('afterend', badge);
+  });
+
+  // Observe headings to show/hide dots only when in view
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const h = entry.target;
+      const dot = h.querySelector('.whisper-dot');
+      if (dot) dot.style.display = entry.isIntersecting ? 'inline-flex' : 'none';
+    });
+  }, { rootMargin: '0px 0px -70% 0px', threshold: 0.0 });
+  headings.forEach(h => io.observe(h));
+
+  // Selection popover: Need more? when selecting text
+  setupSelectionPopover();
+
+  // Sheet wiring
+  wireWhisperSheet();
+}
+
 // Help improve: init
 function openFeedbackPanel() {
   const panel = document.getElementById('feedbackPanel');
