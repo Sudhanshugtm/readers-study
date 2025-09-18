@@ -7,23 +7,23 @@
   <style>
     :root { color-scheme: light; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f8f9fa; color: #202122; }
-    .page { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
-    header { margin-bottom: 2rem; }
-    h1 { margin: 0 0 0.25rem; font-size: clamp(1.75rem, 4vw, 2.4rem); }
-    p.lede { margin: 0; font-size: clamp(1rem, 2.8vw, 1.125rem); color: #54595d; }
-    .tablist { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .page { max-width: 1280px; margin: 0 auto; padding: 1.25rem 1rem 1rem; }
+    header { margin-bottom: 0.75rem; }
+    h1 { margin: 0 0 0.1rem; font-size: clamp(1.4rem, 3.4vw, 2rem); }
+    p.lede { margin: 0; font-size: clamp(0.95rem, 2.6vw, 1.05rem); color: #54595d; }
+    .tablist { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
     .tab { border: 1px solid #a2a9b1; background: #ffffff; border-radius: 999px; padding: 0.55rem 1.25rem; font-size: 0.95rem; cursor: pointer; color: #202122; transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
     .tab[aria-selected="true"] { background: #3366cc; border-color: #3366cc; color: #fff; box-shadow: 0 1px 4px rgba(51, 102, 204, 0.35); }
     .tab:focus-visible { outline: 2px solid #36c; outline-offset: 2px; }
     .panels { position: relative; min-height: 60vh; }
-    .variant-frame { width: 100%; height: min(85vh, 960px); border: 1px solid #a2a9b1; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px rgba(32, 33, 36, 0.12); display: none; }
+    .variant-frame { width: 100%; height: min(88vh, 1000px); border: 1px solid #a2a9b1; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px rgba(32, 33, 36, 0.12); display: none; }
     .variant-frame.active { display: block; }
     .meta { margin-top: 1rem; color: #72777d; font-size: 0.85rem; line-height: 1.4; }
     .meta code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; background: rgba(0,0,0,0.04); border-radius: 4px; padding: 0.1rem 0.35rem; }
     @media (max-width: 768px) {
-      .page { padding: 1.5rem 1rem 2.5rem; }
+      .page { padding: 0.75rem 0.75rem 1rem; }
       .tab { flex: 1 1 auto; text-align: center; }
-      .variant-frame { height: 75vh; }
+      .variant-frame { height: 82vh; }
     }
   </style>
   <script>
@@ -72,12 +72,11 @@
       <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false">Whisper Inline</button>
     </div>
     <div class="panels">
-      <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html" loading="lazy"></iframe>
-      <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html" loading="lazy"></iframe>
-      <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html" loading="lazy"></iframe>
+      <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html?embed=1" loading="lazy"></iframe>
+      <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html?embed=1" loading="lazy"></iframe>
+      <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
     </div>
     <div class="meta" id="variantMeta"></div>
   </div>
 </body>
 </html>
-

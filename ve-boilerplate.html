@@ -14,12 +14,20 @@
   </head>
 <body>
 
-  <!-- Global Design Tabs (cross-page) -->
-  <nav class="design-tabs" aria-label="Feedback design variants">
-    <a class="design-tab active" href="ve-boilerplate.html">Baseline</a>
-    <a class="design-tab" href="../readers-study-modal/ve-boilerplate.html">Whisper Modal</a>
-    <a class="design-tab" href="../readers-study-inline/ve-boilerplate.html">Inline Feedback</a>
-  </nav>
+  <!-- Embed mode: when loaded in comparison page, hide header chrome -->
+  <script>
+    (function(){
+      try {
+        var params = new URLSearchParams(location.search);
+        if (params.get('embed') === '1' || window.top !== window.self) {
+          document.documentElement.classList.add('embed');
+          document.addEventListener('DOMContentLoaded', function(){
+            document.body.classList.add('embed');
+          });
+        }
+      } catch(e) {}
+    })();
+  </script>
 
   <!-- Header + Tabs (Reading mode) -->
   <header class="container page-header" role="banner">
