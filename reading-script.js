@@ -117,11 +117,14 @@ function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.
 
 // Whisper Chips: main init – add overflow dots on section headings,
 // show selection popover, and wire the feedback sheet.
+const ENABLE_SELECTION_POPOVER = false; // limit interactions to section-level dots only
+
 function initWhisperChips() {
   const article = document.getElementById('articleBody');
   if (!article) return;
 
-  const headings = article.querySelectorAll('.article-section__title, .article-subsection__title');
+  // Only add overflow dots to top-level sections (exclude subsections)
+  const headings = article.querySelectorAll('.article-section__title');
   headings.forEach(h => {
     const text = h.textContent.trim();
     const id = h.id || slugify(text);
@@ -161,8 +164,10 @@ function initWhisperChips() {
   }, { rootMargin: '0px', threshold: 0.0 });
   headings.forEach(h => io.observe(h));
 
-  // Selection popover: Need more? when selecting text
-  setupSelectionPopover();
+  // Selection popover disabled for baseline (no options on paragraph text)
+  if (ENABLE_SELECTION_POPOVER) {
+    setupSelectionPopover();
+  }
 
   // Sheet wiring
   wireWhisperSheet();
@@ -296,7 +301,8 @@ function setupSelectionPopover() {
 }
 
 function nearestSectionFromSelection() {
-  const headings = Array.from(document.querySelectorAll('#articleBody .article-section__title, #articleBody .article-subsection__title'));
+  // Resolve to nearest top-level section title only
+  const headings = Array.from(document.querySelectorAll('#articleBody .article-section__title'));
   const sel = window.getSelection();
   const node = sel && sel.anchorNode ? (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement) : null;
   let closest = headings[0] || null;
