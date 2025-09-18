@@ -60,7 +60,6 @@
     window.addEventListener('DOMContentLoaded', () => {
       const tabs = Array.from(document.querySelectorAll('.tab'));
       const frames = new Map(Array.from(document.querySelectorAll('.variant-frame')).map(f => [f.id.replace('panel-', ''), f]));
-      const meta = document.getElementById('variantMeta');
       const labels = {
         master: 'Heading Menu',
         'whisper-modal': 'Dialog Panel',
@@ -72,9 +71,7 @@
           const isActive = key === target; frame.classList.toggle('active', isActive);
           if (isActive && frame.dataset.src && !frame.dataset.loaded) { frame.src = frame.dataset.src; frame.dataset.loaded = 'true'; }
         });
-        const label = labels[target] || labels.master;
-        meta.innerHTML = '<div><strong>' + label + '</strong></div>' +
-          '<div><span aria-hidden="true">⤷</span> Switch tabs to preview each treatment.</div>';
+        // No footer/meta text
       }
       tabs.forEach(tab => {
         tab.addEventListener('click', () => activate(tab.dataset.target));
@@ -101,7 +98,7 @@
       <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html?embed=1" loading="lazy"></iframe>
       <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
     </div>
-    <div class="meta" id="variantMeta"></div>
+    
   </div>
 </body>
 </html>
