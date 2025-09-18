@@ -2,7 +2,9 @@ name: Deploy GitHub Pages
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
@@ -23,168 +25,227 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Create HTML site
+        with:
+          fetch-depth: 0
+
+      - name: Build comparison site
         run: |
-          # Create clean homepage with simple article list
-          cat > index.html << 'EOF'
+          set -euo pipefail
+
+          # Fetch variant branches created via worktrees
+          git fetch --no-tags origin alt-whisper-inline alt-whisper-modal || true
+
+          mkdir -p site/variants/master site/variants/whisper-inline site/variants/whisper-modal
+
+          # Baseline from current branch
+          cp ve-boilerplate.html site/variants/master/index.html
+          cp reading-styles.css site/variants/master/
+          cp reading-script.js site/variants/master/
+
+          # Whisper modal from branch
+          if git rev-parse --verify --quiet origin/alt-whisper-modal >/dev/null; then
+            git show origin/alt-whisper-modal:ve-boilerplate.html > site/variants/whisper-modal/index.html
+            git show origin/alt-whisper-modal:reading-styles.css > site/variants/whisper-modal/reading-styles.css
+            git show origin/alt-whisper-modal:reading-script.js > site/variants/whisper-modal/reading-script.js
+          else
+            echo "Missing branch origin/alt-whisper-modal; skipping modal variant"
+          fi
+
+          # Whisper inline from branch
+          if git rev-parse --verify --quiet origin/alt-whisper-inline >/dev/null; then
+            git show origin/alt-whisper-inline:ve-boilerplate.html > site/variants/whisper-inline/index.html
+            git show origin/alt-whisper-inline:reading-styles.css > site/variants/whisper-inline/reading-styles.css
+            git show origin/alt-whisper-inline:reading-script.js > site/variants/whisper-inline/reading-script.js
+          else
+            echo "Missing branch origin/alt-whisper-inline; skipping inline variant"
+          fi
+
+          # SHAs for meta
+          master_sha=$(git rev-parse --short HEAD)
+          modal_sha=$(git rev-parse --short origin/alt-whisper-modal 2>/dev/null || true)
+          inline_sha=$(git rev-parse --short origin/alt-whisper-inline 2>/dev/null || true)
+
+          cat > site/index.html <<HTML
           <!DOCTYPE html>
           <html lang="en">
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Reader Discovery Research</title>
+              <title>Reader Feedback Comparison</title>
               <style>
-                  body { 
-                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-                      max-width: 600px; 
-                      margin: 0 auto; 
-                      padding: 3rem 2rem; 
-                      line-height: 1.6; 
-                      background: #fff;
+                  :root {
+                      color-scheme: light;
                   }
-                  .header { 
-                      text-align: center; 
-                      margin-bottom: 3rem;
+                  body {
+                      margin: 0;
+                      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                      background: #f8f9fa;
+                      color: #202122;
+                  }
+                  .page {
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 2.5rem 1.5rem 3rem;
+                  }
+                  header {
+                      margin-bottom: 2rem;
                   }
                   h1 {
-                      color: #202122;
-                      margin-bottom: 0.5rem;
+                      margin: 0 0 0.25rem;
+                      font-size: clamp(1.75rem, 4vw, 2.4rem);
                   }
-                  .article-list {
-                      list-style: none;
-                      padding: 0;
+                  p.lede {
                       margin: 0;
+                      font-size: clamp(1rem, 2.8vw, 1.125rem);
+                      color: #54595d;
                   }
-                  .article-item {
-                      margin-bottom: 1rem;
+                  .tablist {
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 0.5rem;
+                      margin-bottom: 1.5rem;
                   }
-                  .article-link {
-                      display: block;
-                      padding: 1rem;
-                      color: #0645ad;
-                      text-decoration: none;
-                      font-size: 1.1rem;
+                  .tab {
                       border: 1px solid #a2a9b1;
-                      border-radius: 6px;
-                      transition: background-color 0.2s;
+                      background: #ffffff;
+                      border-radius: 999px;
+                      padding: 0.55rem 1.25rem;
+                      font-size: 0.95rem;
+                      cursor: pointer;
+                      color: #202122;
+                      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
                   }
-                  .article-link:hover {
-                      background-color: #f8f9fa;
-                      text-decoration: underline;
+                  .tab[aria-selected="true"] {
+                      background: #3366cc;
+                      border-color: #3366cc;
+                      color: #fff;
+                      box-shadow: 0 1px 4px rgba(51, 102, 204, 0.35);
+                  }
+                  .tab:focus-visible {
+                      outline: 2px solid #36c;
+                      outline-offset: 2px;
+                  }
+                  .panels {
+                      position: relative;
+                      min-height: 60vh;
+                  }
+                  .variant-frame {
+                      width: 100%;
+                      height: min(85vh, 960px);
+                      border: 1px solid #a2a9b1;
+                      border-radius: 12px;
+                      background: #fff;
+                      box-shadow: 0 4px 16px rgba(32, 33, 36, 0.12);
+                      display: none;
+                  }
+                  .variant-frame.active {
+                      display: block;
+                  }
+                  .meta {
+                      margin-top: 1rem;
+                      color: #72777d;
+                      font-size: 0.85rem;
+                      line-height: 1.4;
+                  }
+                  .meta code {
+                      font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+                      background: rgba(0, 0, 0, 0.04);
+                      border-radius: 4px;
+                      padding: 0.1rem 0.35rem;
+                  }
+                  @media (max-width: 768px) {
+                      .page {
+                          padding: 1.5rem 1rem 2.5rem;
+                      }
+                      .tablist {
+                          gap: 0.4rem;
+                      }
+                      .tab {
+                          flex: 1 1 auto;
+                          text-align: center;
+                      }
+                      .variant-frame {
+                          height: 75vh;
+                      }
                   }
               </style>
           </head>
           <body>
-              <div class="header">
-                  <h1>Reader Discovery Research</h1>
+              <div class="page">
+                  <header>
+                      <h1>Reader Feedback Variants</h1>
+                      <p class="lede">Compare live prototypes side-by-side. Switch tabs to explore each feedback design without leaving the page.</p>
+                  </header>
+
+                  <div class="tablist" role="tablist" aria-label="Feedback design variants">
+                      <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true">Baseline</button>
+                      <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false">Whisper Modal</button>
+                      <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false">Whisper Inline</button>
+                  </div>
+
+                  <div class="panels">
+                      <iframe class="variant-frame active" id="panel-master" title="Master design" src="variants/master/index.html" loading="lazy"></iframe>
+                      <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal design" data-src="variants/whisper-modal/index.html" loading="lazy"></iframe>
+                      <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline design" data-src="variants/whisper-inline/index.html" loading="lazy"></iframe>
+                  </div>
+
+                  <div class="meta" id="variantMeta">
+                      <div><strong>Master design</strong> • branch <code>master</code> • commit <code>${master_sha}</code></div>
+                      <div><span aria-hidden="true">⤷</span> Use the tabs above to preview other treatments. Each loads the same article content with different feedback UI.</div>
+                  </div>
               </div>
 
-              <ul class="article-list">
-                  <li class="article-item">
-                      <a href="ed-gallagher.html" class="article-link">Ed Gallagher (scientist)</a>
-                  </li>
-                  <li class="article-item">
-                      <a href="visual-technology.html" class="article-link">Visual technology</a>
-                  </li>
-                  <li class="article-item">
-                      <a href="richard-james.html" class="article-link">Richard D. James (scientist)</a>
-                  </li>
-                  <li class="article-item">
-                      <a href="s-vt.html" class="article-link">S-VT (Sequential Valve Timing)</a>
-                  </li>
-              </ul>
+              <script>
+                  const tabs = Array.from(document.querySelectorAll('.tab'));
+                  const frames = new Map(Array.from(document.querySelectorAll('.variant-frame')).map(frame => [frame.id.replace('panel-', ''), frame]));
+                  const meta = document.getElementById('variantMeta');
+                  const branchMeta = {
+                      master: { label: 'Baseline', branch: '${{ github.ref_name }}', commit: '${master_sha}' },
+                      'whisper-modal': { label: 'Whisper Modal', branch: 'alt-whisper-modal', commit: '${modal_sha}' },
+                      'whisper-inline': { label: 'Whisper Inline', branch: 'alt-whisper-inline', commit: '${inline_sha}' }
+                  };
+
+                  function activate(target) {
+                      tabs.forEach(tab => {
+                          const isActive = tab.dataset.target === target;
+                          tab.setAttribute('aria-selected', String(isActive));
+                      });
+
+                      frames.forEach((frame, key) => {
+                          const isActive = key === target;
+                          frame.classList.toggle('active', isActive);
+                          if (isActive && frame.dataset.src && !frame.dataset.loaded) {
+                              frame.src = frame.dataset.src;
+                              frame.dataset.loaded = 'true';
+                          }
+                      });
+
+                      const info = branchMeta[target] || branchMeta.master;
+                      const commitText = info.commit ? ' • commit <code>' + info.commit + '</code>' : '';
+                      meta.innerHTML = '<div><strong>' + info.label + '</strong> • branch <code>' + info.branch + '</code>' + commitText + '</div>' +
+                          '<div><span aria-hidden="true">⤷</span> Use the tabs above to preview other treatments. Each loads the same article content with different feedback UI.</div>';
+                  }
+
+                  tabs.forEach(tab => {
+                      tab.addEventListener('click', () => activate(tab.dataset.target));
+                      tab.addEventListener('keydown', event => {
+                          if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
+                              return;
+                          }
+                          event.preventDefault();
+                          const direction = event.key === 'ArrowRight' ? 1 : -1;
+                          const index = tabs.indexOf(tab);
+                          const next = tabs[(index + direction + tabs.length) % tabs.length];
+                          next.focus();
+                          activate(next.dataset.target);
+                      });
+                  });
+
+                  activate('master');
+              </script>
           </body>
           </html>
-          EOF
-          
-          # Create Ed Gallagher article page
-          cp ve-boilerplate.html ed-gallagher.html
-          sed -i 's/<title>VE Boilerplate — Wikipedia‑style Visual Editor<\/title>/<title>Ed Gallagher (scientist) - Wikipedia<\/title>/' ed-gallagher.html
-          sed -i 's/Sample Topic/Ed Gallagher (scientist)/' ed-gallagher.html
-          
-          # Replace the default articleData in ed-gallagher.html with Ed Gallagher content
-          sed -i '/const articleData = {/,/};/c\
-          const articleData = {\
-            id: "ed-gallagher",\
-            title: "Ed Gallagher (scientist)",\
-            description: "British environmental scientist (born 1944)",\
-            content: `'"'"'''Ed Gallagher'"'"' CBE FREng (born 4 August 1944) is a British [[scientist]]. He was a council member of [[English Nature]] and chair of the Pesticides Forum which is part of the [[Department for Environment, Food and Rural Affairs]] (DEFRA).\
-          \
-          == Career ==\
-          Gallagher was chief executive of the [[National Rivers Authority]] from 1992 until 1995 when it was subsumed into the [[Environment Agency]] (EA) of England and Wales. He was then chief executive of the EA from 1995 to 2000.\
-          \
-          == Roles and honours ==\
-          He was chairman of the governors at [[Middlesex University]], where he is a visiting professor. He is a [[Freeman of the City of London]] and was awarded the CBE in 2001 for environmental services.\
-          \
-          In February 2008, Gallagher began coordinating a group that produced a '"'"'Review of the Indirect Effects of Biofuels'"'"'.\
-          \
-          == References ==\
-          <references />`\
-          };' ed-gallagher.html
-          
-          # Create additional article pages with proper content
-          # Visual Technology
-          cp ve-boilerplate.html visual-technology.html
-          sed -i 's/Sample Topic/Visual technology/g' visual-technology.html
-          sed -i 's/VE Boilerplate — Wikipedia‑style Visual Editor/Visual technology - Wikipedia/' visual-technology.html
-          sed -i '/const articleData = {/,/};/c\
-          const articleData = {\
-            id: "visual-technology",\
-            title: "Visual technology",\
-            description: "Engineering discipline dealing with visual representation",\
-            content: `'"'"'Visual technology'"'"' is the [[engineering]] discipline dealing with visual representation.\
-          \
-          == Types ==\
-          Visual technology includes [[photography]], [[printing]], [[augmented reality]], [[virtual reality]] and [[video]].\
-          \
-          == See also ==\
-          * [[Audiovisual]]\
-          * [[Information and communications technology]]\
-          * [[Medical imaging]]\
-          * [[Multimedia]]\
-          * [[Visual arts]]\
-          * [[Visual culture]]\
-          \
-          == References ==\
-          <references />`\
-          };' visual-technology.html
-          
-          # Richard James
-          cp ve-boilerplate.html richard-james.html
-          sed -i 's/Sample Topic/Richard D. James (scientist)/g' richard-james.html
-          sed -i 's/VE Boilerplate — Wikipedia‑style Visual Editor/Richard D. James (scientist) - Wikipedia/' richard-james.html
-          sed -i '/const articleData = {/,/};/c\
-          const articleData = {\
-            id: "richard-james",\
-            title: "Richard D. James (scientist)",\
-            description: "American mechanician and materials scientist",\
-            content: `'"'"'Richard D. James'"'"' (born 1952) is a mechanician and materials scientist. He is currently the Russell J. Penrose Professor and Distinguished McKnight University Professor at the [[University of Minnesota]].\
-          \
-          == Career ==\
-          James is known for his work in materials science, particularly in the field of [[shape-memory alloy]]s and [[phase transformation]]s.\
-          \
-          == References ==\
-          <references />`\
-          };' richard-james.html
-          
-          # S-VT
-          cp ve-boilerplate.html s-vt.html
-          sed -i 's/Sample Topic/S-VT (Sequential Valve Timing)/g' s-vt.html
-          sed -i 's/VE Boilerplate — Wikipedia‑style Visual Editor/S-VT (Sequential Valve Timing) - Wikipedia/' s-vt.html
-          sed -i '/const articleData = {/,/};/c\
-          const articleData = {\
-            id: "s-vt",\
-            title: "S-VT (Sequential Valve Timing)",\
-            description: "Automobile variable valve timing technology by Mazda",\
-            content: `'"'"'S-VT'"'"', or Sequential Valve Timing, is an automobile [[variable valve timing]] technology developed by [[Mazda]].\
-          \
-          == Function ==\
-          S-VT varies the timing of the intake valves by using oil pressure to adjust the [[camshaft]] position.\
-          \
-          == References ==\
-          <references />`\
-          };' s-vt.html
+HTML
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -192,7 +253,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: 'site'
           
       - name: Deploy to GitHub Pages
         id: deployment
