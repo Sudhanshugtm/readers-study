@@ -38,14 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initial design: default to modal variant for this page
   setDesign('modal');
 
-  // If embedded in comparison page, make the modal treatment obvious
-  try {
-    if (document.documentElement.classList.contains('embed')) {
-      // Open the side feedback panel immediately so this variant
-      // is visually distinct from the baseline at a glance.
-      openFeedbackPanel();
-    }
-  } catch(e) {}
+  // Do not auto-open any side panel when embedded;
+  // panel should only open on explicit user action.
 });
 
 function loadArticleContent() {
@@ -193,8 +187,7 @@ function setDesign(design) {
   document.querySelectorAll('.inline-feedback-link').forEach(link => link.remove());
 
   if (design === 'master') {
-    // Master design: show feedback panel immediately
-    openFeedbackPanel();
+    // Master design: no auto-open
   } else if (design === 'modal') {
     // Whisper modal: enable selection popover
     setupSelectionPopover();
