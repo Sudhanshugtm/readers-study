@@ -24,9 +24,27 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   // Baseline variant: render article and enable whisper dots + selection sheet
-  loadArticleContent();
-  setupEventListeners();
-  initWhisperChips();
+  try {
+    if (typeof loadArticleContent === 'function') {
+      loadArticleContent();
+    }
+  } catch (e) {
+    console.error('Error in loadArticleContent:', e);
+  }
+  try {
+    if (typeof setupEventListeners === 'function') {
+      setupEventListeners();
+    }
+  } catch (e) {
+    console.error('Error in setupEventListeners:', e);
+  }
+  try {
+    if (typeof initWhisperChips === 'function') {
+      initWhisperChips();
+    }
+  } catch (e) {
+    console.error('Error in initWhisperChips:', e);
+  }
 });
 
 function loadArticleContent() {
