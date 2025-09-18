@@ -21,6 +21,9 @@ After earning her doctorate, Bouman joined [[Harvard University]] as a [[postdoc
 She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2019]]. In 2024, Bouman was awarded a [[Sloan Research Fellowship]].`
 };
 
+// Label for this variant when embedded in comparison page
+const VARIANT_LABEL = 'Heading Menu';
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   // Baseline variant: render article and enable whisper dots + selection sheet
@@ -31,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch (e) {
     console.error('Error in loadArticleContent:', e);
   }
+  try { buildTableOfContents(); } catch(e) { console.warn('TOC build error', e); }
   try {
     if (typeof setupEventListeners === 'function') {
       setupEventListeners();
@@ -45,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch (e) {
     console.error('Error in initWhisperChips:', e);
   }
+  try { initVariantBadge(); } catch(e) {}
 });
 
 function loadArticleContent() {
@@ -57,6 +62,60 @@ function loadArticleContent() {
   } catch(e) { /* noop */ }
   const htmlContent = convertMediaWikiToHTML(currentArticle.content);
   articleBody.innerHTML = htmlContent;
+}
+
+// Build Vector‑style Table of Contents in the left sidebar
+function buildTableOfContents() {
+  const toc = document.getElementById('toc');
+  const container = document.getElementById('articleBody');
+  if (!toc || !container) return;
+  toc.innerHTML = '';
+  const headings = container.querySelectorAll('.article-section__title, .article-subsection__title');
+  const items = [];
+  headings.forEach(h => {
+    const level = h.classList.contains('article-subsection__title') ? 3 : 2;
+    if (!h.id || !h.id.length) {
+      h.id = slugify(h.textContent || 'section');
+    }
+    items.push({ id: h.id, text: (h.textContent || '').trim(), level });
+  });
+  const frag = document.createDocumentFragment();
+  items.forEach(it => {
+    const a = document.createElement('a');
+    a.href = '#' + it.id;
+    a.textContent = it.text;
+    a.className = 'toc-link toc-level-' + it.level;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(it.id);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    frag.appendChild(a);
+  });
+  toc.appendChild(frag);
+
+  // Scroll spy highlight
+  const links = Array.from(toc.querySelectorAll('a'));
+  const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const link = byId.get(entry.target.id);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+  headings.forEach(h => io.observe(h));
+}
+
+function initVariantBadge() {
+  if (!document.documentElement.classList.contains('embed')) return;
+  const el = document.getElementById('variantBadge');
+  if (!el) return;
+  el.textContent = VARIANT_LABEL;
+  el.style.display = 'inline-block';
 }
 
 function convertMediaWikiToHTML(mediaWikiText) {
