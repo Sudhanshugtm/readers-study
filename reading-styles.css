@@ -184,6 +184,17 @@ body {
   margin: 12px 0 16px;
 }
 
+/* Embed mode trims chrome for iframe presentation */
+.embed .page-header,
+.embed .design-tabs,
+.embed .tagline {
+  display: none !important;
+}
+.embed .content-wrap { 
+  margin: 0 auto; 
+  padding-top: 8px; 
+}
+
 /* ===== Reading Mode Content ===== */
 .content-wrap {
   max-width: var(--max); 
