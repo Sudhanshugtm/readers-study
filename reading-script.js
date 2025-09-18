@@ -96,58 +96,928 @@ function loadQueue(pageId) {
 }
 function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.stringify(arr)); }
 
-// Whisper Chips: main init
+// Alternative Feedback Designs: main init
 function initWhisperChips() {
-  // Ensure headings have ids and attach dots/badges
   const article = document.getElementById('articleBody');
   if (!article) return;
 
-  const headings = article.querySelectorAll('.article-section__title, .article-subsection__title');
-  headings.forEach(h => {
-    const text = h.textContent.trim();
-    const id = h.id || slugify(text);
-    h.id = id;
-    h.setAttribute('tabindex', '-1');
-    h.setAttribute('data-section-id', id);
+  // Text selection feedback (Medium-style)
+  setupTextSelectionFeedback();
 
-    // Add whisper dot button
-    const dot = document.createElement('button');
-    dot.className = 'whisper-dot';
-    dot.type = 'button';
-    dot.title = 'Ask for more on this section';
-    dot.setAttribute('aria-label', 'Ask for more on ' + text);
-    dot.textContent = '…';
-    dot.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const rect = dot.getBoundingClientRect();
-      openWhisperSheet({ sectionId: id, sectionTitle: text, anchorRect: rect });
-    });
-    h.appendChild(dot);
+  // Sidebar feedback approach (commented out for now)
+  // setupSidebarFeedback();
 
-    // Badge container (hidden until demand)
-    const badge = document.createElement('div');
-    badge.className = 'whisper-badge';
-    badge.style.display = 'none';
-    badge.innerHTML = '<span class="sparkle">✨</span><span>More requested</span>';
-    h.insertAdjacentElement('afterend', badge);
-  });
-
-  // Observe headings to show/hide dots only when in view
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const h = entry.target;
-      const dot = h.querySelector('.whisper-dot');
-      if (!dot) return;
-      dot.style.display = entry.isIntersecting ? 'inline-flex' : 'none';
-    });
-  }, { rootMargin: '0px 0px -70% 0px', threshold: 0.0 });
-  headings.forEach(h => io.observe(h));
-
-  // Selection popover: show Need more? when user selects text inside article
-  setupSelectionPopover();
+  // Old selection popover removed - using new text selection feedback instead
 
   // Sheet wiring
   wireWhisperSheet();
+}
+
+// Text Selection Feedback (Medium-style, native web API)
+function setupTextSelectionFeedback() {
+  let selectionPopover = null;
+  let selectionTimeout = null;
+  let isSelecting = false;
+
+  // Track when user is actively selecting (mousedown to mouseup)
+  document.addEventListener('mousedown', () => {
+    isSelecting = true;
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isSelecting) {
+      isSelecting = false;
+      // Wait a bit after mouseup to ensure selection is finalized
+      clearTimeout(selectionTimeout);
+      selectionTimeout = setTimeout(() => {
+        handleSelectionChange();
+      }, 150);
+    }
+  });
+
+  // Also handle selection via keyboard or programmatic changes
+  document.addEventListener('selectionchange', () => {
+    // Only handle if not actively selecting with mouse
+    if (!isSelecting) {
+      clearTimeout(selectionTimeout);
+      selectionTimeout = setTimeout(() => {
+        handleSelectionChange();
+      }, 100);
+    }
+  });
+
+  function handleSelectionChange() {
+    const selection = window.getSelection();
+
+    // If popover is in note mode, don't dismiss on selection changes
+    if (selectionPopover) {
+      const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
+      if (isInNoteMode) {
+        // User is writing a note - don't interfere with selection changes
+        return;
+      }
+    }
+
+    // Hide existing popover if selection is invalid
+    if (!selection || selection.isCollapsed) {
+      if (selectionPopover) {
+        // Only dismiss if not in note mode (double check)
+        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
+        if (!isInNoteMode) {
+          dismissPopover();
+        }
+      }
+      return;
+    }
+
+    const selectedText = selection.toString().trim();
+    if (selectedText.length < 5) {
+      if (selectionPopover) {
+        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
+        if (!isInNoteMode) {
+          dismissPopover();
+        }
+      }
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+
+    // Don't dismiss if selection is within the popover itself
+    if (selectionPopover && selectionPopover.contains(container)) {
+      return;
+    }
+
+    // Ensure selection is within article body
+    const articleBody = document.getElementById('articleBody');
+    if (!articleBody || !articleBody.contains(container)) {
+      if (selectionPopover) {
+        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
+        if (!isInNoteMode) {
+          dismissPopover();
+        }
+      }
+      return;
+    }
+
+    // If we already have a popover showing, just update its position
+    if (selectionPopover) {
+      positionPopover(selectionPopover, range);
+    } else {
+      showSelectionFeedback(range, selectedText);
+    }
+  }
+
+  function showSelectionFeedback(range, selectedText) {
+    selectionPopover = document.createElement('div');
+    selectionPopover.className = 'selection-feedback-popover';
+
+    // Create sophisticated, modern UI with accessibility
+    selectionPopover.innerHTML = `
+      <div class="feedback-container" role="dialog" aria-label="Feedback options for selected text">
+        <button class="feedback-close-btn" id="feedbackClose" title="Close feedback panel" aria-label="Close feedback panel">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+            <path d="M6 4.586L9.707.879a1 1 0 011.414 1.414L7.414 6l3.707 3.707a1 1 0 01-1.414 1.414L6 7.414l-3.707 3.707a1 1 0 01-1.414-1.414L4.586 6 .879 2.293a1 1 0 011.414-1.414L6 4.586z"/>
+          </svg>
+        </button>
+
+        <div class="feedback-main" id="feedbackMain">
+          <div class="feedback-reactions">
+            <button class="reaction-btn" data-type="helpful" title="Mark this content as helpful" aria-label="Mark this content as helpful">
+              <span class="reaction-emoji" aria-hidden="true">👍</span>
+              <span class="reaction-label">Helpful</span>
+            </button>
+            <button class="reaction-btn" data-type="unclear" title="Mark this content as unclear or confusing" aria-label="Mark this content as unclear or confusing">
+              <span class="reaction-emoji" aria-hidden="true">🤔</span>
+              <span class="reaction-label">Unclear</span>
+            </button>
+            <button class="reaction-btn" data-type="incorrect" title="Flag this content as potentially incorrect or problematic" aria-label="Flag this content as potentially incorrect or problematic">
+              <span class="reaction-emoji" aria-hidden="true">⚠️</span>
+              <span class="reaction-label">Flag</span>
+            </button>
+          </div>
+          <button class="add-note-btn" id="addNoteBtn" title="Add a detailed note about this content" aria-label="Add a detailed note about this content">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+              <path d="M3 10h8M3 6h8M3 2h8"/>
+            </svg>
+            Add note
+          </button>
+        </div>
+
+        <div class="feedback-expanded" id="feedbackExpanded" style="display: none;">
+          <div class="feedback-input-section">
+            <textarea class="feedback-textarea" id="feedbackTextarea"
+                     placeholder="What would make this better?"
+                     maxlength="280"
+                     aria-label="Detailed feedback about selected content (280 character limit)"></textarea>
+            <div class="feedback-textarea-footer">
+              <span class="char-count" id="charCount">0/280</span>
+            </div>
+          </div>
+          <div class="feedback-expanded-actions">
+            <button class="feedback-cancel" id="feedbackCancel"
+                    title="Cancel and return to reaction options"
+                    aria-label="Cancel and return to reaction options">Cancel</button>
+            <button class="feedback-submit" id="feedbackSubmit" disabled
+                    title="Submit detailed feedback about selected content"
+                    aria-label="Submit detailed feedback about selected content">Submit</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Position popover intelligently
+    positionPopover(selectionPopover, range);
+    document.body.appendChild(selectionPopover);
+
+    // Setup interactions
+    setupPopoverInteractions(selectionPopover, selectedText, range);
+
+    // Auto-dismiss after 60 seconds, but only if not in note mode
+    const autoDismissTimer = setTimeout(() => {
+      if (selectionPopover && selectionPopover.parentNode) {
+        // Only auto-dismiss if user hasn't opened note mode
+        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
+        if (!isInNoteMode) {
+          dismissPopover();
+        }
+      }
+    }, 60000);
+
+    // Store timer so we can clear it if user expands to note mode
+    selectionPopover.autoDismissTimer = autoDismissTimer;
+  }
+
+  function positionPopover(popover, range) {
+    const rect = range.getBoundingClientRect();
+    const popoverWidth = 280;
+    const popoverHeight = 120; // Initial height
+
+    // Try to center above selection
+    let top = window.scrollY + rect.top - popoverHeight - 12;
+    let left = window.scrollX + rect.left + (rect.width / 2) - (popoverWidth / 2);
+
+    // Adjust if off-screen
+    const padding = 16;
+    left = Math.max(padding, Math.min(left, window.innerWidth - popoverWidth - padding));
+
+    // If no room above, position below
+    if (top < padding) {
+      top = window.scrollY + rect.bottom + 12;
+    }
+
+    popover.style.cssText = `
+      position: absolute;
+      top: ${top}px;
+      left: ${left}px;
+      z-index: 1001;
+      width: ${popoverWidth}px;
+    `;
+  }
+
+  function setupPopoverInteractions(popover, selectedText, range) {
+    const closeBtn = popover.querySelector('#feedbackClose');
+    const addNoteBtn = popover.querySelector('#addNoteBtn');
+    const feedbackMain = popover.querySelector('#feedbackMain');
+    const feedbackExpanded = popover.querySelector('#feedbackExpanded');
+    const textarea = popover.querySelector('#feedbackTextarea');
+    const charCount = popover.querySelector('#charCount');
+    const cancelBtn = popover.querySelector('#feedbackCancel');
+    const submitBtn = popover.querySelector('#feedbackSubmit');
+
+    // Close button
+    closeBtn.addEventListener('click', () => {
+      dismissPopover();
+    });
+
+    // Reaction buttons
+    popover.addEventListener('click', (e) => {
+      const reactionBtn = e.target.closest('.reaction-btn');
+      if (reactionBtn) {
+        handleReactionClick(reactionBtn, selectedText, range);
+        return;
+      }
+    });
+
+    // Add note button
+    addNoteBtn.addEventListener('click', () => {
+      expandToNoteMode(feedbackMain, feedbackExpanded, textarea);
+    });
+
+    // Textarea interactions
+    textarea.addEventListener('input', () => {
+      const length = textarea.value.length;
+      charCount.textContent = `${length}/280`;
+      submitBtn.disabled = length === 0;
+
+      if (length === 0) {
+        submitBtn.classList.remove('enabled');
+      } else {
+        submitBtn.classList.add('enabled');
+      }
+    });
+
+    // Cancel button
+    cancelBtn.addEventListener('click', () => {
+      collapseFromNoteMode(feedbackMain, feedbackExpanded);
+    });
+
+    // Submit button
+    submitBtn.addEventListener('click', () => {
+      if (textarea.value.trim()) {
+        // Check if user also selected an emoji reaction
+        const selectedReaction = popover.querySelector('.reaction-btn.selected');
+        const reactionType = selectedReaction ? selectedReaction.getAttribute('data-type') : null;
+
+        recordCombinedFeedback(selectedText, textarea.value.trim(), reactionType, range);
+        showSubmissionSuccess(popover);
+      }
+    });
+  }
+
+  function handleReactionClick(btn, selectedText, range) {
+    const type = btn.getAttribute('data-type');
+
+    // Add selected state
+    btn.classList.add('selected');
+
+    // Visual feedback
+    const emoji = btn.querySelector('.reaction-emoji');
+    emoji.style.transform = 'scale(1.3)';
+    setTimeout(() => {
+      emoji.style.transform = 'scale(1)';
+    }, 200);
+
+    // Record feedback
+    recordSelectionFeedback(selectedText, type, range);
+
+    // DON'T dismiss immediately - let user add note if they want
+    // Just show visual confirmation that reaction was recorded
+    const addNoteBtn = selectionPopover.querySelector('#addNoteBtn');
+    if (addNoteBtn) {
+      addNoteBtn.textContent = '✓ Recorded - Add note?';
+      addNoteBtn.style.background = '#dcfce7';
+      addNoteBtn.style.color = '#059669';
+    }
+  }
+
+  function expandToNoteMode(mainElement, expandedElement, textarea) {
+    // Clear auto-dismiss timer when user enters note mode
+    if (selectionPopover && selectionPopover.autoDismissTimer) {
+      clearTimeout(selectionPopover.autoDismissTimer);
+      selectionPopover.autoDismissTimer = null;
+    }
+
+    mainElement.style.opacity = '0';
+    mainElement.style.transform = 'translateY(-8px)';
+
+    setTimeout(() => {
+      mainElement.style.display = 'none';
+      expandedElement.style.display = 'block';
+
+      requestAnimationFrame(() => {
+        expandedElement.style.opacity = '1';
+        expandedElement.style.transform = 'translateY(0)';
+        textarea.focus();
+      });
+    }, 150);
+  }
+
+  function collapseFromNoteMode(mainElement, expandedElement) {
+    expandedElement.style.opacity = '0';
+    expandedElement.style.transform = 'translateY(8px)';
+
+    setTimeout(() => {
+      expandedElement.style.display = 'none';
+      mainElement.style.display = 'block';
+
+      requestAnimationFrame(() => {
+        mainElement.style.opacity = '1';
+        mainElement.style.transform = 'translateY(0)';
+      });
+    }, 150);
+  }
+
+  function showReactionSuccess(popover, type) {
+    const reactions = { helpful: '👍', unclear: '🤔', incorrect: '⚠️' };
+    popover.innerHTML = `
+      <div class="feedback-success">
+        <div class="success-emoji">${reactions[type]}</div>
+        <div class="success-message">Thanks for the feedback!</div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      dismissPopover();
+    }, 1500);
+  }
+
+  function showSubmissionSuccess(popover) {
+    popover.innerHTML = `
+      <div class="feedback-success">
+        <div class="success-emoji">✨</div>
+        <div class="success-message">Feedback submitted!</div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      dismissPopover();
+    }, 2000);
+  }
+
+  function dismissPopover() {
+    if (selectionPopover && selectionPopover.parentNode) {
+      selectionPopover.style.opacity = '0';
+      selectionPopover.style.transform = 'translateY(-8px) scale(0.95)';
+      setTimeout(() => {
+        if (selectionPopover && selectionPopover.parentNode) {
+          selectionPopover.remove();
+          selectionPopover = null;
+        }
+      }, 200);
+    }
+  }
+
+  function recordDetailedFeedback(selectedText, note, range) {
+    const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+    const section = findNearestSection(range.commonAncestorContainer);
+
+    const payload = {
+      type: 'detailed',
+      pageId: page.id || 'page',
+      pageTitle: page.title,
+      selectedText: selectedText.slice(0, 200),
+      note: note,
+      sectionId: section.id,
+      sectionTitle: section.title,
+      ts: Date.now(),
+      device: { w: window.innerWidth, h: window.innerHeight }
+    };
+
+    const queue = loadQueue(payload.pageId);
+    queue.push(payload);
+    saveQueue(payload.pageId, queue);
+
+    console.log('Detailed feedback recorded:', payload);
+  }
+
+  function recordCombinedFeedback(selectedText, note, reactionType, range) {
+    const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+    const section = findNearestSection(range.commonAncestorContainer);
+
+    const payload = {
+      type: 'combined',
+      pageId: page.id || 'page',
+      pageTitle: page.title,
+      selectedText: selectedText.slice(0, 200),
+      note: note,
+      reaction: reactionType,
+      sectionId: section.id,
+      sectionTitle: section.title,
+      ts: Date.now(),
+      device: { w: window.innerWidth, h: window.innerHeight }
+    };
+
+    const queue = loadQueue(payload.pageId);
+    queue.push(payload);
+    saveQueue(payload.pageId, queue);
+
+    console.log('Combined feedback recorded:', payload);
+  }
+
+  // Click outside to dismiss (but be smart about it)
+  document.addEventListener('click', (e) => {
+    if (selectionPopover && !selectionPopover.contains(e.target) && !isSelecting) {
+      // Don't dismiss if user is in the middle of writing a note
+      const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
+
+      if (isInNoteMode) {
+        // User has note mode open - don't dismiss on outside clicks
+        return;
+      }
+
+      dismissPopover();
+    }
+  });
+}
+
+// Sidebar Feedback (reusing icon pattern)
+function setupSidebarFeedback() {
+  // Add feedback icon next to star in page actions
+  const pageActions = document.querySelector('.page-actions');
+  if (!pageActions) return;
+
+  const feedbackTab = document.createElement('button');
+  feedbackTab.className = 'action-tab feedback-tab';
+  feedbackTab.innerHTML = `
+    <span class="action-tab-text">Feedback</span>
+    <span class="action-tab-icon cdx-icon" data-icon="cdxIconFeedback"></span>
+  `;
+  feedbackTab.title = 'Provide feedback about this article';
+
+  // Insert after star
+  const starTab = pageActions.querySelector('.star');
+  if (starTab) {
+    starTab.insertAdjacentElement('afterend', feedbackTab);
+  } else {
+    pageActions.appendChild(feedbackTab);
+  }
+
+  // Create sidebar
+  createFeedbackSidebar();
+
+  // Handle click
+  feedbackTab.addEventListener('click', () => {
+    toggleFeedbackSidebar();
+  });
+}
+
+function createFeedbackSidebar() {
+  const sidebar = document.createElement('div');
+  sidebar.id = 'feedbackSidebar';
+  sidebar.className = 'feedback-sidebar';
+  sidebar.innerHTML = `
+    <div class="feedback-sidebar-header">
+      <h3>Article Feedback</h3>
+      <button class="feedback-sidebar-close" aria-label="Close">×</button>
+    </div>
+    <div class="feedback-sidebar-content">
+      <p class="feedback-sidebar-intro">Help improve this article by flagging sections that need attention:</p>
+      <div class="feedback-sections" id="feedbackSections">
+        <!-- Sections will be populated dynamically -->
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(sidebar);
+
+  // Populate sections
+  populateFeedbackSections();
+
+  // Close button
+  sidebar.querySelector('.feedback-sidebar-close').addEventListener('click', () => {
+    closeFeedbackSidebar();
+  });
+
+  // Click outside to close
+  document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !e.target.closest('.feedback-tab')) {
+      closeFeedbackSidebar();
+    }
+  });
+}
+
+function populateFeedbackSections() {
+  const sectionsContainer = document.getElementById('feedbackSections');
+  const articleBody = document.getElementById('articleBody');
+
+  if (!sectionsContainer || !articleBody) return;
+
+  const sections = articleBody.querySelectorAll('.article-section');
+  let sectionsHTML = '';
+
+  sections.forEach((section, index) => {
+    const heading = section.querySelector('.article-section__title, .article-subsection__title');
+    if (!heading) return;
+
+    const sectionTitle = heading.textContent.trim();
+    const sectionId = heading.id || `section-${index}`;
+
+    sectionsHTML += `
+      <div class="feedback-section-item" data-section-id="${sectionId}">
+        <div class="feedback-section-title">${sectionTitle}</div>
+        <div class="feedback-section-actions">
+          <button class="feedback-quick-btn" data-type="unclear" data-section="${sectionId}" title="Mark as unclear">
+            🤔
+          </button>
+          <button class="feedback-quick-btn" data-type="missing" data-section="${sectionId}" title="Missing information">
+            📝
+          </button>
+          <button class="feedback-quick-btn" data-type="good" data-section="${sectionId}" title="This section is good">
+            👍
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  sectionsContainer.innerHTML = sectionsHTML;
+
+  // Handle quick feedback
+  sectionsContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('.feedback-quick-btn');
+    if (btn) {
+      const feedbackType = btn.getAttribute('data-type');
+      const sectionId = btn.getAttribute('data-section');
+      recordSectionFeedback(sectionId, feedbackType);
+
+      // Visual feedback
+      btn.style.background = '#4CAF50';
+      btn.style.color = 'white';
+      setTimeout(() => {
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 1000);
+    }
+  });
+}
+
+function toggleFeedbackSidebar() {
+  const sidebar = document.getElementById('feedbackSidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('open');
+  }
+}
+
+function closeFeedbackSidebar() {
+  const sidebar = document.getElementById('feedbackSidebar');
+  if (sidebar) {
+    sidebar.classList.remove('open');
+  }
+}
+
+// Record selection-based feedback
+function recordSelectionFeedback(selectedText, feedbackType, range) {
+  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+  const section = findNearestSection(range.commonAncestorContainer);
+
+  const payload = {
+    type: 'selection',
+    pageId: page.id || 'page',
+    pageTitle: page.title,
+    feedbackType: feedbackType,
+    selectedText: selectedText.slice(0, 200), // Limit length
+    sectionId: section.id,
+    sectionTitle: section.title,
+    ts: Date.now(),
+    device: { w: window.innerWidth, h: window.innerHeight }
+  };
+
+  const queue = loadQueue(payload.pageId);
+  queue.push(payload);
+  saveQueue(payload.pageId, queue);
+
+  console.log('Selection feedback recorded:', payload);
+}
+
+// Record section-based feedback
+function recordSectionFeedback(sectionId, feedbackType) {
+  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+  const heading = document.getElementById(sectionId);
+  const sectionTitle = heading ? heading.textContent.trim() : 'Unknown Section';
+
+  const payload = {
+    type: 'section',
+    pageId: page.id || 'page',
+    pageTitle: page.title,
+    feedbackType: feedbackType,
+    sectionId: sectionId,
+    sectionTitle: sectionTitle,
+    ts: Date.now(),
+    device: { w: window.innerWidth, h: window.innerHeight }
+  };
+
+  const queue = loadQueue(payload.pageId);
+  queue.push(payload);
+  saveQueue(payload.pageId, queue);
+
+  console.log('Section feedback recorded:', payload);
+}
+
+function showSelectionThank(popover) {
+  popover.innerHTML = `
+    <div class="feedback-thank-message">
+      ✓ Thanks for the feedback!
+    </div>
+  `;
+
+  setTimeout(() => {
+    if (popover && popover.parentNode) {
+      popover.remove();
+    }
+  }, 1500);
+}
+
+// Paragraph-level feedback with double-click
+function setupParagraphFeedback() {
+  const article = document.getElementById('articleBody');
+  const paragraphs = article.querySelectorAll('p');
+
+  paragraphs.forEach((p, index) => {
+    let clickTimeout;
+    let clickCount = 0;
+
+    p.addEventListener('click', (e) => {
+      clickCount++;
+
+      if (clickCount === 1) {
+        clickTimeout = setTimeout(() => {
+          clickCount = 0;
+        }, 300);
+      } else if (clickCount === 2) {
+        clearTimeout(clickTimeout);
+        clickCount = 0;
+        showInlineFeedback(p, index);
+      }
+    });
+
+    // Add subtle feedback hint on paragraph end after reading
+    addReadingCompletionHint(p, index);
+  });
+}
+
+// Show inline feedback right after paragraph
+function showInlineFeedback(paragraph, index) {
+  // Remove any existing feedback
+  const existing = document.querySelector('.inline-feedback');
+  if (existing) existing.remove();
+
+  const feedback = document.createElement('div');
+  feedback.className = 'inline-feedback';
+  feedback.innerHTML = `
+    <div class="feedback-prompt">Was this helpful?</div>
+    <div class="feedback-actions">
+      <button class="feedback-btn feedback-yes" data-feedback="helpful" data-paragraph="${index}">
+        👍 <span>Yes</span>
+      </button>
+      <button class="feedback-btn feedback-neutral" data-feedback="unclear" data-paragraph="${index}">
+        🤔 <span>Unclear</span>
+      </button>
+      <button class="feedback-btn feedback-no" data-feedback="needs-more" data-paragraph="${index}">
+        📝 <span>Needs more</span>
+      </button>
+    </div>
+    <button class="feedback-close" title="Close">×</button>
+  `;
+
+  // Insert after paragraph
+  paragraph.insertAdjacentElement('afterend', feedback);
+
+  // Auto-focus for accessibility
+  feedback.focus();
+
+  // Handle feedback responses
+  feedback.addEventListener('click', (e) => {
+    if (e.target.closest('.feedback-btn')) {
+      const btn = e.target.closest('.feedback-btn');
+      const feedbackType = btn.getAttribute('data-feedback');
+      const paragraphIndex = btn.getAttribute('data-paragraph');
+
+      recordParagraphFeedback(paragraphIndex, feedbackType, paragraph);
+      showFeedbackThank(feedback);
+    } else if (e.target.classList.contains('feedback-close')) {
+      feedback.remove();
+    }
+  });
+
+  // Auto-dismiss after 15 seconds
+  setTimeout(() => {
+    if (feedback.parentNode) {
+      feedback.style.opacity = '0';
+      setTimeout(() => feedback.remove(), 200);
+    }
+  }, 15000);
+}
+
+// Add subtle end-of-paragraph reading hints
+function addReadingCompletionHint(paragraph, index) {
+  let readingTimer;
+  let hasShownHint = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !hasShownHint) {
+        // Start timer when paragraph comes into view
+        readingTimer = setTimeout(() => {
+          showSubtleHint(paragraph, index);
+          hasShownHint = true;
+        }, 3000); // 3 seconds reading time
+      } else if (!entry.isIntersecting) {
+        // Clear timer if user scrolls away
+        clearTimeout(readingTimer);
+      }
+    });
+  }, { threshold: 0.8 });
+
+  observer.observe(paragraph);
+}
+
+// Show very subtle feedback hint
+function showSubtleHint(paragraph, index) {
+  const hint = document.createElement('span');
+  hint.className = 'feedback-hint';
+  hint.innerHTML = '💬';
+  hint.title = 'Double-click to share feedback';
+  hint.style.opacity = '0';
+
+  paragraph.appendChild(hint);
+
+  // Fade in
+  setTimeout(() => {
+    hint.style.opacity = '0.3';
+  }, 100);
+
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (hint.parentNode) {
+      hint.style.opacity = '0';
+      setTimeout(() => hint.remove(), 300);
+    }
+  }, 5000);
+
+  hint.addEventListener('click', () => {
+    showInlineFeedback(paragraph, index);
+    hint.remove();
+  });
+}
+
+// Record paragraph feedback
+function recordParagraphFeedback(paragraphIndex, feedbackType, paragraphElement) {
+  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+  const sectionHeading = findNearestSection(paragraphElement);
+
+  const payload = {
+    pageId: page.id || 'page',
+    pageTitle: page.title,
+    feedbackType: feedbackType,
+    paragraphIndex: parseInt(paragraphIndex),
+    sectionId: sectionHeading.id,
+    sectionTitle: sectionHeading.title,
+    paragraphText: paragraphElement.textContent.slice(0, 100) + '...', // First 100 chars
+    ts: Date.now(),
+    device: { w: window.innerWidth, h: window.innerHeight }
+  };
+
+  // Store in localStorage (same system as before)
+  const queue = loadQueue(payload.pageId);
+  queue.push(payload);
+  saveQueue(payload.pageId, queue);
+
+  console.log('Paragraph feedback recorded:', payload);
+}
+
+// Find nearest section for context
+function findNearestSection(element) {
+  let current = element;
+  while (current && current !== document.body) {
+    const section = current.closest('.article-section');
+    if (section) {
+      const heading = section.querySelector('.article-section__title, .article-subsection__title');
+      if (heading) {
+        return {
+          id: heading.id || 'unknown',
+          title: heading.textContent.trim()
+        };
+      }
+    }
+    current = current.parentElement;
+  }
+  return { id: 'article', title: 'Article' };
+}
+
+// Show thank you feedback
+function showFeedbackThank(feedbackElement) {
+  feedbackElement.innerHTML = `
+    <div class="feedback-thank">
+      ✓ Thanks for the feedback!
+    </div>
+  `;
+
+  setTimeout(() => {
+    if (feedbackElement.parentNode) {
+      feedbackElement.style.opacity = '0';
+      setTimeout(() => feedbackElement.remove(), 200);
+    }
+  }, 2000);
+}
+
+// Reading completion detection for gentle feedback prompts
+function setupReadingCompletionDetection() {
+  const article = document.getElementById('articleBody');
+  if (!article) return;
+
+  const sections = article.querySelectorAll('.article-section');
+  let sectionReadTimes = new Map();
+
+  // Track time spent in each section
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const sectionId = entry.target.id || entry.target.querySelector('[data-section-id]')?.getAttribute('data-section-id');
+      if (!sectionId) return;
+
+      if (entry.isIntersecting) {
+        // Started reading this section
+        sectionReadTimes.set(sectionId, Date.now());
+      } else {
+        // Finished reading this section
+        const startTime = sectionReadTimes.get(sectionId);
+        if (startTime) {
+          const readDuration = Date.now() - startTime;
+          // If read for more than 8 seconds, show gentle feedback prompt
+          if (readDuration > 8000) {
+            showGentleFeedbackPrompt(sectionId, entry.target);
+          }
+          sectionReadTimes.delete(sectionId);
+        }
+      }
+    });
+  }, {
+    threshold: 0.5,
+    rootMargin: '-20% 0px -20% 0px' // Only trigger when section is well in view
+  });
+
+  sections.forEach(section => observer.observe(section));
+}
+
+// Show ultra-subtle feedback prompt after reading completion
+function showGentleFeedbackPrompt(sectionId, sectionElement) {
+  // Check if already prompted for this section
+  if (sectionElement.dataset.feedbackPrompted) return;
+  sectionElement.dataset.feedbackPrompted = 'true';
+
+  const heading = sectionElement.querySelector('.article-section__title, .article-subsection__title');
+  if (!heading) return;
+
+  const prompt = document.createElement('div');
+  prompt.className = 'whisper-gentle-prompt';
+  prompt.innerHTML = `
+    <button class="whisper-gentle-btn" title="This section could be improved">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+        <path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0zM5 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0V3zm1 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+      </svg>
+    </button>
+  `;
+
+  // Position in far right margin
+  prompt.style.position = 'absolute';
+  prompt.style.right = '-40px';
+  prompt.style.top = '8px';
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(() => {
+    if (prompt.parentNode) {
+      prompt.style.opacity = '0';
+      setTimeout(() => prompt.remove(), 300);
+    }
+  }, 8000);
+
+  // Click handler
+  prompt.querySelector('.whisper-gentle-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const rect = heading.getBoundingClientRect();
+    const sectionTitle = heading.textContent.trim();
+    openWhisperSheet({ sectionId, sectionTitle, anchorRect: rect });
+    prompt.remove();
+  });
+
+  heading.style.position = 'relative';
+  heading.appendChild(prompt);
+
+  // Fade in
+  requestAnimationFrame(() => {
+    prompt.style.opacity = '1';
+  });
 }
 
 function setupSelectionPopover() {
