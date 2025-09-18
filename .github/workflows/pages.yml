@@ -63,6 +63,15 @@ jobs:
           # Static landing page
           cp pages-index.html site/index.html
 
+          # Cache-bust variant assets by appending build SHA to CSS/JS URLs
+          for f in site/variants/master/index.html site/variants/whisper-modal/index.html site/variants/whisper-inline/index.html; do
+            if [ -f "$f" ]; then
+              sed -i.bak -e "s|href=\"reading-styles.css\"|href=\"reading-styles.css?v=${GITHUB_SHA}\"|g" "$f" || true
+              sed -i.bak -e "s|src=\"reading-script.js\"|src=\"reading-script.js?v=${GITHUB_SHA}\"|g" "$f" || true
+              rm -f "$f.bak"
+            fi
+          done
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
         

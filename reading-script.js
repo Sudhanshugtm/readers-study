@@ -158,7 +158,7 @@ function initWhisperChips() {
       const dot = h.querySelector('.whisper-dot');
       if (dot) dot.style.display = entry.isIntersecting ? 'inline-flex' : 'none';
     });
-  }, { rootMargin: '0px 0px -70% 0px', threshold: 0.0 });
+  }, { rootMargin: '0px', threshold: 0.0 });
   headings.forEach(h => io.observe(h));
 
   // Selection popover: Need more? when selecting text
