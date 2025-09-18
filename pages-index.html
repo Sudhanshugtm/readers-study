@@ -7,52 +7,40 @@
   <style>
     :root { color-scheme: light; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f8f9fa; color: #202122; }
-    .page { max-width: 1280px; margin: 0 auto; padding: 1.25rem 1rem 1rem; }
-    header { margin-bottom: 0.75rem; }
-    h1 { margin: 0 0 0.1rem; font-size: clamp(1.4rem, 3.4vw, 2rem); }
-    p.lede { margin: 0; font-size: clamp(0.95rem, 2.6vw, 1.05rem); color: #54595d; }
-    .tablist { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
-    /* Minimal tab switches */
-    .tablist { gap: 0.25rem; }
+    /* Split layout: tabs on the left, content takes the rest */
+    .page { display: flex; min-height: 100vh; }
+    .sidebar { width: 230px; padding: 16px 12px; border-right: 1px solid #eaecf0; background: #fff; }
+    .stage { flex: 1; min-width: 0; }
+
+    /* Minimal vertical tab list */
+    .tablist { display: flex; flex-direction: column; gap: 4px; }
     .tab {
+      appearance: none;
+      text-align: left;
       border: 1px solid transparent;
       background: transparent;
       border-radius: 6px;
-      padding: 0.35rem 0.75rem;
-      font-size: 0.92rem;
+      padding: 8px 10px;
+      font-size: 0.95rem;
       cursor: pointer;
       color: #54595d;
-      transition: color 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
-    .tab:hover { color: #202122; }
-    .tab[aria-selected="true"] {
-      background: transparent;
-      color: #202122;
-      border-color: transparent;
-      position: relative;
-      box-shadow: none;
-      font-weight: 600;
-    }
-    .tab[aria-selected="true"]::after {
-      content: "";
-      position: absolute;
-      left: 0.5rem;
-      right: 0.5rem;
-      bottom: -6px;
-      height: 2px;
-      background: #36c;
-      border-radius: 2px;
-    }
+    .tab:hover { background: #f8f9fa; color: #202122; }
+    .tab[aria-selected="true"] { color: #202122; font-weight: 600; background: #f3f4f5; }
     .tab:focus-visible { outline: 2px solid #36c; outline-offset: 2px; }
-    .panels { position: relative; min-height: 60vh; }
-    .variant-frame { width: 100%; height: min(88vh, 1000px); border: 1px solid #a2a9b1; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px rgba(32, 33, 36, 0.12); display: none; }
+
+    /* Full-bleed stage; no border box */
+    .stage-inner { height: 100vh; }
+    .variant-frame { width: 100%; height: 100%; border: 0; display: none; background: #fff; }
     .variant-frame.active { display: block; }
-    .meta { margin-top: 1rem; color: #72777d; font-size: 0.85rem; line-height: 1.4; }
-    .meta code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; background: rgba(0,0,0,0.04); border-radius: 4px; padding: 0.1rem 0.35rem; }
+
     @media (max-width: 768px) {
-      .page { padding: 0.75rem 0.75rem 1rem; }
-      .tab { flex: 1 1 auto; text-align: center; }
-      .variant-frame { height: 82vh; }
+      .page { display: block; }
+      .sidebar { width: auto; border-right: 0; border-bottom: 1px solid #eaecf0; padding: 8px 8px 6px; position: sticky; top: 0; z-index: 1; background: #fff; }
+      .tablist { flex-direction: row; gap: 6px; }
+      .tab { text-align: center; padding: 8px 10px; }
+      .stage-inner { height: 82vh; }
     }
   </style>
   <script>
@@ -88,16 +76,20 @@
 </head>
 <body>
   <div class="page">
-    <div class="tablist" role="tablist" aria-label="Feedback design variants">
+    <aside class="sidebar">
+      <div class="tablist" role="tablist" aria-label="Feedback design variants">
       <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true">Heading Menu</button>
       <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false">Dialog Panel</button>
       <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false">Inline Prompt</button>
-    </div>
-    <div class="panels">
-      <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html?embed=1" loading="lazy"></iframe>
-      <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html?embed=1" loading="lazy"></iframe>
-      <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
-    </div>
+      </div>
+    </aside>
+    <main class="stage">
+      <div class="stage-inner">
+        <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html?embed=1" loading="lazy"></iframe>
+        <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html?embed=1" loading="lazy"></iframe>
+        <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
+      </div>
+    </main>
     
   </div>
 </body>
