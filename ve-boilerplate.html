@@ -61,7 +61,13 @@
   <!-- Reading Mode Content -->
   <main class="content-wrap" id="readingContent">
     <p class="tagline">From Wikipedia, the free encyclopedia</p>
-    <article class="article-content" id="articleBody"></article>
+    <div class="article-layout">
+      <aside class="toc-sidebar" id="tocSidebar" aria-label="Contents">
+        <div class="toc-title">Contents</div>
+        <nav id="toc" class="toc"></nav>
+      </aside>
+      <article class="article-content" id="articleBody"></article>
+    </div>
 
     <!-- Whisper Chips UI: selection popover (hidden by default) -->
     <div id="whisperSelectionPopover" class="whisper-popover" role="dialog" aria-label="Need more options" style="display:none;">

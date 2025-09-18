@@ -21,9 +21,12 @@ After earning her doctorate, Bouman joined [[Harvard University]] as a [[postdoc
 She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2019]]. In 2024, Bouman was awarded a [[Sloan Research Fellowship]].`
 };
 
+// Initialize on page load: ensure we set title and build ToC
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadArticleContent();
+  try { buildTableOfContents(); } catch (e) { console.warn('TOC build error', e); }
   setupEventListeners();
   initWhisperChips();
 });
@@ -32,6 +35,8 @@ function loadArticleContent() {
   const articleBody = document.getElementById('articleBody');
   // Use global articleData if available, otherwise fall back to defaultArticle
   const currentArticle = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+  // Update page heading text from article title
+  try { document.querySelectorAll('.firstHeading').forEach(el => { el.textContent = currentArticle.title || 'Article'; }); } catch (e) {}
   const htmlContent = convertMediaWikiToHTML(currentArticle.content);
   articleBody.innerHTML = htmlContent;
 }
