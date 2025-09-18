@@ -37,6 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initial design: default to modal variant for this page
   setDesign('modal');
+
+  // If embedded in comparison page, make the modal treatment obvious
+  try {
+    if (document.documentElement.classList.contains('embed')) {
+      // Open the side feedback panel immediately so this variant
+      // is visually distinct from the baseline at a glance.
+      openFeedbackPanel();
+    }
+  } catch(e) {}
 });
 
 function loadArticleContent() {
