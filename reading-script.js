@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Initial design
-  setDesign('master');
+  // Initial design: default to modal variant for this page
+  setDesign('modal');
 });
 
 function loadArticleContent() {
