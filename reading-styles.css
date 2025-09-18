@@ -1684,10 +1684,11 @@ body {
 /* Overflow dot button on section headings */
 .whisper-dot {
   position: absolute;
-  top: 2px;
-  right: -4px;
-  width: 24px;
-  height: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 8px; /* keep inside heading area */
+  width: 26px;
+  height: 26px;
   display: none; /* toggled via IntersectionObserver */
   align-items: center;
   justify-content: center;
@@ -1697,6 +1698,7 @@ body {
   color: var(--subtle);
   cursor: pointer;
   line-height: 1;
+  font-size: 16px; /* center the ellipsis nicely */
 }
 
 .whisper-dot:hover {
@@ -1705,7 +1707,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .whisper-dot { right: 0; }
+  .whisper-dot { right: 6px; }
 }
 
 /* Desktop presentation: lightweight anchored panel (non-modal) */
