@@ -239,8 +239,7 @@ body {
   margin: 12px 0 16px;
 }
 
-/* Embed mode trims chrome for iframe presentation */
-.embed .page-header,
+/* Embed mode trims extra chrome for iframe presentation (keep header visible) */
 .embed .design-tabs,
 .embed .tagline {
   display: none !important;
