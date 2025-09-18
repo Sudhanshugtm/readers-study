@@ -205,8 +205,7 @@ body {
   margin: 12px 0 16px;
 }
 
-/* Embed mode trims chrome for iframe presentation */
-.embed .page-header,
+/* Embed mode trims extra chrome, but keep header visible for modal variant */
 .embed .design-tabs,
 .embed .tagline {
   display: none !important;
@@ -214,6 +213,32 @@ body {
 .embed .content-wrap { 
   margin: 0 auto; 
   padding-top: 8px; 
+}
+
+/* Floating feedback trigger (modal variant) */
+.floating-feedback-btn {
+  position: fixed;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: #fff;
+  color: var(--progressive);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.floating-feedback-btn:hover { background: var(--background-color-progressive-subtle, #eaf3ff); }
+
+@media (max-width: 768px) {
+  .floating-feedback-btn { right: 12px; top: auto; bottom: 16px; transform: none; }
 }
 
 /* ===== Reading Mode Content ===== */

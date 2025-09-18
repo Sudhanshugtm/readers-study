@@ -25,6 +25,7 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 document.addEventListener('DOMContentLoaded', function() {
   loadArticleContent();
   initHelpImprove();
+  setupFloatingFeedback();
 
   // Design tabs
   document.querySelectorAll('.design-tab').forEach(btn => {
@@ -143,6 +144,7 @@ function initHelpImprove() {
       openFeedbackPanel();
     });
   }
+  // If present, we will also provide a floating button; header button is optional.
 
   const closeBtn = document.getElementById('feedbackPanelClose');
   if (closeBtn) {
@@ -174,6 +176,30 @@ function initHelpImprove() {
       closeFeedbackPanel();
     }
   });
+}
+
+function setupFloatingFeedback() {
+  try {
+    // Remove header help button to reduce clutter (modal variant uses floating trigger)
+    const headerBtn = document.getElementById('helpImproveBtn');
+    if (headerBtn && headerBtn.parentElement) {
+      headerBtn.parentElement.removeChild(headerBtn);
+    }
+    // Create floating button if not present
+    if (!document.getElementById('floatingFeedbackBtn')) {
+      const btn = document.createElement('button');
+      btn.id = 'floatingFeedbackBtn';
+      btn.className = 'floating-feedback-btn';
+      btn.title = 'Help improve this article';
+      btn.setAttribute('aria-label', 'Help improve this article');
+      const icon = document.createElement('span');
+      icon.className = 'cdx-icon';
+      icon.setAttribute('data-icon', 'cdxIconFeedback');
+      btn.appendChild(icon);
+      btn.addEventListener('click', () => openFeedbackPanel());
+      document.body.appendChild(btn);
+    }
+  } catch(e) { console.warn('setupFloatingFeedback error', e); }
 }
 
 function setDesign(design) {
