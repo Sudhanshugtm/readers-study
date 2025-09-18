@@ -47,6 +47,10 @@ function loadArticleContent() {
   const articleBody = document.getElementById('articleBody');
   // Use global articleData if available, otherwise fall back to defaultArticle
   const currentArticle = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
+  // Update page headings to reflect article title
+  try {
+    document.querySelectorAll('.firstHeading').forEach(el => { el.textContent = currentArticle.title || 'Article'; });
+  } catch(e) { /* noop */ }
   const htmlContent = convertMediaWikiToHTML(currentArticle.content);
   articleBody.innerHTML = htmlContent;
 }
