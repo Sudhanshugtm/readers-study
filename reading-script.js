@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch (e) {
     console.error('Error in initWhisperChips:', e);
   }
-  // variant badge removed
+  // Sidebar Prompt variant wiring
+  try { initSidePrompt(); } catch(e) { console.warn('SidePrompt init error', e); }
 });
 
 function loadArticleContent() {
@@ -557,6 +558,65 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
 
   // focus for a11y
   sheet.focus();
+}
+
+// Option 4: Sidebar Prompt (docked right)
+function initSidePrompt() {
+  const root = document.getElementById('sidePrompt');
+  const toggle = document.getElementById('sidePromptToggle');
+  const close = document.getElementById('sidePromptClose');
+  const submit = document.getElementById('spSubmit');
+  const note = document.getElementById('spNote');
+  const char = document.getElementById('spChar');
+  const optMoreDetails = document.getElementById('spMoreDetails');
+  const optMoreImages = document.getElementById('spMoreImages');
+  const secLabel = document.getElementById('spSection');
+  if (!root || !toggle || !close) return; // only for sidebar variant
+
+  // Don’t auto-open; collapsed by default
+  function setOpen(open) {
+    root.classList.toggle('collapsed', !open);
+    root.setAttribute('aria-expanded', String(!!open));
+  }
+  setOpen(false);
+  toggle.addEventListener('click', () => setOpen(true));
+  close.addEventListener('click', () => setOpen(false));
+
+  // Show current section in label as you scroll
+  try {
+    const headings = Array.from(document.querySelectorAll('#articleBody .article-section__title'));
+    const io = new IntersectionObserver((entries) => {
+      const top = entries.filter(e => e.isIntersecting).sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (top && secLabel) secLabel.textContent = top.target.textContent.trim();
+    }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+    headings.forEach(h => io.observe(h));
+  } catch {}
+
+  // Enable submit on options/note
+  function updateSubmit() {
+    const has = (optMoreDetails && optMoreDetails.checked) || (optMoreImages && optMoreImages.checked) || (note && note.value.trim().length > 0);
+    if (submit) submit.disabled = !has;
+  }
+  if (optMoreDetails) optMoreDetails.addEventListener('change', updateSubmit);
+  if (optMoreImages) optMoreImages.addEventListener('change', updateSubmit);
+  if (note) note.addEventListener('input', () => { if (char) char.textContent = (note.value.length + '/140'); updateSubmit(); });
+
+  if (submit) submit.addEventListener('click', () => {
+    const current = nearestSectionFromSelection();
+    recordWhisperSignal({
+      sectionId: current.id,
+      sectionTitle: current.title,
+      chips: [ optMoreDetails && optMoreDetails.checked ? 'more_details' : null, optMoreImages && optMoreImages.checked ? 'more_images' : null ].filter(Boolean),
+      note: note ? note.value : ''
+    });
+    showWhisperToast('Thanks — your request was recorded.');
+    setOpen(false);
+    if (note) note.value = '';
+    if (char) char.textContent = '0/140';
+    if (optMoreDetails) optMoreDetails.checked = false;
+    if (optMoreImages) optMoreImages.checked = false;
+    updateSubmit();
+  });
 }
 
 function currentWhisperPayload() {
