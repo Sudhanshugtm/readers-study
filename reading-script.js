@@ -49,7 +49,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   // Sidebar Prompt removed; only Gutter Flicks active
   // Gutter Flicks (Option 4) interactions
-  try { initGutterFlicks(); } catch(e) { console.warn('Gutter init error', e); }
+  try {
+    initGutterFlicks();
+    // Re-scan once more after layout settles (catch any late DOM)
+    setTimeout(() => { try { initGutterFlicks(true); } catch(e){} }, 300);
+  } catch(e) { console.warn('Gutter init error', e); }
 });
 
 function loadArticleContent() {
@@ -512,7 +516,7 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
 // initSidePrompt removed
 
 // ========== Option 4: Gutter Flicks ==========
-function initGutterFlicks() {
+function initGutterFlicks(rescan = false) {
   const container = document.getElementById('articleBody');
   if (!container) return;
   const paragraphs = Array.from(container.querySelectorAll('p'));
@@ -575,7 +579,7 @@ function ensureGutterWrap(p) {
   let startX=0, startY=0, isDown=false, ring=null, downAt=0;
   wrap.addEventListener('pointerdown', (e) => {
     const rect = wrap.getBoundingClientRect();
-    const withinLeftEdge = (e.clientX - rect.left) < 24; // near text edge
+    const withinLeftEdge = (e.clientX - rect.left) < 20; // near text edge inside padding
     if (!withinLeftEdge) return;
     isDown = true; startX = e.clientX; startY = e.clientY; downAt = performance.now();
     wrap.setPointerCapture(e.pointerId);
@@ -596,9 +600,9 @@ function ensureGutterWrap(p) {
 }
 
 function maybeSendFromGesture(p, dx, dy, dt, x, y) {
-  // Require a leftward flick of at least 12px from the text edge; send if released within 600ms; hold longer cancels
+  // Leftward flick ≥12px within 800ms sends; hold longer cancels
   const FLICK_THRESH = -12;
-  const HOLD_CANCEL_MS = 600;
+  const HOLD_CANCEL_MS = 800;
   if (dt > HOLD_CANCEL_MS) return false; // held too long – cancel
   if (dx > FLICK_THRESH) return false; // not leftward enough
   const angle = Math.atan2(dy, dx) * (180/Math.PI); // dx negative
@@ -619,8 +623,9 @@ function sendGutterSignalFor(p, dir, pt) {
     chips: [ map[dir] ],
     note: ''
   });
-  addGutterTickFor(p, dir);
-  showWhisperToast('Thanks — sent');
+  addGutterTickFor(p, dir, pt);
+  const label = dir === 'left' ? 'More background' : (dir === 'left-up' ? 'Hard to follow' : 'Seems wrong/outdated');
+  showWhisperToast('Sent: ' + label);
 }
 
 function nearestHeadingForNode(node) {
@@ -635,13 +640,18 @@ function nearestHeadingForNode(node) {
   return fallback ? { id: fallback.id, title: fallback.textContent.trim() } : { id: 'article', title: 'Article' };
 }
 
-function addGutterTickFor(p, dir) {
+function addGutterTickFor(p, dir, pt) {
   const wrap = p.closest('.gutter-wrap'); if (!wrap) return;
   const ticks = wrap.querySelector('.gutter-ticks'); if (!ticks) return;
   const tick = document.createElement('div');
   tick.className = 'gutter-tick';
-  // place roughly near pointer: center for now
-  tick.style.top = '8px';
+  // place near pointer Y or near top
+  const rect = wrap.getBoundingClientRect();
+  let top = 8;
+  if (pt && typeof pt.y === 'number') {
+    top = Math.max(2, Math.min(rect.height - 4, pt.y - rect.top));
+  }
+  tick.style.top = top + 'px';
   // cluster effect: if existing, add class
   if (ticks.childElementCount >= 1) tick.classList.add('cluster');
   ticks.appendChild(tick);
@@ -677,7 +687,7 @@ function openSRPicker(p) {
   menu.style.transform = 'translateX(-50%)'; menu.style.background = '#fff'; menu.style.border = '1px solid #c8ccd1'; menu.style.borderRadius = '8px'; menu.style.padding = '8px'; menu.style.zIndex = 1200;
   opts.forEach(o => {
     const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = o.label; btn.style.display = 'block'; btn.style.margin = '6px 0';
-    btn.addEventListener('click', () => { sendGutterSignalFor(p, o.key, { x:0,y:0 }); close(); });
+    btn.addEventListener('click', () => { const r = p.getBoundingClientRect(); sendGutterSignalFor(p, o.key, { x: r.left + 4, y: r.top + 8 }); close(); });
     menu.appendChild(btn);
   });
   function close(){ if (menu.parentNode) document.body.removeChild(menu); }

@@ -264,11 +264,11 @@ body {
 
 /* Sidebar Prompt removed (Gutter Flicks only) */
 
-/* Gutter Flicks — margin rail and ticks */
-.gutter-wrap { position: relative; }
-.gutter-rail { position: absolute; left: -18px; top: 0; bottom: 0; width: 2px; background: transparent; opacity: 0; transition: opacity .15s ease; }
+/* Gutter Flicks — margin rail and ticks (inside content column) */
+.gutter-wrap { position: relative; padding-left: 14px; }
+.gutter-rail { position: absolute; left: 2px; top: 0; bottom: 0; width: 2px; background: transparent; opacity: 0; transition: opacity .15s ease; }
 .gutter-wrap:hover .gutter-rail, .gutter-rail.armed { opacity: 1; background: linear-gradient(to bottom, rgba(54,102,204,.15), rgba(54,102,204,.05)); }
-.gutter-ticks { position: absolute; left: -18px; top: 0; bottom: 0; width: 12px; pointer-events: none; }
+.gutter-ticks { position: absolute; left: 2px; top: 0; bottom: 0; width: 12px; pointer-events: none; }
 .gutter-tick { position: absolute; left: 2px; width: 6px; height: 2px; background: rgba(54,102,204,.35); border-radius: 1px; }
 .gutter-tick.cluster { box-shadow: 0 3px 0 rgba(54,102,204,.25), 0 -3px 0 rgba(54,102,204,.25); }
 
