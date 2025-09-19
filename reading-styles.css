@@ -279,6 +279,22 @@ body {
   .sideprompt__toggle { left: 50%; top: -44px; transform: translateX(-50%); writing-mode: horizontal-tb; border: 1px solid var(--border-soft); border-bottom: 0; border-top-left-radius: 6px; border-top-right-radius: 6px; }
 }
 
+/* Gutter Flicks — margin rail and ticks */
+.gutter-wrap { position: relative; }
+.gutter-rail { position: absolute; left: -18px; top: 0; bottom: 0; width: 2px; background: transparent; opacity: 0; transition: opacity .15s ease; }
+.gutter-wrap:hover .gutter-rail, .gutter-rail.armed { opacity: 1; background: linear-gradient(to bottom, rgba(54,102,204,.15), rgba(54,102,204,.05)); }
+.gutter-ticks { position: absolute; left: -18px; top: 0; bottom: 0; width: 12px; pointer-events: none; }
+.gutter-tick { position: absolute; left: 2px; width: 6px; height: 2px; background: rgba(54,102,204,.35); border-radius: 1px; }
+.gutter-tick.cluster { box-shadow: 0 3px 0 rgba(54,102,204,.25), 0 -3px 0 rgba(54,102,204,.25); }
+
+/* Send ring */
+.send-ring { position: fixed; width: 14px; height: 14px; margin-left: -7px; margin-top: -7px; border-radius: 999px; border: 2px solid rgba(54,102,204,.55); pointer-events: none; opacity: 0; transform: scale(.6); transition: opacity .1s linear, transform .6s ease; z-index: 1200; }
+.send-ring.active { opacity: 1; transform: scale(1.8); }
+
+/* Accessibility helpers */
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.sr-only:focus { position: static !important; width: auto; height: auto; margin: 0; clip: auto; background: #fff3cd; border: 1px solid #ffec99; padding: 4px 6px; border-radius: 4px; }
+
 /* Table of contents sidebar (Vector-like) */
 .toc-sidebar {
   width: 260px;

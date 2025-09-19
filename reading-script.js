@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   // Sidebar Prompt variant wiring
   try { initSidePrompt(); } catch(e) { console.warn('SidePrompt init error', e); }
+  // Gutter Flicks (Option 4) interactions
+  try { initGutterFlicks(); } catch(e) { console.warn('Gutter init error', e); }
 });
 
 function loadArticleContent() {
@@ -617,6 +619,182 @@ function initSidePrompt() {
     if (optMoreImages) optMoreImages.checked = false;
     updateSubmit();
   });
+}
+
+// ========== Option 4: Gutter Flicks ==========
+function initGutterFlicks() {
+  const container = document.getElementById('articleBody');
+  if (!container) return;
+  const paragraphs = Array.from(container.querySelectorAll('p'));
+  paragraphs.forEach(p => ensureGutterWrap(p));
+
+  // Keyboard accessibility: 'g' to arm for 5s; arrows choose direction; Enter to send
+  let gutterArmed = false; let armTimer = null; let armedDir = 'left';
+  function armGutter() {
+    gutterArmed = true; armedDir = 'left';
+    container.classList.add('gutter-armed');
+    const rails = container.querySelectorAll('.gutter-rail'); rails.forEach(r => r.classList.add('armed'));
+    clearTimeout(armTimer);
+    armTimer = setTimeout(disarmGutter, 5000);
+  }
+  function disarmGutter() {
+    gutterArmed = false; container.classList.remove('gutter-armed');
+    const rails = container.querySelectorAll('.gutter-rail'); rails.forEach(r => r.classList.remove('armed'));
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'g' || e.key === 'G') { armGutter(); }
+    if (!gutterArmed) return;
+    if (['ArrowLeft','ArrowUp','ArrowDown'].includes(e.key)) {
+      if (e.key === 'ArrowLeft') armedDir = 'left';
+      if (e.key === 'ArrowUp') armedDir = 'left-up';
+      if (e.key === 'ArrowDown') armedDir = 'left-down';
+      e.preventDefault();
+    }
+    if (e.key === 'Enter') {
+      // Send for the paragraph in view
+      const p = paragraphs.find(el => isElementInViewport(el));
+      if (p) sendGutterSignalFor(p, armedDir, { x: p.getBoundingClientRect().left, y: p.getBoundingClientRect().top + 6 });
+      disarmGutter();
+      e.preventDefault();
+    }
+    if (e.key === 'Escape') { disarmGutter(); }
+  });
+
+  // Screen reader fallback: add an sr-only button per paragraph
+  paragraphs.forEach((p, idx) => {
+    if (p.querySelector('.sr-whisper-trigger')) return;
+    const b = document.createElement('button');
+    b.className = 'sr-only sr-whisper-trigger';
+    b.type = 'button';
+    b.textContent = 'Send feedback for paragraph ' + (idx+1);
+    b.addEventListener('click', () => openSRPicker(p));
+    p.insertAdjacentElement('afterbegin', b);
+  });
+}
+
+function ensureGutterWrap(p) {
+  if (p.closest('.gutter-wrap')) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'gutter-wrap';
+  p.parentNode.insertBefore(wrap, p);
+  wrap.appendChild(p);
+  const rail = document.createElement('div'); rail.className = 'gutter-rail'; wrap.appendChild(rail);
+  const ticks = document.createElement('div'); ticks.className = 'gutter-ticks'; wrap.appendChild(ticks);
+
+  // Pointer gesture
+  let startX=0, startY=0, isDown=false, ring=null, downAt=0;
+  wrap.addEventListener('pointerdown', (e) => {
+    const rect = wrap.getBoundingClientRect();
+    const withinLeftEdge = (e.clientX - rect.left) < 24; // near text edge
+    if (!withinLeftEdge) return;
+    isDown = true; startX = e.clientX; startY = e.clientY; downAt = performance.now();
+    wrap.setPointerCapture(e.pointerId);
+    ring = createSendRing(e.clientX, e.clientY);
+  });
+  wrap.addEventListener('pointermove', (e) => {
+    if (!isDown) return;
+    // Optionally we could draw vector; kept minimal
+  });
+  wrap.addEventListener('pointerup', (e) => {
+    if (!isDown) return; isDown = false; wrap.releasePointerCapture(e.pointerId);
+    const dx = e.clientX - startX; const dy = e.clientY - startY;
+    const dt = performance.now() - downAt;
+    const sent = maybeSendFromGesture(p, dx, dy, dt, e.clientX, e.clientY);
+    if (ring) destroySendRing(ring, sent); ring = null;
+  });
+  wrap.addEventListener('pointercancel', () => { isDown=false; if (ring) destroySendRing(ring, false); ring=null; });
+}
+
+function maybeSendFromGesture(p, dx, dy, dt, x, y) {
+  // Require a leftward flick of at least 12px from the text edge; send if released within 600ms; hold longer cancels
+  const FLICK_THRESH = -12;
+  const HOLD_CANCEL_MS = 600;
+  if (dt > HOLD_CANCEL_MS) return false; // held too long – cancel
+  if (dx > FLICK_THRESH) return false; // not leftward enough
+  const angle = Math.atan2(dy, dx) * (180/Math.PI); // dx negative
+  let dir = 'left';
+  if (angle < -120 && angle > -180 || angle > 120 && angle <= 180) dir = 'left';
+  if (angle >= -120 && angle <= -60) dir = 'left-up';
+  if (angle >= 60 && angle <= 120) dir = 'left-down';
+  sendGutterSignalFor(p, dir, { x, y });
+  return true;
+}
+
+function sendGutterSignalFor(p, dir, pt) {
+  const map = { 'left': 'more_background', 'left-up': 'hard_to_follow', 'left-down': 'outdated_wrong' };
+  const heading = nearestHeadingForNode(p);
+  recordWhisperSignal({
+    sectionId: heading.id,
+    sectionTitle: heading.title,
+    chips: [ map[dir] ],
+    note: ''
+  });
+  addGutterTickFor(p, dir);
+  showWhisperToast('Thanks — sent');
+}
+
+function nearestHeadingForNode(node) {
+  const headings = Array.from(document.querySelectorAll('#articleBody .article-section__title, #articleBody .article-subsection__title'));
+  let el = node;
+  while (el && el !== document.body) {
+    const h = el.previousElementSibling && (el.previousElementSibling.matches('.article-section__title, .article-subsection__title') ? el.previousElementSibling : null);
+    if (h) return { id: h.id, title: h.textContent.trim() };
+    el = el.parentElement;
+  }
+  const fallback = headings[0];
+  return fallback ? { id: fallback.id, title: fallback.textContent.trim() } : { id: 'article', title: 'Article' };
+}
+
+function addGutterTickFor(p, dir) {
+  const wrap = p.closest('.gutter-wrap'); if (!wrap) return;
+  const ticks = wrap.querySelector('.gutter-ticks'); if (!ticks) return;
+  const tick = document.createElement('div');
+  tick.className = 'gutter-tick';
+  // place roughly near pointer: center for now
+  tick.style.top = '8px';
+  // cluster effect: if existing, add class
+  if (ticks.childElementCount >= 1) tick.classList.add('cluster');
+  ticks.appendChild(tick);
+}
+
+function createSendRing(x, y) {
+  const ring = document.createElement('div'); ring.className = 'send-ring';
+  ring.style.left = x + 'px'; ring.style.top = y + 'px';
+  document.body.appendChild(ring);
+  requestAnimationFrame(() => ring.classList.add('active'));
+  return ring;
+}
+function destroySendRing(ring, sent) {
+  if (!ring) return; ring.classList.remove('active');
+  setTimeout(() => { if (ring && ring.parentNode) ring.parentNode.removeChild(ring); }, 180);
+}
+
+function isElementInViewport(el) {
+  const rect = el.getBoundingClientRect();
+  return rect.top >= 0 && rect.top <= (window.innerHeight*0.6);
+}
+
+function openSRPicker(p) {
+  const opts = [
+    { key: 'left', label: 'More background' },
+    { key: 'left-up', label: 'Hard to follow' },
+    { key: 'left-down', label: 'Seems wrong/outdated' }
+  ];
+  const menu = document.createElement('div');
+  menu.role = 'dialog';
+  menu.ariaLabel = 'Send feedback';
+  menu.style.position = 'fixed'; menu.style.left = '50%'; menu.style.top = '20%';
+  menu.style.transform = 'translateX(-50%)'; menu.style.background = '#fff'; menu.style.border = '1px solid #c8ccd1'; menu.style.borderRadius = '8px'; menu.style.padding = '8px'; menu.style.zIndex = 1200;
+  opts.forEach(o => {
+    const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = o.label; btn.style.display = 'block'; btn.style.margin = '6px 0';
+    btn.addEventListener('click', () => { sendGutterSignalFor(p, o.key, { x:0,y:0 }); close(); });
+    menu.appendChild(btn);
+  });
+  function close(){ if (menu.parentNode) document.body.removeChild(menu); }
+  const cancel = document.createElement('button'); cancel.type='button'; cancel.textContent='Cancel'; cancel.addEventListener('click', close);
+  menu.appendChild(cancel);
+  document.body.appendChild(menu);
+  setTimeout(() => { try { menu.querySelector('button')?.focus(); } catch{} }, 0);
 }
 
 function currentWhisperPayload() {
