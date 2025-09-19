@@ -175,8 +175,6 @@ function saveQueue(pageId, arr) { localStorage.setItem(storageKey(pageId), JSON.
 const ENABLE_SELECTION_POPOVER = false; // limit interactions to section-level dots only
 
 function initWhisperChips() {
-  // Disabled in Sidebar/Gutter variant; legacy overflow dots are not used here.
-  return;
   const article = document.getElementById('articleBody');
   if (!article) return;
 
