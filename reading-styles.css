@@ -262,22 +262,7 @@ body {
   align-items: flex-start;
 }
 
-/* Sidebar Prompt (Option 4) */
-.sideprompt { position: fixed; top: 100px; right: 0; width: 340px; max-width: 86vw; height: calc(100vh - 120px); background: #fff; border-left: 1px solid var(--border); box-shadow: -4px 0 16px rgba(0,0,0,.06); z-index: 1100; transform: translateX(0); transition: transform .2s ease; display: flex; flex-direction: column; }
-.sideprompt.collapsed { transform: translateX(calc(100% - 40px)); }
-.sideprompt__toggle { position: absolute; left: -72px; top: 40%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: mixed; background: #fff; border: 1px solid var(--border-soft); border-right: 0; padding: 8px 6px; border-top-left-radius: 6px; border-bottom-left-radius: 6px; cursor: pointer; color: var(--progressive); }
-.sideprompt__inner { display: flex; flex-direction: column; height: 100%; }
-.sideprompt__header { display:flex; align-items:center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--border-soft); }
-.sideprompt__title { margin: 0; font-size: 16px; }
-.sideprompt__close { border: 1px solid var(--border-soft); background: #fff; border-radius: 6px; width: 28px; height: 28px; cursor: pointer; }
-.sideprompt__body { padding: 10px 12px; overflow: auto; }
-.sideprompt__footer { padding: 10px 12px; border-top: 1px solid var(--border-soft); }
-
-@media (max-width: 768px) {
-  .sideprompt { top: auto; bottom: 0; height: 60vh; width: 100vw; max-width: 100vw; border-left: none; border-top: 1px solid var(--border); transform: translateY(0); }
-  .sideprompt.collapsed { transform: translateY(calc(100% - 44px)); }
-  .sideprompt__toggle { left: 50%; top: -44px; transform: translateX(-50%); writing-mode: horizontal-tb; border: 1px solid var(--border-soft); border-bottom: 0; border-top-left-radius: 6px; border-top-right-radius: 6px; }
-}
+/* Sidebar Prompt removed (Gutter Flicks only) */
 
 /* Gutter Flicks — margin rail and ticks */
 .gutter-wrap { position: relative; }
