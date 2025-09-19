@@ -27,40 +27,9 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 document.addEventListener('DOMContentLoaded', function() {
   loadArticleContent();
   try { buildTableOfContents(); } catch (e) { console.warn('TOC build error', e); }
-  try { initMobileNeedMore(); } catch (e) { console.warn('mobile pill init error', e); }
   setupEventListeners();
   initWhisperChips();
 });
-
-// Mobile: replace selection popover with a bottom pill that opens the sheet
-function initMobileNeedMore() {
-  if (!(window.matchMedia && window.matchMedia('(max-width: 768px)').matches)) return;
-  const pill = document.getElementById('mobileNeedMorePill');
-  const article = document.getElementById('articleBody');
-  if (!pill || !article) return;
-
-  let hideTimer = null;
-  function hidePillSoon() { clearTimeout(hideTimer); hideTimer = setTimeout(() => pill.style.display = 'none', 2500); }
-
-  document.addEventListener('selectionchange', () => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) { pill.style.display = 'none'; return; }
-    const range = sel.rangeCount ? sel.getRangeAt(0) : null;
-    const container = range ? (range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement) : null;
-    if (!container || !article.contains(container)) { pill.style.display = 'none'; return; }
-    pill.style.display = 'inline-block';
-    hidePillSoon();
-  });
-
-  pill.addEventListener('click', () => {
-    const sel = window.getSelection();
-    let quote = '';
-    if (sel && !sel.isCollapsed) quote = sel.toString().trim();
-    const heading = nearestSectionFromSelection();
-    openWhisperSheet({ sectionId: heading.id, sectionTitle: heading.title, quote });
-    pill.style.display = 'none';
-  });
-}
 
 function loadArticleContent() {
   const articleBody = document.getElementById('articleBody');

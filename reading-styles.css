@@ -538,19 +538,6 @@ body {
   }
 }
 
-/* Inline Prompt mobile pill */
-@media (max-width: 768px) {
-  .mobile-needmore-pill {
-    position: fixed;
-    left: 50%; transform: translateX(-50%);
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    background: #202122; color: #fff;
-    border: 0; border-radius: 999px; padding: 10px 14px;
-    box-shadow: 0 4px 16px rgba(32,33,36,0.18);
-    z-index: 2500;
-  }
-}
-
 /* Mobile-specific VE toolbar */
 @media (max-width: 768px) {
   .ve-interface .page-header {
