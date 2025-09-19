@@ -221,8 +221,8 @@ body {
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   border: 1px solid var(--border-soft);
   background: #fff;
@@ -230,9 +230,9 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-2);
+  box-shadow: 0 4px 16px rgba(32,33,36,0.12);
   cursor: pointer;
-  z-index: 1100;
+  z-index: 3000; /* ensure above iframe content */
 }
 
 .floating-feedback-btn:hover { background: var(--background-color-progressive-subtle, #eaf3ff); }

@@ -184,11 +184,7 @@ function initHelpImprove() {
 
 function setupFloatingFeedback() {
   try {
-    // Remove header help button to reduce clutter (modal variant uses floating trigger)
-    const headerBtn = document.getElementById('helpImproveBtn');
-    if (headerBtn && headerBtn.parentElement) {
-      headerBtn.parentElement.removeChild(headerBtn);
-    }
+    // Keep header help-improve button as a visible fallback
     // Create floating button if not present
     if (!document.getElementById('floatingFeedbackBtn')) {
       const btn = document.createElement('button');
