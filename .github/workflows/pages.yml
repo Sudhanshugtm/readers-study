@@ -33,9 +33,9 @@ jobs:
           set -euo pipefail
 
           # Fetch variant branches created via worktrees
-          git fetch --no-tags origin alt-whisper-inline alt-whisper-modal || true
+          git fetch --no-tags origin alt-whisper-inline alt-whisper-modal alt-whisper-sidebar || true
 
-          mkdir -p site/variants/master site/variants/whisper-inline site/variants/whisper-modal
+          mkdir -p site/variants/master site/variants/whisper-inline site/variants/whisper-modal site/variants/whisper-sidebar
 
           # Baseline from current branch
           cp ve-boilerplate.html site/variants/master/index.html
@@ -58,6 +58,18 @@ jobs:
             git show origin/alt-whisper-inline:reading-script.js > site/variants/whisper-inline/reading-script.js
           else
             echo "Missing branch origin/alt-whisper-inline; skipping inline variant"
+          fi
+
+          # Whisper sidebar (Option 4) from branch, fallback to baseline
+          if git rev-parse --verify --quiet origin/alt-whisper-sidebar >/dev/null; then
+            git show origin/alt-whisper-sidebar:ve-boilerplate.html > site/variants/whisper-sidebar/index.html
+            git show origin/alt-whisper-sidebar:reading-styles.css > site/variants/whisper-sidebar/reading-styles.css
+            git show origin/alt-whisper-sidebar:reading-script.js > site/variants/whisper-sidebar/reading-script.js
+          else
+            echo "Missing branch origin/alt-whisper-sidebar; copying baseline as placeholder"
+            cp site/variants/master/index.html site/variants/whisper-sidebar/index.html
+            cp site/variants/master/reading-styles.css site/variants/whisper-sidebar/reading-styles.css
+            cp site/variants/master/reading-script.js site/variants/whisper-sidebar/reading-script.js
           fi
 
           # Static landing page

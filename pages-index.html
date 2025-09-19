@@ -52,7 +52,8 @@
       const labels = {
         master: 'Heading Menu',
         'whisper-modal': 'Dialog Panel',
-        'whisper-inline': 'Inline Prompt'
+        'whisper-inline': 'Inline Prompt',
+        'whisper-sidebar': 'Sidebar Prompt'
       };
       function activate(target) {
         tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.target === target)));
@@ -82,6 +83,7 @@
       <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true">Heading Menu</button>
       <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false">Dialog Panel</button>
       <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false">Inline Prompt</button>
+      <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="false">Sidebar Prompt</button>
       </div>
     </aside>
     <main class="stage">
@@ -89,6 +91,7 @@
         <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html?embed=1" loading="lazy"></iframe>
         <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html?embed=1" loading="lazy"></iframe>
         <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
+        <iframe class="variant-frame" id="panel-whisper-sidebar" title="Whisper sidebar" data-src="variants/whisper-sidebar/index.html?embed=1" loading="lazy"></iframe>
       </div>
     </main>
     
