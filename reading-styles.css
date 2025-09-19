@@ -436,34 +436,6 @@ body {
     height: 20px;
   }
 }
-
-/* Minerva-like mobile skin tweaks (applies to all concepts) */
-@media (max-width: 768px) {
-  html, body { font-size: 16px; line-height: 1.65; }
-  .tagline { display: none !important; }
-  .page-header {
-    position: sticky;
-    top: 0;
-    background: #fff;
-    z-index: 200;
-    border-bottom: 1px solid #eaecf0;
-    padding-top: 10px;
-    padding-bottom: 6px;
-  }
-  .firstHeading { font-size: 22px; margin-bottom: 6px; }
-  .page-tabs-wrapper { flex-direction: column; gap: 6px; border-bottom: none; margin: 0 -16px; padding: 0 16px; }
-  .ns-tabs { display: none; }
-  .page-actions { gap: 4px; padding: 0; margin: 0; }
-  .action-tab-text { display: none !important; }
-  .action-tab-icon { display: inline-flex !important; width: 20px; height: 20px; }
-
-  .content-wrap { padding: 0 16px; margin: 10px auto 16px; }
-  .article-content { font-size: 16px; line-height: 1.7; }
-  .article-section__title { font-size: 1.35rem; margin: 18px 0 8px; }
-
-  /* Hide left ToC on mobile for a clean reading flow */
-  .toc-sidebar { display: none !important; }
-}
   
   .content-wrap {
     padding: 0 16px;
