@@ -338,20 +338,72 @@ body {
   border-bottom: none;
 }
 
-/* Minerva-like mobile skin tweaks */
+/* Mobile adjustments for reading mode */
 @media (max-width: 768px) {
-  .container { padding: 0 16px; }
-  html, body { font-size: 16px; line-height: 1.65; }
-  .tagline { display: none !important; }
-  .page-header { position: sticky; top: 0; background: #fff; z-index: 200; border-bottom: 1px solid #eaecf0; padding-top: 10px; padding-bottom: 6px; }
-  .firstHeading { font-size: 22px; margin-bottom: 6px; }
-  .page-tabs-wrapper { flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 6px; margin: 0 -16px; padding: 0 16px; border-bottom: none; }
-  .ns-tabs { display: none; }
-  .page-actions { order: 2; justify-content: flex-start; gap: 6px; padding: 6px 0; margin: 0; }
-  .action-tab:first-child { display: none; }
-  .action-tab, .ns-tab { padding: 10px; font-size: 14px; }
-  .action-tab-text { display: none; }
-  .action-tab-icon { display: inline-flex; width: 20px; height: 20px; }
+  .container {
+    padding: 0 16px;
+  }
+  
+  .page-header {
+    padding-top: 20px;
+  }
+  
+  .firstHeading {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .page-tabs-wrapper {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+  
+  .ns-tabs {
+    order: 1;
+    margin-bottom: 8px;
+    justify-content: flex-start;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  
+  .ns-tab {
+    margin-left: 0;
+  }
+  
+  .ns-tab:first-child {
+    padding-left: 0;
+  }
+  
+  .page-actions {
+    order: 2;
+    justify-content: space-between;
+    padding: 8px 16px;
+    margin: 8px -16px 0 -16px;
+  }
+  
+  .action-tab:first-child {
+    display: none; /* Hide "Read" tab on mobile */
+  }
+  
+  .action-tab, .ns-tab {
+    padding: 12px 16px 10px;
+    font-size: 14px;
+  }
+  
+  /* Mobile: Show icons, hide text */
+  .action-tab-text {
+    display: none;
+  }
+  
+  .action-tab-icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+  }
 }
   
   .content-wrap {
