@@ -581,12 +581,7 @@ function wireWhisperSheet() {
 
   // Removed directive helper variants; helper stays neutral
 
-  // Note input
-  note.addEventListener('input', () => {
-    whisperState.note = note.value;
-    charCount.textContent = note.value.length + '/140';
-    updateWhisperSubmitState();
-  });
+  // No free-form note UI in inline variant
 
   // Close actions
   function closeSheet() { sheet.style.display = 'none'; backdrop.style.display = 'none'; }
@@ -644,14 +639,11 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
   const optMoreImages = document.getElementById('optMoreImages');
   if (optMoreDetails) optMoreDetails.checked = false;
   if (optMoreImages) optMoreImages.checked = false;
-  // Reset note
-  note.value = '';
-  charCount.textContent = '0/140';
   // Talk link removed, nothing to update
 
-  // Note area is always visible; reset helper and button state
+  // Reset helper and button state
   const helperEl = document.querySelector('.whisper-helper');
-  if (helperEl) helperEl.textContent = 'Pick what would help most. You can add a note.';
+  if (helperEl) helperEl.textContent = 'Pick what would help most.';
   updateWhisperSubmitState();
 
   updateWhisperSubmitState();
