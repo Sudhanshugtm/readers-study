@@ -225,9 +225,11 @@ function setupTextSelectionFeedback() {
       </div>
     `;
 
-    // Position popover intelligently
-    positionPopover(selectionPopover, range);
+    // Insert hidden for accurate measurement, then position
+    selectionPopover.style.visibility = 'hidden';
     document.body.appendChild(selectionPopover);
+    positionPopover(selectionPopover, range);
+    selectionPopover.style.visibility = 'visible';
 
     // Setup interactions
     setupPopoverInteractions(selectionPopover, selectedText, range);
@@ -245,11 +247,12 @@ function setupTextSelectionFeedback() {
 
   function positionPopover(popover, range) {
     const rect = range.getBoundingClientRect();
-    const popoverWidth = 280;
-    const popoverHeight = 120; // Initial height
+    const popoverWidth = 300;
+    const popoverHeight = Math.max(120, popover.offsetHeight || 0);
 
     // Try to center above selection
-    let top = window.scrollY + rect.top - popoverHeight - 12;
+    const GAP = 12;
+    let top = window.scrollY + rect.top - popoverHeight - GAP;
     let left = window.scrollX + rect.left + (rect.width / 2) - (popoverWidth / 2);
 
     // Adjust if off-screen
@@ -258,16 +261,14 @@ function setupTextSelectionFeedback() {
 
     // If no room above, position below
     if (top < padding) {
-      top = window.scrollY + rect.bottom + 12;
+      top = window.scrollY + rect.bottom + GAP;
     }
 
-    popover.style.cssText = `
-      position: absolute;
-      top: ${top}px;
-      left: ${left}px;
-      z-index: 1001;
-      width: ${popoverWidth}px;
-    `;
+    popover.style.position = 'absolute';
+    popover.style.top = `${top}px`;
+    popover.style.left = `${left}px`;
+    popover.style.zIndex = '1001';
+    popover.style.width = `${popoverWidth}px`;
   }
 
   function setupPopoverInteractions(popover, selectedText, range) {

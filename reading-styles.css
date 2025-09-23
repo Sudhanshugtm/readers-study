@@ -1312,6 +1312,7 @@ body {
 .feedback-container {
   width: 100%;
   position: relative;
+  padding-top: 28px; /* reserve space for close button */
 }
 
 .feedback-close-btn {
@@ -1348,6 +1349,7 @@ body {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+  align-items: stretch;
 }
 
 .reaction-btn {
@@ -1400,6 +1402,15 @@ body {
   border-color: #3b82f6;
   color: white;
   transform: translateY(-1px);
+}
+
+/* Make labels a touch larger and centered */
+.reaction-label { font-size: 13px; font-weight: 600; text-align: center; }
+
+@media (max-width: 480px) {
+  .selection-feedback-popover { max-width: 92vw; }
+  .feedback-main { padding: 12px; }
+  .feedback-container { padding-top: 24px; }
 }
 
 /* Flag button - distinct red styling */
