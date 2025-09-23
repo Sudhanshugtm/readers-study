@@ -438,28 +438,9 @@ function setupTextSelectionFeedback() {
   // Click outside to dismiss (but be smart about it)
   document.addEventListener('click', (e) => {
     if (selectionPopover && !selectionPopover.contains(e.target) && !isSelecting) {
-      if (entry.isIntersecting) {
-        // Started reading this section
-        sectionReadTimes.set(sectionId, Date.now());
-      } else {
-        // Finished reading this section
-        const startTime = sectionReadTimes.get(sectionId);
-        if (startTime) {
-          const readDuration = Date.now() - startTime;
-          // If read for more than 8 seconds, show gentle feedback prompt
-          if (readDuration > 8000) {
-            showGentleFeedbackPrompt(sectionId, entry.target);
-          }
-          sectionReadTimes.delete(sectionId);
-        }
-      }
-    });
-  }, {
-    threshold: 0.5,
-    rootMargin: '-20% 0px -20% 0px' // Only trigger when section is well in view
+      dismissPopover();
+    }
   });
-
-  sections.forEach(section => observer.observe(section));
 }
 
 // Show ultra-subtle feedback prompt after reading completion
