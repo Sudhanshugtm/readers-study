@@ -31,6 +31,11 @@
     .tab[aria-selected="true"] { color: #202122; font-weight: 600; background: #f3f4f5; }
     .tab:focus-visible { outline: 2px solid #36c; outline-offset: 2px; }
 
+    /* Sidebar grouping */
+    .sidebar-group { margin-bottom: 10px; }
+    .sidebar-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 6px 2px; }
+    .sidebar-separator { border-top: 1px solid #eaecf0; margin: 12px 0; }
+
     /* Full-bleed stage; no border box */
     .stage-inner { height: 100vh; }
     .variant-frame { width: 100%; height: 100%; border: 0; display: none; background: #fff; }
@@ -39,9 +44,9 @@
     @media (max-width: 768px) {
       .page { display: block; }
       .sidebar { width: auto; border-right: 0; border-bottom: 1px solid #eaecf0; padding: 8px 8px 6px; position: sticky; top: 0; z-index: 1; background: #fff; }
-      .tablist { flex-direction: row; gap: 6px; }
-      .tab { text-align: center; padding: 8px 10px; }
-      .stage-inner { height: 82vh; }
+    .tablist { flex-direction: row; gap: 6px; flex-wrap: wrap; }
+    .tab { text-align: center; padding: 8px 10px; }
+    .stage-inner { height: 82vh; }
     }
   </style>
   <script>
@@ -79,11 +84,20 @@
 <body>
   <div class="page">
     <aside class="sidebar">
-      <div class="tablist" role="tablist" aria-label="Feedback design variants">
-      <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true" title="Tap the section’s … menu to give feedback">Ask on Section</button>
-      <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false" title="Open a small pop‑up to choose feedback options">Pop‑up Panel</button>
-      <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false" title="Prompt appears inline near what you’re reading">Inline Suggestion</button>
-      <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="false" title="Suggest topics to add when an article is a stub">Suggest Topics</button>
+      <div class="sidebar-group">
+        <div class="sidebar-label">Improve Existing Sections</div>
+        <div class="tablist" role="tablist" aria-label="Section feedback">
+          <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true" title="Tap the section’s … menu to give feedback">Ask on Section</button>
+          <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false" title="Open a small pop‑up to choose feedback options">Pop‑up Panel</button>
+          <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false" title="Prompt appears inline near what you’re reading">Inline Suggestion</button>
+        </div>
+      </div>
+      <div class="sidebar-separator" role="separator" aria-orientation="horizontal"></div>
+      <div class="sidebar-group">
+        <div class="sidebar-label">Suggest Missing Topics</div>
+        <div class="tablist" role="tablist" aria-label="Stub suggestions">
+          <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="false" title="Suggest topics to add when an article is a stub">Suggest Topics</button>
+        </div>
       </div>
     </aside>
     <main class="stage">
