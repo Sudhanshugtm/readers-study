@@ -25,7 +25,7 @@ She was recognized as one of the [[BBC]]'s [[100 Women (BBC)#2019|100 women of 2
 document.addEventListener('DOMContentLoaded', function() {
   loadArticleContent();
   initHelpImprove();
-  setupFloatingFeedback();
+  // setupFloatingFeedback(); // disabled
 
   // Design tabs
   document.querySelectorAll('.design-tab').forEach(btn => {
