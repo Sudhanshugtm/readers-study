@@ -379,7 +379,7 @@ const SECONDARY_CHIPS = [ 'Simplify wording', 'Local context' ];
 
 // Starters removed
 
-let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), note: '', quote: '' };
+let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), quote: '' };
 
 function wireWhisperSheet() {
   const sheet = document.getElementById('whisperSheet');
@@ -388,17 +388,14 @@ function wireWhisperSheet() {
   // Options: checkboxes
   const optMoreDetails = document.getElementById('optMoreDetails');
   const optMoreImages = document.getElementById('optMoreImages');
-  const note = document.getElementById('whisperNoteInput');
-  const charCount = document.getElementById('whisperCharCount');
   const submit = document.getElementById('whisperSubmit');
   if (!sheet || !backdrop) return;
 
-  const noteBlock = document.getElementById('whisperNoteBlock');
   function updateHelper() {
     const helperEl = document.querySelector('.whisper-helper');
     if (!helperEl) return;
     // Keep helper fixed and neutral
-    helperEl.textContent = 'Pick what would help most. You can add a note.';
+    helperEl.textContent = 'Pick what would help most.';
   }
   function updateOptionsState() {
     whisperState.chips.clear();
@@ -410,13 +407,6 @@ function wireWhisperSheet() {
   if (optMoreImages) optMoreImages.addEventListener('change', updateOptionsState);
 
   // Removed directive helper variants; helper stays neutral
-
-  // Note input
-  note.addEventListener('input', () => {
-    whisperState.note = note.value;
-    charCount.textContent = note.value.length + '/140';
-    updateWhisperSubmitState();
-  });
 
   // Close actions
   function closeSheet() { sheet.style.display = 'none'; backdrop.style.display = 'none'; }
@@ -437,19 +427,17 @@ function wireWhisperSheet() {
 
 function updateWhisperSubmitState() {
   const submit = document.getElementById('whisperSubmit');
-  const hasContent = (whisperState.chips && whisperState.chips.size > 0) || (whisperState.note && whisperState.note.trim().length > 0);
+  const hasContent = (whisperState.chips && whisperState.chips.size > 0);
   submit.disabled = !hasContent;
   if (hasContent) submit.classList.add('enabled'); else submit.classList.remove('enabled');
 }
 
 function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = null }) {
-  whisperState = { sectionId, sectionTitle, chips: new Set(), note: '', quote };
+  whisperState = { sectionId, sectionTitle, chips: new Set(), quote };
   const sheet = document.getElementById('whisperSheet');
   const backdrop = document.getElementById('whisperSheetBackdrop');
   const titleEl = document.getElementById('whisperSheetTitle');
   const subEl = document.getElementById('whisperSheetSub');
-  const note = document.getElementById('whisperNoteInput');
-  const charCount = document.getElementById('whisperCharCount');
 
   // Reader-friendly single line
   titleEl.textContent = 'Missing something in ' + sectionTitle + '?';
@@ -475,16 +463,11 @@ function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = nu
   const optMoreImages = document.getElementById('optMoreImages');
   if (optMoreDetails) optMoreDetails.checked = false;
   if (optMoreImages) optMoreImages.checked = false;
-  // Reset note
-  note.value = '';
-  charCount.textContent = '0/140';
   // Talk link removed, nothing to update
 
-  // Note area is always visible; reset helper and button state
+  // Reset helper and button state
   const helperEl = document.querySelector('.whisper-helper');
-  if (helperEl) helperEl.textContent = 'Pick what would help most. You can add a note.';
-  updateWhisperSubmitState();
-
+  if (helperEl) helperEl.textContent = 'Pick what would help most.';
   updateWhisperSubmitState();
 
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
@@ -567,7 +550,6 @@ function currentWhisperPayload() {
     sectionId: whisperState.sectionId,
     sectionTitle: whisperState.sectionTitle,
     chips: Array.from(whisperState.chips),
-    note: (whisperState.note || '').trim(),
     quote: (whisperState.quote || '').trim(),
     ts: nowTs(),
     anon: true,
@@ -577,13 +559,11 @@ function currentWhisperPayload() {
 
 function isDuplicateRecent(queue, payload) {
   const ONE_DAY = 24 * 60 * 60 * 1000;
-  const norm = (payload.note || '').toLowerCase().replace(/\s+/g, ' ').trim();
   const chipsKey = payload.chips.slice().sort().join('|');
   return queue.some(item => (
     item.sectionId === payload.sectionId &&
     (item.ts && (payload.ts - item.ts) < ONE_DAY) &&
-    ((item.chips || []).slice().sort().join('|') === chipsKey) &&
-    ((item.note || '').toLowerCase().replace(/\s+/g, ' ').trim() === norm)
+    ((item.chips || []).slice().sort().join('|') === chipsKey)
   ));
 }
 
@@ -594,7 +574,6 @@ function recordWhisperSignal(options = {}) {
     sectionId: options.sectionId,
     sectionTitle: options.sectionTitle,
     chips: options.chips || [],
-    note: options.note || '',
     quote: options.quote || '',
     ts: nowTs(),
     anon: true,

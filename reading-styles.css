@@ -1712,16 +1712,18 @@ body {
   right: 8px; /* keep inside heading area */
   width: 26px;
   height: 26px;
-  display: none; /* toggled via IntersectionObserver */
+  display: none; /* toggled to inline-flex via JS when visible */
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 0; /* remove default button padding */
   border: 1px solid var(--border-soft);
   border-radius: 999px;
   background: #fff;
   color: var(--subtle);
   cursor: pointer;
   line-height: 1;
-  font-size: 16px; /* center the ellipsis nicely */
+  font-size: 16px; /* dot glyph size */
 }
 
 .whisper-dot:hover {
