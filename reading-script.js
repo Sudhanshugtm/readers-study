@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch (e) {
     console.error('Error in loadArticleContent:', e);
   }
-  try { buildTableOfContents(); } catch(e) { console.warn('TOC build error', e); }
+    try { initHelpExpandChip(); } catch(e) { console.warn('Help chip init error', e); }
   try {
     if (typeof setupEventListeners === 'function') {
       setupEventListeners();
@@ -69,12 +69,14 @@ function loadArticleContent() {
 }
 
 // Build Vector‑style Table of Contents in the left sidebar
-function buildTableOfContents() {
+function buildTableOfContents() { 
   const toc = document.getElementById('toc');
   const container = document.getElementById('articleBody');
   if (!toc || !container) return;
   toc.innerHTML = '';
   const headings = container.querySelectorAll('.article-section__title, .article-subsection__title');
+  const tocSidebar = document.getElementById('tocSidebar');
+  if (headings.length === 0 && tocSidebar) { tocSidebar.style.display = 'none'; return; }
   const items = [];
   headings.forEach(h => {
     const level = h.classList.contains('article-subsection__title') ? 3 : 2;
@@ -153,9 +155,9 @@ function convertMediaWikiToHTML(mediaWikiText) {
   // Convert italic text
   html = html.replace(/''(.+?)''/g, '<em>$1</em>');
   
-  // Add closing div for last section
-  html += '</div></section>';
   
+    const hasSections = html.indexOf('<section class="article-section">') !== -1;
+  if (hasSections) { html += '</div></section>'; }
   return html;
 }
 
@@ -2155,4 +2157,180 @@ function showToast(message) {
       }
     }, 300);
   }, 3000);
+}
+
+// Sidebar variant: disable Gutter Flicks interactions
+try { initGutterFlicks = function(){ /*disabled*/ }; } catch(e) {}
+
+// === Help Expand Ghost Chip (stub UX) ===
+function initHelpExpandChip() {
+  const container = document.getElementById('articleBody');
+  if (!container) return;
+  // Only show on stub (no sections present)
+  const hasSections = container.querySelector('.article-section__title, .article-subsection__title');
+  if (hasSections) return;
+
+  const leadP = container.querySelector('p');
+  // Build chip
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'help-expand-chip';
+  chip.id = 'helpExpandChip';
+  chip.setAttribute('aria-haspopup', 'dialog');
+  chip.setAttribute('aria-expanded', 'false');
+  chip.setAttribute('aria-label', 'Suggest topics to add to this article');
+  chip.textContent = 'Suggest topics';
+  // Start hidden; reveal after lead is visible for 5s
+  chip.classList.add('help-chip-hidden');
+  try { chip.tabIndex = -1; } catch {}
+
+  // Insert after lead paragraph or at top
+  if (leadP && leadP.parentNode) leadP.insertAdjacentElement('afterend', chip); else container.insertAdjacentElement('afterbegin', chip);
+
+  let chipTimer = null; let revealed = false;
+  function revealChip(){ if (revealed) return; revealed = true; chip.classList.remove('help-chip-hidden'); try { chip.tabIndex = 0; } catch {} }
+  if (leadP) {
+    const io = new IntersectionObserver((entries)=>{ entries.forEach(entry=>{ if (entry.target!==leadP) return; if (entry.isIntersecting) { if (!chipTimer) chipTimer = setTimeout(revealChip, 5000); } else { if (chipTimer) { clearTimeout(chipTimer); chipTimer=null; } } }); }, { threshold: 0.5 });
+    io.observe(leadP);
+  } else { setTimeout(revealChip, 5000); }
+
+  // Build popover (lazy)
+  let popover = null;
+  const suggestions = [
+    { id: 'physical_characteristics', title: 'Physical characteristics', desc: 'Interior, surface, and magnetic properties of Mars.' },
+    { id: 'atmosphere', title: 'Atmosphere', desc: 'Composition, weather, and climate patterns.' },
+    { id: 'exploration', title: 'Human observations and exploration', desc: 'How we observed and visited Mars; key missions and findings.' },
+    { id: 'moons', title: 'Moons', desc: 'The small moons Phobos and Deimos.' }
+  ];
+  const MAX_SELECT = 3;
+
+  function openPopover() {
+    if (popover) return positionPopover();
+    popover = document.createElement('div');
+    popover.id = 'helpExpandPopover';
+    popover.className = 'help-popover';
+    popover.setAttribute('role', 'dialog');
+    popover.setAttribute('aria-labelledby', 'helpExpandTitle');
+    popover.setAttribute('aria-modal', 'false');
+    popover.innerHTML = `
+      <div class="help-popover__header" id="helpExpandTitle">
+        <span class="help-popover__title">What would you like to learn more about?</span>
+        <button type="button" class="help-popover__close" aria-label="Close">×</button>
+      </div>
+      <div class="help-popover__body">
+        <form id="helpExpandForm" class="help-popover__form" onsubmit="return false;">
+          ${suggestions.map((s, i) => `
+            <label class="help-option">
+              <input type="checkbox" value="${s.id}" data-title="${s.title}">
+              <span class="help-option__text">
+                <span class="help-option__title">${s.title}</span>
+                <span class="help-option__desc">${s.desc}</span>
+              </span>
+            </label>
+          `).join('')}
+        </form>
+      </div>
+      <div class="help-popover__actions">
+        <button type="button" class="help-btn help-btn--secondary" id="helpCancel">Not now</button>
+        <button type="button" class="help-btn" id="helpSubmit" disabled>Send</button>
+      </div>
+    `;
+    document.body.appendChild(popover);
+
+    // Wire close button
+    const closeBtn = popover.querySelector('.help-popover__close');
+    if (closeBtn) closeBtn.addEventListener('click', closePopover);
+
+
+    // Wire selection limit and buttons
+    const form = popover.querySelector('#helpExpandForm');
+    const boxes = Array.from(form.querySelectorAll('input[type="checkbox"]'));
+    const submit = popover.querySelector('#helpSubmit');
+    const cancel = popover.querySelector('#helpCancel');
+
+    function updateState() {
+      const checked = boxes.filter(b => b.checked);
+      submit.disabled = checked.length === 0;
+      // Enforce max
+      if (checked.length >= MAX_SELECT) {
+        boxes.forEach(b => { if (!b.checked) { b.disabled = true; b.parentElement.classList.add('disabled'); } });
+      } else {
+        boxes.forEach(b => { b.disabled = false; b.parentElement.classList.remove('disabled'); });
+      }
+    }
+    boxes.forEach(b => b.addEventListener('change', updateState));
+    cancel.addEventListener('click', closePopover);
+    submit.addEventListener('click', () => {
+      const picked = boxes.filter(b => b.checked).map(b => ({ id: b.value, title: b.getAttribute('data-title') }));
+      // Record one signal per picked section
+      picked.forEach(p => {
+        recordWhisperSignal({
+          sectionId: 'wishlist:' + p.id,
+          sectionTitle: p.title,
+          chips: [ 'wishlist' ],
+          note: ''
+        });
+      });
+      closePopover();
+      showWhisperToast('Thanks — your picks were recorded.');
+    });
+
+    // A11y + outside click + Esc
+    setTimeout(() => {
+      try { form.querySelector('input[type="checkbox"]').focus(); } catch {}
+    }, 0);
+    document.addEventListener('click', onDocClick, true);
+    document.addEventListener('keydown', onKeyDown, true);
+
+    positionPopover();
+  }
+
+  function positionPopover() {
+    if (!popover) return;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const rect = chip.getBoundingClientRect();
+    if (isMobile) {
+      popover.classList.add('is-mobile');
+      popover.style.left = '0';
+      popover.style.right = '0';
+      popover.style.bottom = '0';
+      popover.style.top = 'auto';
+      popover.style.transform = 'none';
+    } else {
+      popover.classList.remove('is-mobile');
+      const PANEL_W = Math.min(360, Math.floor(window.innerWidth * 0.9));
+      popover.style.width = PANEL_W + 'px';
+      const top = Math.min(window.innerHeight - 20 - popover.offsetHeight, window.scrollY + rect.bottom + 6);
+      let left = Math.floor(window.scrollX + rect.left);
+      left = Math.max(12, Math.min(left, window.innerWidth - PANEL_W - 12));
+      popover.style.top = top + 'px';
+      popover.style.left = left + 'px';
+    }
+    chip.setAttribute('aria-expanded', 'true');
+  }
+
+  function closePopover() {
+    chip.setAttribute('aria-expanded', 'false');
+  chip.setAttribute('aria-label', 'Suggest topics to add to this article');
+    if (!popover) return;
+    document.removeEventListener('click', onDocClick, true);
+    document.removeEventListener('keydown', onKeyDown, true);
+    if (popover.parentNode) popover.parentNode.removeChild(popover);
+    popover = null;
+    chip.focus();
+  }
+
+  function onDocClick(e) {
+    if (!popover) return;
+    if (e.target === chip || popover.contains(e.target)) return;
+    closePopover();
+  }
+  function onKeyDown(e) { if (e.key === 'Escape') closePopover(); }
+
+  chip.addEventListener('click', () => {
+    if (popover) closePopover(); else openPopover();
+  });
+  chip.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (popover) closePopover(); else openPopover(); }
+  });
 }
