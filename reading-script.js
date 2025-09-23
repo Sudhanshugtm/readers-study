@@ -156,20 +156,7 @@ function setupTextSelectionFeedback() {
 
     // If popover is in note mode, don't dismiss on selection changes
     if (selectionPopover) {
-      const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
-      if (isInNoteMode) {
-        // User is writing a note - don't interfere with selection changes
-        return;
-      }
-    }
-
-    // Hide existing popover if selection is invalid
-    if (!selection || selection.isCollapsed) {
-      if (selectionPopover) {
-        // Only dismiss if not in note mode (double check)
-        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
-        if (!isInNoteMode) {
-          dismissPopover();
+      dismissPopover();
         }
       }
       return;
@@ -178,9 +165,7 @@ function setupTextSelectionFeedback() {
     const selectedText = selection.toString().trim();
     if (selectedText.length < 5) {
       if (selectionPopover) {
-        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
-        if (!isInNoteMode) {
-          dismissPopover();
+        dismissPopover();
         }
       }
       return;
@@ -198,9 +183,7 @@ function setupTextSelectionFeedback() {
     const articleBody = document.getElementById('articleBody');
     if (!articleBody || !articleBody.contains(container)) {
       if (selectionPopover) {
-        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
-        if (!isInNoteMode) {
-          dismissPopover();
+        dismissPopover();
         }
       }
       return;
@@ -242,32 +225,6 @@ function setupTextSelectionFeedback() {
               <span class="reaction-label">Flag</span>
             </button>
           </div>
-          <button class="add-note-btn" id="addNoteBtn" title="Add a detailed note about this content" aria-label="Add a detailed note about this content">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
-              <path d="M3 10h8M3 6h8M3 2h8"/>
-            </svg>
-            Add note
-          </button>
-        </div>
-
-        <div class="feedback-expanded" id="feedbackExpanded" style="display: none;">
-          <div class="feedback-input-section">
-            <textarea class="feedback-textarea" id="feedbackTextarea"
-                     placeholder="What would make this better?"
-                     maxlength="280"
-                     aria-label="Detailed feedback about selected content (280 character limit)"></textarea>
-            <div class="feedback-textarea-footer">
-              <span class="char-count" id="charCount">0/280</span>
-            </div>
-          </div>
-          <div class="feedback-expanded-actions">
-            <button class="feedback-cancel" id="feedbackCancel"
-                    title="Cancel and return to reaction options"
-                    aria-label="Cancel and return to reaction options">Cancel</button>
-            <button class="feedback-submit" id="feedbackSubmit" disabled
-                    title="Submit detailed feedback about selected content"
-                    aria-label="Submit detailed feedback about selected content">Submit</button>
-          </div>
         </div>
       </div>
     `;
@@ -283,9 +240,7 @@ function setupTextSelectionFeedback() {
     const autoDismissTimer = setTimeout(() => {
       if (selectionPopover && selectionPopover.parentNode) {
         // Only auto-dismiss if user hasn't opened note mode
-        const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
-        if (!isInNoteMode) {
-          dismissPopover();
+        dismissPopover();
         }
       }
     }, 60000);
@@ -323,13 +278,7 @@ function setupTextSelectionFeedback() {
 
   function setupPopoverInteractions(popover, selectedText, range) {
     const closeBtn = popover.querySelector('#feedbackClose');
-    const addNoteBtn = popover.querySelector('#addNoteBtn');
     const feedbackMain = popover.querySelector('#feedbackMain');
-    const feedbackExpanded = popover.querySelector('#feedbackExpanded');
-    const textarea = popover.querySelector('#feedbackTextarea');
-    const charCount = popover.querySelector('#charCount');
-    const cancelBtn = popover.querySelector('#feedbackCancel');
-    const submitBtn = popover.querySelector('#feedbackSubmit');
 
     // Close button
     closeBtn.addEventListener('click', () => {
@@ -345,34 +294,7 @@ function setupTextSelectionFeedback() {
       }
     });
 
-    // Add note button
-    addNoteBtn.addEventListener('click', () => {
-      expandToNoteMode(feedbackMain, feedbackExpanded, textarea);
-    });
-
-    // Textarea interactions
-    textarea.addEventListener('input', () => {
-      const length = textarea.value.length;
-      charCount.textContent = `${length}/280`;
-      submitBtn.disabled = length === 0;
-
-      if (length === 0) {
-        submitBtn.classList.remove('enabled');
-      } else {
-        submitBtn.classList.add('enabled');
-      }
-    });
-
-    // Cancel button
-    cancelBtn.addEventListener('click', () => {
-      collapseFromNoteMode(feedbackMain, feedbackExpanded);
-    });
-
-    // Submit button
-    submitBtn.addEventListener('click', () => {
-      if (textarea.value.trim()) {
-        // Check if user also selected an emoji reaction
-        const selectedReaction = popover.querySelector('.reaction-btn.selected');
+    
         const reactionType = selectedReaction ? selectedReaction.getAttribute('data-type') : null;
 
         recordCombinedFeedback(selectedText, textarea.value.trim(), reactionType, range);
@@ -397,14 +319,8 @@ function setupTextSelectionFeedback() {
     // Record feedback
     recordSelectionFeedback(selectedText, type, range);
 
-    // DON'T dismiss immediately - let user add note if they want
-    // Just show visual confirmation that reaction was recorded
-    const addNoteBtn = selectionPopover.querySelector('#addNoteBtn');
-    if (addNoteBtn) {
-      addNoteBtn.textContent = '✓ Recorded - Add note?';
-      addNoteBtn.style.background = '#dcfce7';
-      addNoteBtn.style.color = '#059669';
-    }
+    // Show quick success and dismiss
+    showReactionSuccess(selectionPopover, type);
   }
 
   function expandToNoteMode(mainElement, expandedElement, textarea) {
@@ -532,423 +448,6 @@ function setupTextSelectionFeedback() {
   // Click outside to dismiss (but be smart about it)
   document.addEventListener('click', (e) => {
     if (selectionPopover && !selectionPopover.contains(e.target) && !isSelecting) {
-      // Don't dismiss if user is in the middle of writing a note
-      const isInNoteMode = selectionPopover.querySelector('#feedbackExpanded').style.display !== 'none';
-
-      if (isInNoteMode) {
-        // User has note mode open - don't dismiss on outside clicks
-        return;
-      }
-
-      dismissPopover();
-    }
-  });
-}
-
-// Sidebar Feedback (reusing icon pattern)
-function setupSidebarFeedback() {
-  // Add feedback icon next to star in page actions
-  const pageActions = document.querySelector('.page-actions');
-  if (!pageActions) return;
-
-  const feedbackTab = document.createElement('button');
-  feedbackTab.className = 'action-tab feedback-tab';
-  feedbackTab.innerHTML = `
-    <span class="action-tab-text">Feedback</span>
-    <span class="action-tab-icon cdx-icon" data-icon="cdxIconFeedback"></span>
-  `;
-  feedbackTab.title = 'Provide feedback about this article';
-
-  // Insert after star
-  const starTab = pageActions.querySelector('.star');
-  if (starTab) {
-    starTab.insertAdjacentElement('afterend', feedbackTab);
-  } else {
-    pageActions.appendChild(feedbackTab);
-  }
-
-  // Create sidebar
-  createFeedbackSidebar();
-
-  // Handle click
-  feedbackTab.addEventListener('click', () => {
-    toggleFeedbackSidebar();
-  });
-}
-
-function createFeedbackSidebar() {
-  const sidebar = document.createElement('div');
-  sidebar.id = 'feedbackSidebar';
-  sidebar.className = 'feedback-sidebar';
-  sidebar.innerHTML = `
-    <div class="feedback-sidebar-header">
-      <h3>Article Feedback</h3>
-      <button class="feedback-sidebar-close" aria-label="Close">×</button>
-    </div>
-    <div class="feedback-sidebar-content">
-      <p class="feedback-sidebar-intro">Help improve this article by flagging sections that need attention:</p>
-      <div class="feedback-sections" id="feedbackSections">
-        <!-- Sections will be populated dynamically -->
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(sidebar);
-
-  // Populate sections
-  populateFeedbackSections();
-
-  // Close button
-  sidebar.querySelector('.feedback-sidebar-close').addEventListener('click', () => {
-    closeFeedbackSidebar();
-  });
-
-  // Click outside to close
-  document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !e.target.closest('.feedback-tab')) {
-      closeFeedbackSidebar();
-    }
-  });
-}
-
-function populateFeedbackSections() {
-  const sectionsContainer = document.getElementById('feedbackSections');
-  const articleBody = document.getElementById('articleBody');
-
-  if (!sectionsContainer || !articleBody) return;
-
-  const sections = articleBody.querySelectorAll('.article-section');
-  let sectionsHTML = '';
-
-  sections.forEach((section, index) => {
-    const heading = section.querySelector('.article-section__title, .article-subsection__title');
-    if (!heading) return;
-
-    const sectionTitle = heading.textContent.trim();
-    const sectionId = heading.id || `section-${index}`;
-
-    sectionsHTML += `
-      <div class="feedback-section-item" data-section-id="${sectionId}">
-        <div class="feedback-section-title">${sectionTitle}</div>
-        <div class="feedback-section-actions">
-          <button class="feedback-quick-btn" data-type="unclear" data-section="${sectionId}" title="Mark as unclear">
-            🤔
-          </button>
-          <button class="feedback-quick-btn" data-type="missing" data-section="${sectionId}" title="Missing information">
-            📝
-          </button>
-          <button class="feedback-quick-btn" data-type="good" data-section="${sectionId}" title="This section is good">
-            👍
-          </button>
-        </div>
-      </div>
-    `;
-  });
-
-  sectionsContainer.innerHTML = sectionsHTML;
-
-  // Handle quick feedback
-  sectionsContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('.feedback-quick-btn');
-    if (btn) {
-      const feedbackType = btn.getAttribute('data-type');
-      const sectionId = btn.getAttribute('data-section');
-      recordSectionFeedback(sectionId, feedbackType);
-
-      // Visual feedback
-      btn.style.background = '#4CAF50';
-      btn.style.color = 'white';
-      setTimeout(() => {
-        btn.style.background = '';
-        btn.style.color = '';
-      }, 1000);
-    }
-  });
-}
-
-function toggleFeedbackSidebar() {
-  const sidebar = document.getElementById('feedbackSidebar');
-  if (sidebar) {
-    sidebar.classList.toggle('open');
-  }
-}
-
-function closeFeedbackSidebar() {
-  const sidebar = document.getElementById('feedbackSidebar');
-  if (sidebar) {
-    sidebar.classList.remove('open');
-  }
-}
-
-// Record selection-based feedback
-function recordSelectionFeedback(selectedText, feedbackType, range) {
-  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
-  const section = findNearestSection(range.commonAncestorContainer);
-
-  const payload = {
-    type: 'selection',
-    pageId: page.id || 'page',
-    pageTitle: page.title,
-    feedbackType: feedbackType,
-    selectedText: selectedText.slice(0, 200), // Limit length
-    sectionId: section.id,
-    sectionTitle: section.title,
-    ts: Date.now(),
-    device: { w: window.innerWidth, h: window.innerHeight }
-  };
-
-  const queue = loadQueue(payload.pageId);
-  queue.push(payload);
-  saveQueue(payload.pageId, queue);
-
-  console.log('Selection feedback recorded:', payload);
-}
-
-// Record section-based feedback
-function recordSectionFeedback(sectionId, feedbackType) {
-  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
-  const heading = document.getElementById(sectionId);
-  const sectionTitle = heading ? heading.textContent.trim() : 'Unknown Section';
-
-  const payload = {
-    type: 'section',
-    pageId: page.id || 'page',
-    pageTitle: page.title,
-    feedbackType: feedbackType,
-    sectionId: sectionId,
-    sectionTitle: sectionTitle,
-    ts: Date.now(),
-    device: { w: window.innerWidth, h: window.innerHeight }
-  };
-
-  const queue = loadQueue(payload.pageId);
-  queue.push(payload);
-  saveQueue(payload.pageId, queue);
-
-  console.log('Section feedback recorded:', payload);
-}
-
-function showSelectionThank(popover) {
-  popover.innerHTML = `
-    <div class="feedback-thank-message">
-      ✓ Thanks for the feedback!
-    </div>
-  `;
-
-  setTimeout(() => {
-    if (popover && popover.parentNode) {
-      popover.remove();
-    }
-  }, 1500);
-}
-
-// Paragraph-level feedback with double-click
-function setupParagraphFeedback() {
-  const article = document.getElementById('articleBody');
-  const paragraphs = article.querySelectorAll('p');
-
-  paragraphs.forEach((p, index) => {
-    let clickTimeout;
-    let clickCount = 0;
-
-    p.addEventListener('click', (e) => {
-      clickCount++;
-
-      if (clickCount === 1) {
-        clickTimeout = setTimeout(() => {
-          clickCount = 0;
-        }, 300);
-      } else if (clickCount === 2) {
-        clearTimeout(clickTimeout);
-        clickCount = 0;
-        showInlineFeedback(p, index);
-      }
-    });
-
-    // Add subtle feedback hint on paragraph end after reading
-    addReadingCompletionHint(p, index);
-  });
-}
-
-// Show inline feedback right after paragraph
-function showInlineFeedback(paragraph, index) {
-  // Remove any existing feedback
-  const existing = document.querySelector('.inline-feedback');
-  if (existing) existing.remove();
-
-  const feedback = document.createElement('div');
-  feedback.className = 'inline-feedback';
-  feedback.innerHTML = `
-    <div class="feedback-prompt">Was this helpful?</div>
-    <div class="feedback-actions">
-      <button class="feedback-btn feedback-yes" data-feedback="helpful" data-paragraph="${index}">
-        👍 <span>Yes</span>
-      </button>
-      <button class="feedback-btn feedback-neutral" data-feedback="unclear" data-paragraph="${index}">
-        🤔 <span>Unclear</span>
-      </button>
-      <button class="feedback-btn feedback-no" data-feedback="needs-more" data-paragraph="${index}">
-        📝 <span>Needs more</span>
-      </button>
-    </div>
-    <button class="feedback-close" title="Close">×</button>
-  `;
-
-  // Insert after paragraph
-  paragraph.insertAdjacentElement('afterend', feedback);
-
-  // Auto-focus for accessibility
-  feedback.focus();
-
-  // Handle feedback responses
-  feedback.addEventListener('click', (e) => {
-    if (e.target.closest('.feedback-btn')) {
-      const btn = e.target.closest('.feedback-btn');
-      const feedbackType = btn.getAttribute('data-feedback');
-      const paragraphIndex = btn.getAttribute('data-paragraph');
-
-      recordParagraphFeedback(paragraphIndex, feedbackType, paragraph);
-      showFeedbackThank(feedback);
-    } else if (e.target.classList.contains('feedback-close')) {
-      feedback.remove();
-    }
-  });
-
-  // Auto-dismiss after 15 seconds
-  setTimeout(() => {
-    if (feedback.parentNode) {
-      feedback.style.opacity = '0';
-      setTimeout(() => feedback.remove(), 200);
-    }
-  }, 15000);
-}
-
-// Add subtle end-of-paragraph reading hints
-function addReadingCompletionHint(paragraph, index) {
-  let readingTimer;
-  let hasShownHint = false;
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !hasShownHint) {
-        // Start timer when paragraph comes into view
-        readingTimer = setTimeout(() => {
-          showSubtleHint(paragraph, index);
-          hasShownHint = true;
-        }, 3000); // 3 seconds reading time
-      } else if (!entry.isIntersecting) {
-        // Clear timer if user scrolls away
-        clearTimeout(readingTimer);
-      }
-    });
-  }, { threshold: 0.8 });
-
-  observer.observe(paragraph);
-}
-
-// Show very subtle feedback hint
-function showSubtleHint(paragraph, index) {
-  const hint = document.createElement('span');
-  hint.className = 'feedback-hint';
-  hint.innerHTML = '💬';
-  hint.title = 'Double-click to share feedback';
-  hint.style.opacity = '0';
-
-  paragraph.appendChild(hint);
-
-  // Fade in
-  setTimeout(() => {
-    hint.style.opacity = '0.3';
-  }, 100);
-
-  // Auto-remove after 5 seconds
-  setTimeout(() => {
-    if (hint.parentNode) {
-      hint.style.opacity = '0';
-      setTimeout(() => hint.remove(), 300);
-    }
-  }, 5000);
-
-  hint.addEventListener('click', () => {
-    showInlineFeedback(paragraph, index);
-    hint.remove();
-  });
-}
-
-// Record paragraph feedback
-function recordParagraphFeedback(paragraphIndex, feedbackType, paragraphElement) {
-  const page = (typeof articleData !== 'undefined') ? articleData : defaultArticle;
-  const sectionHeading = findNearestSection(paragraphElement);
-
-  const payload = {
-    pageId: page.id || 'page',
-    pageTitle: page.title,
-    feedbackType: feedbackType,
-    paragraphIndex: parseInt(paragraphIndex),
-    sectionId: sectionHeading.id,
-    sectionTitle: sectionHeading.title,
-    paragraphText: paragraphElement.textContent.slice(0, 100) + '...', // First 100 chars
-    ts: Date.now(),
-    device: { w: window.innerWidth, h: window.innerHeight }
-  };
-
-  // Store in localStorage (same system as before)
-  const queue = loadQueue(payload.pageId);
-  queue.push(payload);
-  saveQueue(payload.pageId, queue);
-
-  console.log('Paragraph feedback recorded:', payload);
-}
-
-// Find nearest section for context
-function findNearestSection(element) {
-  let current = element;
-  while (current && current !== document.body) {
-    const section = current.closest('.article-section');
-    if (section) {
-      const heading = section.querySelector('.article-section__title, .article-subsection__title');
-      if (heading) {
-        return {
-          id: heading.id || 'unknown',
-          title: heading.textContent.trim()
-        };
-      }
-    }
-    current = current.parentElement;
-  }
-  return { id: 'article', title: 'Article' };
-}
-
-// Show thank you feedback
-function showFeedbackThank(feedbackElement) {
-  feedbackElement.innerHTML = `
-    <div class="feedback-thank">
-      ✓ Thanks for the feedback!
-    </div>
-  `;
-
-  setTimeout(() => {
-    if (feedbackElement.parentNode) {
-      feedbackElement.style.opacity = '0';
-      setTimeout(() => feedbackElement.remove(), 200);
-    }
-  }, 2000);
-}
-
-// Reading completion detection for gentle feedback prompts
-function setupReadingCompletionDetection() {
-  const article = document.getElementById('articleBody');
-  if (!article) return;
-
-  const sections = article.querySelectorAll('.article-section');
-  let sectionReadTimes = new Map();
-
-  // Track time spent in each section
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const sectionId = entry.target.id || entry.target.querySelector('[data-section-id]')?.getAttribute('data-section-id');
-      if (!sectionId) return;
-
       if (entry.isIntersecting) {
         // Started reading this section
         sectionReadTimes.set(sectionId, Date.now());
