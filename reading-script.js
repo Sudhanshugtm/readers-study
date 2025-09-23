@@ -210,6 +210,7 @@ function setupTextSelectionFeedback() {
         </button>
 
         <div class="feedback-main" id="feedbackMain">
+          <div class="feedback-title" id="feedbackTitle">Help improve this part</div>
           <div class="feedback-reactions">
             <button class="reaction-btn" data-type="citation_needed" title="Flag this as needing a citation" aria-label="Flag this as needing a citation">
               <span class="reaction-label">Citation needed</span>
@@ -297,11 +298,14 @@ function setupTextSelectionFeedback() {
     // Add selected state
     btn.classList.add('selected');
 
-    // Record feedback
-    recordSelectionFeedback(selectedText, type, range);
+    if (type === 'add_section') {
+      openAddSectionPanel(range);
+      return;
+    }
 
-    // Show quick success and dismiss
-    showReactionSuccess(selectionPopover, type);
+    // One-tap actions complete immediately
+    recordSelectionFeedback(selectedText, type, range);
+    showReactionSuccess(selectionPopover, type, { fast: true });
   }
 
   function expandToNoteMode(mainElement, expandedElement, textarea) {
@@ -341,7 +345,7 @@ function setupTextSelectionFeedback() {
     }, 150);
   }
 
-  function showReactionSuccess(popover, type) {
+  function showReactionSuccess(popover, type, opts = {}) {
     const labels = {
       citation_needed: 'Citation needed',
       needs_expansion: 'Needs expansion',
@@ -356,7 +360,61 @@ function setupTextSelectionFeedback() {
 
     setTimeout(() => {
       dismissPopover();
-    }, 1500);
+    }, opts.fast ? 900 : 1500);
+  }
+
+  function openAddSectionPanel(range) {
+    const main = selectionPopover.querySelector('#feedbackMain');
+    if (!main) return;
+    const suggestions = [
+      { id: 'physical_characteristics', title: 'Physical characteristics' },
+      { id: 'atmosphere', title: 'Atmosphere' },
+      { id: 'exploration', title: 'Exploration' }
+    ];
+    main.innerHTML = `
+      <div class="feedback-title">Add a new section</div>
+      <div class="add-section-options" id="addSectionOptions">
+        ${suggestions.map(s => `
+          <button type=\"button\" class=\"add-section-chip\" data-id=\"${s.id}\" aria-pressed=\"false\">${s.title}</button>
+        `).join('')}
+      </div>
+      <div class="add-section-actions">
+        <button type="button" class="add-section-back" id="addSectionBack">Back</button>
+        <button type="button" class="add-section-send" id="addSectionSend" disabled>Send</button>
+      </div>
+    `;
+
+    const optsEl = main.querySelector('#addSectionOptions');
+    const backBtn = main.querySelector('#addSectionBack');
+    const sendBtn = main.querySelector('#addSectionSend');
+    const selected = new Set();
+
+    optsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.add-section-chip');
+      if (!chip) return;
+      const id = chip.getAttribute('data-id');
+      const pressed = chip.getAttribute('aria-pressed') === 'true';
+      if (pressed) { selected.delete(id); chip.setAttribute('aria-pressed','false'); }
+      else { if (selected.size >= 3) return; selected.add(id); chip.setAttribute('aria-pressed','true'); }
+      sendBtn.disabled = selected.size === 0;
+    });
+
+    backBtn.addEventListener('click', () => {
+      showSelectionFeedback(range, '');
+    });
+
+    sendBtn.addEventListener('click', () => {
+      selected.forEach(id => {
+        whisperState = {
+          sectionId: 'wishlist:' + id,
+          sectionTitle: id.replace(/_/g, ' '),
+          chips: new Set(['wishlist']),
+          quote: ''
+        };
+        recordWhisperSignal();
+      });
+      showReactionSuccess(selectionPopover, 'add_section');
+    });
   }
 
   function showSubmissionSuccess(popover) {

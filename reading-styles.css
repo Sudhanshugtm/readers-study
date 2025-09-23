@@ -1344,6 +1344,7 @@ body {
   padding: 16px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.feedback-title { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 8px; }
 
 .feedback-reactions {
   display: flex;
@@ -1403,6 +1404,13 @@ body {
   color: white;
   transform: translateY(-1px);
 }
+.add-section-options { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 12px; }
+.add-section-chip { border: 1px solid var(--border-soft); background: #fff; border-radius: 999px; padding: 6px 10px; cursor: pointer; font-size: 13px; }
+.add-section-chip[aria-pressed="true"] { background: var(--background-color-progressive-subtle, #eaf3ff); color: var(--progressive); border-color: var(--progressive); }
+.add-section-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.add-section-back { background: #fff; border: 1px solid var(--border-soft); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.add-section-send { background: var(--progressive); color: #fff; border: 1px solid var(--progressive); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.add-section-send[disabled] { opacity: .5; cursor: default; }
 
 /* Make labels a touch larger and centered */
 .reaction-label { font-size: 13px; font-weight: 600; text-align: center; }
