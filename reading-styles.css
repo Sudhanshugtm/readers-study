@@ -1693,3 +1693,7 @@ body {
 .whisper-options { display:flex; flex-direction: column; gap: 8px; margin: 8px 0; }
 .whisper-option { font-size: 14px; color: var(--text); display:flex; align-items: flex-start; gap: 8px; }
 .whisper-option input[type="checkbox"] { width: 16px; height: 16px; margin-top: 2px; }
+
+/* Modal variant: hide floating smart widget and section dots */
+.smart-widget { display: none !important; }
+.whisper-dot { display: none !important; }
