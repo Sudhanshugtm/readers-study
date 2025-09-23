@@ -493,7 +493,6 @@ function setupTextSelectionFeedback() {
       pageId: page.id || 'page',
       pageTitle: page.title,
       selectedText: selectedText.slice(0, 200),
-      note: note,
       sectionId: section.id,
       sectionTitle: section.title,
       ts: Date.now(),
@@ -516,7 +515,6 @@ function setupTextSelectionFeedback() {
       pageId: page.id || 'page',
       pageTitle: page.title,
       selectedText: selectedText.slice(0, 200),
-      note: note,
       reaction: reactionType,
       sectionId: section.id,
       sectionTitle: section.title,
@@ -1088,7 +1086,7 @@ const SECONDARY_CHIPS = [ 'Simplify wording', 'Local context' ];
 
 // Starters removed
 
-let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), note: '', quote: '' };
+let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), quote: '' };
 
 function wireWhisperSheet() {
   const sheet = document.getElementById('whisperSheet');
@@ -1097,17 +1095,16 @@ function wireWhisperSheet() {
   // Options: checkboxes
   const optMoreDetails = document.getElementById('optMoreDetails');
   const optMoreImages = document.getElementById('optMoreImages');
-  const note = document.getElementById('whisperNoteInput');
-  const charCount = document.getElementById('whisperCharCount');
+  
   const submit = document.getElementById('whisperSubmit');
   if (!sheet || !backdrop) return;
 
-  const noteBlock = document.getElementById('whisperNoteBlock');
+  // note block removed
   function updateHelper() {
     const helperEl = document.querySelector('.whisper-helper');
     if (!helperEl) return;
     // Keep helper fixed and neutral
-    helperEl.textContent = 'Pick what would help most. You can add a note.';
+    helperEl.textContent = 'Pick what would help most.  ';
   }
   function updateOptionsState() {
     whisperState.chips.clear();
@@ -1146,19 +1143,18 @@ function wireWhisperSheet() {
 
 function updateWhisperSubmitState() {
   const submit = document.getElementById('whisperSubmit');
-  const hasContent = (whisperState.chips && whisperState.chips.size > 0) || (whisperState.note && whisperState.note.trim().length > 0);
+  const hasContent = (whisperState.chips && whisperState.chips.size > 0);
   submit.disabled = !hasContent;
   if (hasContent) submit.classList.add('enabled'); else submit.classList.remove('enabled');
 }
 
 function openWhisperSheet({ sectionId, sectionTitle, quote = '', anchorRect = null }) {
-  whisperState = { sectionId, sectionTitle, chips: new Set(), note: '', quote };
+  whisperState = { sectionId, sectionTitle, chips: new Set(), quote };
   const sheet = document.getElementById('whisperSheet');
   const backdrop = document.getElementById('whisperSheetBackdrop');
   const titleEl = document.getElementById('whisperSheetTitle');
   const subEl = document.getElementById('whisperSheetSub');
-  const note = document.getElementById('whisperNoteInput');
-  const charCount = document.getElementById('whisperCharCount');
+  
 
   // Reader-friendly single line
   titleEl.textContent = 'Missing something in ' + sectionTitle + '?';
@@ -1276,7 +1272,7 @@ function currentWhisperPayload() {
     sectionId: whisperState.sectionId,
     sectionTitle: whisperState.sectionTitle,
     chips: Array.from(whisperState.chips),
-    note: (whisperState.note || '').trim(),
+    
     quote: (whisperState.quote || '').trim(),
     ts: nowTs(),
     anon: true,
