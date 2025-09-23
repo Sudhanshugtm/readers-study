@@ -154,10 +154,10 @@ function setupTextSelectionFeedback() {
   function handleSelectionChange() {
     const selection = window.getSelection();
 
-    // If popover is in note mode, don't dismiss on selection changes
-    if (selectionPopover) {
-      dismissPopover();
-        }
+    // Hide existing popover if selection is invalid
+    if (!selection || selection.isCollapsed) {
+      if (selectionPopover) {
+        dismissPopover();
       }
       return;
     }
@@ -166,7 +166,6 @@ function setupTextSelectionFeedback() {
     if (selectedText.length < 5) {
       if (selectionPopover) {
         dismissPopover();
-        }
       }
       return;
     }
@@ -174,28 +173,28 @@ function setupTextSelectionFeedback() {
     const range = selection.getRangeAt(0);
     const container = range.commonAncestorContainer;
 
-    // Don't dismiss if selection is within the popover itself
+    // Don't react if selection is within the popover itself
     if (selectionPopover && selectionPopover.contains(container)) {
       return;
     }
 
-    // Ensure selection is within article body
+    // Ensure selection is within the article body
     const articleBody = document.getElementById('articleBody');
     if (!articleBody || !articleBody.contains(container)) {
       if (selectionPopover) {
         dismissPopover();
-        }
       }
       return;
     }
 
-    // If we already have a popover showing, just update its position
+    // Show or update the popover
     if (selectionPopover) {
       positionPopover(selectionPopover, range);
     } else {
       showSelectionFeedback(range, selectedText);
     }
   }
+
 
   function showSelectionFeedback(range, selectedText) {
     selectionPopover = document.createElement('div');
