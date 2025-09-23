@@ -235,12 +235,10 @@ function setupTextSelectionFeedback() {
     // Setup interactions
     setupPopoverInteractions(selectionPopover, selectedText, range);
 
-    // Auto-dismiss after 60 seconds, but only if not in note mode
+    // Auto-dismiss after 60 seconds
     const autoDismissTimer = setTimeout(() => {
       if (selectionPopover && selectionPopover.parentNode) {
-        // Only auto-dismiss if user hasn't opened note mode
         dismissPopover();
-        }
       }
     }, 60000);
 
@@ -292,14 +290,7 @@ function setupTextSelectionFeedback() {
         return;
       }
     });
-
     
-        const reactionType = selectedReaction ? selectedReaction.getAttribute('data-type') : null;
-
-        recordCombinedFeedback(selectedText, textarea.value.trim(), reactionType, range);
-        showSubmissionSuccess(popover);
-      }
-    });
   }
 
   function handleReactionClick(btn, selectedText, range) {
