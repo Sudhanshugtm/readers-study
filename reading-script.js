@@ -211,17 +211,14 @@ function setupTextSelectionFeedback() {
 
         <div class="feedback-main" id="feedbackMain">
           <div class="feedback-reactions">
-            <button class="reaction-btn" data-type="helpful" title="Mark this content as helpful" aria-label="Mark this content as helpful">
-              <span class="reaction-emoji" aria-hidden="true">👍</span>
-              <span class="reaction-label">Helpful</span>
+            <button class="reaction-btn" data-type="citation_needed" title="Flag this as needing a citation" aria-label="Flag this as needing a citation">
+              <span class="reaction-label">Citation needed</span>
             </button>
-            <button class="reaction-btn" data-type="unclear" title="Mark this content as unclear or confusing" aria-label="Mark this content as unclear or confusing">
-              <span class="reaction-emoji" aria-hidden="true">🤔</span>
-              <span class="reaction-label">Unclear</span>
+            <button class="reaction-btn" data-type="needs_expansion" title="Suggest expanding this section" aria-label="Suggest expanding this section">
+              <span class="reaction-label">Needs expansion</span>
             </button>
-            <button class="reaction-btn" data-type="incorrect" title="Flag this content as potentially incorrect or problematic" aria-label="Flag this content as potentially incorrect or problematic">
-              <span class="reaction-emoji" aria-hidden="true">⚠️</span>
-              <span class="reaction-label">Flag</span>
+            <button class="reaction-btn" data-type="add_section" title="Suggest adding a new section" aria-label="Suggest adding a new section">
+              <span class="reaction-label">Add new section</span>
             </button>
           </div>
         </div>
@@ -299,13 +296,6 @@ function setupTextSelectionFeedback() {
     // Add selected state
     btn.classList.add('selected');
 
-    // Visual feedback
-    const emoji = btn.querySelector('.reaction-emoji');
-    emoji.style.transform = 'scale(1.3)';
-    setTimeout(() => {
-      emoji.style.transform = 'scale(1)';
-    }, 200);
-
     // Record feedback
     recordSelectionFeedback(selectedText, type, range);
 
@@ -351,11 +341,15 @@ function setupTextSelectionFeedback() {
   }
 
   function showReactionSuccess(popover, type) {
-    const reactions = { helpful: '👍', unclear: '🤔', incorrect: '⚠️' };
+    const labels = {
+      citation_needed: 'Citation needed',
+      needs_expansion: 'Needs expansion',
+      add_section: 'Add new section'
+    };
+    const msg = labels[type] || 'Recorded';
     popover.innerHTML = `
       <div class="feedback-success">
-        <div class="success-emoji">${reactions[type]}</div>
-        <div class="success-message">Thanks for the feedback!</div>
+        <div class="success-message">${msg} — thanks!</div>
       </div>
     `;
 
