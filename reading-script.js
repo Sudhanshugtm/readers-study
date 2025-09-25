@@ -2002,10 +2002,10 @@ function createFooterSuggestionPanel() {
       <button class="footer-close" type="button" aria-label="Close suggestions">&times;</button>
       <div class="footer-suggestion-title">What would improve this article?</div>
       <div class="footer-suggestion-options">
-        <button class="footer-chip" data-topic="examples">More examples</button>
-        <button class="footer-chip" data-topic="details">More detailed explanations</button>
-        <button class="footer-chip" data-topic="recent">Recent developments</button>
-        <button class="footer-chip" data-topic="applications">Real-world applications</button>
+        <button class="footer-chip" data-topic="formation">Formation & origins</button>
+        <button class="footer-chip" data-topic="composition">Chemical composition</button>
+        <button class="footer-chip" data-topic="climate">Climate & weather</button>
+        <button class="footer-chip" data-topic="missions">Future missions</button>
       </div>
     </div>
   `;
