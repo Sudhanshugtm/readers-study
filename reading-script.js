@@ -2000,15 +2000,13 @@ function createFooterSuggestionPanel() {
   footerPanel.innerHTML = `
     <div class="footer-suggestion-content">
       <button class="footer-close" type="button" aria-label="Close suggestions">&times;</button>
-      <div class="footer-suggestion-title">What would improve this article?</div>
-      <div class="footer-suggestion-options">
-        <button class="footer-chip" data-topic="formation">Formation & origins</button>
-        <button class="footer-chip" data-topic="composition">Chemical composition</button>
-        <button class="footer-chip" data-topic="climate">Climate & weather</button>
-        <button class="footer-chip" data-topic="missions">Future missions</button>
-      </div>
+      <div class="footer-suggestion-title"></div>
+      <div class="footer-suggestion-sub" style="color:#54595d;font-size:13px;margin:-6px 0 12px;">Pick up to 2 sections you'd read next. Your choices help editors prioritize new or translated sections.</div>
+      <div class="footer-suggestion-options"></div>
     </div>
   `;
+
+  populateFooterSuggestions();
 
   // Add CSS for footer panel
   if (!document.getElementById('footerSuggestionStyles')) {
@@ -2117,10 +2115,15 @@ function createFooterSuggestionPanel() {
   }
 
   // Wire up interactions
-  footerPanel.querySelectorAll('.footer-chip').forEach(chip => {
-    chip.addEventListener('click', (e) => {
-      handleFooterSuggestionVote(e.target.dataset.topic, e.target);
-    });
+
+  // Delegate clicks for dynamically built chips
+  footerPanel.addEventListener('click', (e) => {
+    const chip = e.target.closest('.footer-chip');
+    if (chip) {
+      handleFooterSuggestionVote(chip.dataset.topic, chip);
+    }
+  });
+  /* static chip wiring removed; using delegated listener */
   });
 
   footerPanel.querySelector('.footer-close').addEventListener('click', () => {
@@ -2134,6 +2137,65 @@ function createFooterSuggestionPanel() {
   } else {
     document.body.appendChild(footerPanel);
   }
+}
+
+
+function populateFooterSuggestions() {
+  const panel = footerPanel;
+  if (!panel) return;
+
+  function getArticleTitle() {
+    if (typeof articleData !== 'undefined' && articleData && articleData.title) return articleData.title;
+    const t = document.querySelector('.firstHeading');
+    return (t && t.textContent ? t.textContent : 'this topic').trim();
+  }
+
+  function getExistingSectionTitles() {
+    return Array.from(document.querySelectorAll('#articleBody .article-section__title'))
+      .map(h => (h.textContent || '').trim())
+      .filter(Boolean);
+  }
+
+  const DEFAULT_SECTION_CANDIDATES = [
+    { key: 'moons', label: 'Moons (Phobos & Deimos)', match: /moons|satellites|phobos|deimos/i },
+    { key: 'timeline', label: 'Missions timeline', match: /timeline|chronolog/i },
+    { key: 'history', label: 'History & origins', match: /history|origin|background/i },
+    { key: 'composition', label: 'Composition/structure', match: /composition|structure|makeup/i },
+    { key: 'climate', label: 'Climate & weather', match: /climate|weather|atmosphere/i }
+  ];
+
+  // Title
+  const titleEl = panel.querySelector('.footer-suggestion-title');
+  titleEl.textContent = `For ${getArticleTitle()}, what should we add or expand?`;
+
+  // Chips container
+  const container = panel.querySelector('.footer-suggestion-options');
+  container.innerHTML = '';
+
+  const existing = getExistingSectionTitles();
+  const expandTargets = existing
+    .filter(t => !/^see also$/i.test(t) && !/^references$/i.test(t))
+    .slice(0, 2);
+
+  const addCandidates = [];
+  for (const c of DEFAULT_SECTION_CANDIDATES) {
+    const present = existing.some(e => c.match.test(e));
+    if (!present) addCandidates.push(c);
+    if (addCandidates.length >= 2) break;
+  }
+
+  const chips = [
+    ...expandTargets.map(t => ({ type: 'expand', key: `expand:${t}`, label: `Expand: ${t}` })),
+    ...addCandidates.map(c => ({ type: 'add', key: `add:${c.key}`, label: `Add: ${c.label}` }))
+  ];
+
+  chips.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'footer-chip';
+    btn.dataset.topic = ch.key;
+    btn.textContent = ch.label;
+    container.appendChild(btn);
+  });
 }
 
 
@@ -2159,11 +2221,12 @@ function handleFooterSuggestionVote(topic, chipElement) {
   });
 
   // Visual feedback
+  const labelBefore = (chipElement.textContent || '').replace(/\s*✓\s*$/, '');
   chipElement.classList.add('voted');
-  chipElement.textContent += ' ✓';
+  chipElement.textContent = labelBefore + ' ✓';
 
   // Show confirmation toast
-  showWhisperToast(`Voted: ${topic}`);
+  showWhisperToast(`Voted: ${labelBefore}`);
 
   // Auto-dismiss after 2 votes or timeout
   setTimeout(() => {
