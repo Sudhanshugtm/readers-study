@@ -187,19 +187,6 @@ function initWhisperChips() {
     h.setAttribute('tabindex', '-1');
     h.setAttribute('data-section-id', id);
 
-    // Add whisper overflow dot button
-    const dot = document.createElement('button');
-    dot.className = 'whisper-dot';
-    dot.type = 'button';
-    dot.title = 'Ask for more on this section';
-    dot.setAttribute('aria-label', 'Ask for more on ' + text);
-    dot.textContent = '…';
-    dot.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const rect = dot.getBoundingClientRect();
-      openWhisperSheet({ sectionId: id, sectionTitle: text, anchorRect: rect });
-    });
-    h.appendChild(dot);
 
     // Badge container (hidden until demand)
     const badge = document.createElement('div');
@@ -209,15 +196,6 @@ function initWhisperChips() {
     h.insertAdjacentElement('afterend', badge);
   });
 
-  // Observe headings to show/hide dots only when in view
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const h = entry.target;
-      const dot = h.querySelector('.whisper-dot');
-      if (dot) dot.style.display = entry.isIntersecting ? 'inline-flex' : 'none';
-    });
-  }, { rootMargin: '0px', threshold: 0.0 });
-  headings.forEach(h => io.observe(h));
 
   // Selection popover disabled for baseline (no options on paragraph text)
   if (ENABLE_SELECTION_POPOVER) {
