@@ -1999,8 +1999,8 @@ function createFooterSuggestionPanel() {
 
   footerPanel.innerHTML = `
     <div class="footer-suggestion-content">
+      <button class="footer-close" type="button" aria-label="Close suggestions">&times;</button>
       <div class="footer-suggestion-title">What would improve this article?</div>
-      <div class="footer-suggestion-subtitle">Help other readers by suggesting missing topics</div>
       <div class="footer-suggestion-options">
         <button class="footer-chip" data-topic="examples">More examples</button>
         <button class="footer-chip" data-topic="history">Historical context</button>
@@ -2008,10 +2008,6 @@ function createFooterSuggestionPanel() {
         <button class="footer-chip" data-topic="process">How it works</button>
         <button class="footer-chip" data-topic="comparison">Compare with similar</button>
         <button class="footer-chip" data-topic="recent">Recent developments</button>
-      </div>
-      <div class="footer-suggestion-actions">
-        <button class="footer-dismiss" type="button">Not now</button>
-        <span class="footer-votes">👍 <span id="footerVoteCount">23</span> readers found this helpful</span>
       </div>
     </div>
   `;
@@ -2042,26 +2038,45 @@ function createFooterSuggestionPanel() {
         max-width: 980px;
         margin: 0 auto;
         padding: 20px;
+        position: relative;
+      }
+
+      .footer-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 24px;
+        height: 24px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #72777d;
+        cursor: pointer;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+
+      .footer-close:hover {
+        background: #f0f0f0;
+        color: #202122;
       }
 
       .footer-suggestion-title {
         font-size: 18px;
         font-weight: 600;
         color: #202122;
-        margin-bottom: 4px;
-      }
-
-      .footer-suggestion-subtitle {
-        font-size: 14px;
-        color: #54595d;
         margin-bottom: 16px;
+        padding-right: 40px;
       }
 
       .footer-suggestion-options {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-bottom: 16px;
       }
 
       .footer-chip {
@@ -2087,33 +2102,14 @@ function createFooterSuggestionPanel() {
         border-color: #0645ad;
       }
 
-      .footer-suggestion-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .footer-dismiss {
-        background: none;
-        border: none;
-        color: #54595d;
-        cursor: pointer;
-        font-size: 14px;
-        text-decoration: underline;
-      }
-
-      .footer-dismiss:hover {
-        color: #202122;
-      }
-
-      .footer-votes {
-        font-size: 12px;
-        color: #72777d;
-      }
-
       @media (max-width: 768px) {
         .footer-suggestion-content {
           padding: 16px;
+        }
+
+        .footer-close {
+          top: 12px;
+          right: 12px;
         }
 
         .footer-suggestion-options {
@@ -2124,12 +2120,6 @@ function createFooterSuggestionPanel() {
           flex: 1;
           text-align: center;
           min-width: 0;
-        }
-
-        .footer-suggestion-actions {
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
         }
       }
     `;
@@ -2143,7 +2133,7 @@ function createFooterSuggestionPanel() {
     });
   });
 
-  footerPanel.querySelector('.footer-dismiss').addEventListener('click', () => {
+  footerPanel.querySelector('.footer-close').addEventListener('click', () => {
     hideFooterSuggestions();
   });
 
@@ -2201,17 +2191,10 @@ function handleFooterSuggestionVote(topic, chipElement) {
   chipElement.classList.add('voted');
   chipElement.textContent += ' ✓';
 
-  // Update vote count
-  const voteCount = document.getElementById('footerVoteCount');
-  if (voteCount) {
-    const current = parseInt(voteCount.textContent) || 23;
-    voteCount.textContent = current + 1;
-  }
-
   // Show confirmation toast
   showWhisperToast(`Voted: ${topic}`);
 
-  // Auto-dismiss after all votes or timeout
+  // Auto-dismiss after 2 votes or timeout
   setTimeout(() => {
     const votedChips = footerPanel.querySelectorAll('.footer-chip.voted');
     if (votedChips.length >= 2) {
