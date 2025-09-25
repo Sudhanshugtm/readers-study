@@ -33,9 +33,9 @@ jobs:
           set -euo pipefail
 
           # Fetch variant branches created via worktrees
-          git fetch --no-tags origin alt-whisper-inline alt-whisper-modal alt-whisper-sidebar || true
+          git fetch --no-tags origin alt-whisper-inline alt-whisper-modal alt-whisper-sidebar alt-floating-poll alt-section-gap || true
 
-          mkdir -p site/variants/master site/variants/whisper-inline site/variants/whisper-modal site/variants/whisper-sidebar
+          mkdir -p site/variants/master site/variants/whisper-inline site/variants/whisper-modal site/variants/whisper-sidebar site/variants/floating-poll site/variants/section-gap
 
           # Baseline from current branch
           cp ve-boilerplate.html site/variants/master/index.html
@@ -72,11 +72,29 @@ jobs:
             cp site/variants/master/reading-script.js site/variants/whisper-sidebar/reading-script.js
           fi
 
+          # Floating poll from branch
+          if git rev-parse --verify --quiet origin/alt-floating-poll >/dev/null; then
+            git show origin/alt-floating-poll:ve-boilerplate.html > site/variants/floating-poll/index.html
+            git show origin/alt-floating-poll:reading-styles.css > site/variants/floating-poll/reading-styles.css
+            git show origin/alt-floating-poll:reading-script.js > site/variants/floating-poll/reading-script.js
+          else
+            echo "Missing branch origin/alt-floating-poll; skipping floating poll variant"
+          fi
+
+          # Section gap from branch
+          if git rev-parse --verify --quiet origin/alt-section-gap >/dev/null; then
+            git show origin/alt-section-gap:ve-boilerplate.html > site/variants/section-gap/index.html
+            git show origin/alt-section-gap:reading-styles.css > site/variants/section-gap/reading-styles.css
+            git show origin/alt-section-gap:reading-script.js > site/variants/section-gap/reading-script.js
+          else
+            echo "Missing branch origin/alt-section-gap; skipping section gap variant"
+          fi
+
           # Static landing page
           cp pages-index.html site/index.html
 
           # Cache-bust variant assets by appending build SHA to CSS/JS URLs
-          for f in site/variants/master/index.html site/variants/whisper-modal/index.html site/variants/whisper-inline/index.html; do
+          for f in site/variants/master/index.html site/variants/whisper-modal/index.html site/variants/whisper-inline/index.html site/variants/floating-poll/index.html site/variants/section-gap/index.html; do
             if [ -f "$f" ]; then
               sed -i.bak -e "s|href=\"reading-styles.css\"|href=\"reading-styles.css?v=${GITHUB_SHA}\"|g" "$f" || true
               sed -i.bak -e "s|src=\"reading-script.js\"|src=\"reading-script.js?v=${GITHUB_SHA}\"|g" "$f" || true

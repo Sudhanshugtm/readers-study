@@ -58,7 +58,9 @@
         master: 'Heading Menu',
         'whisper-modal': 'Dialog Panel',
         'whisper-inline': 'Inline Prompt',
-        'whisper-sidebar': 'Sidebar Prompt'
+        'whisper-sidebar': 'Sidebar Prompt',
+        'floating-poll': 'Quick Poll Dot',
+        'section-gap': 'Section Gap Dots'
       };
       function activate(target) {
         tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.target === target)));
@@ -97,8 +99,10 @@
       -->
       <div class="sidebar-group">
         <div class="sidebar-label">Suggest Missing Topics</div>
-        <div class="tablist" role="tablist" aria-label="Stub suggestions">
-          <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="true" title="Suggest topics to add when an article is a stub">Suggest Topics</button>
+        <div class="tablist" role="tablist" aria-label="Topic suggestions">
+          <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="true" title="Suggest topics to add when an article is a stub">Suggest Topics (Stub)</button>
+          <button class="tab" role="tab" id="tab-floating-poll" data-target="floating-poll" aria-controls="panel-floating-poll" aria-selected="false" title="Floating poll dot appears after 10s of reading">Quick Poll Dot</button>
+          <button class="tab" role="tab" id="tab-section-gap" data-target="section-gap" aria-controls="panel-section-gap" aria-selected="false" title="Interactive dots between sections activate on scroll pause">Section Gap Dots</button>
         </div>
       </div>
     </aside>
@@ -110,6 +114,8 @@
         <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
         -->
         <iframe class="variant-frame active" id="panel-whisper-sidebar" title="Whisper sidebar" src="variants/whisper-sidebar/index.html?embed=1" loading="lazy"></iframe>
+        <iframe class="variant-frame" id="panel-floating-poll" title="Floating poll dot" data-src="variants/floating-poll/index.html?embed=1" loading="lazy"></iframe>
+        <iframe class="variant-frame" id="panel-section-gap" title="Section gap suggestions" data-src="variants/section-gap/index.html?embed=1" loading="lazy"></iframe>
       </div>
     </main>
     
