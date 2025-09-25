@@ -77,35 +77,39 @@
           next.focus(); activate(next.dataset.target);
         });
       });
-      activate('master');
+      activate('whisper-sidebar');
     });
   </script>
 </head>
 <body>
   <div class="page">
     <aside class="sidebar">
+      <!-- TEMPORARILY HIDDEN: Improve Existing Sections
       <div class="sidebar-group">
         <div class="sidebar-label">Improve Existing Sections</div>
         <div class="tablist" role="tablist" aria-label="Section feedback">
-          <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true" title="Tap the section’s … menu to give feedback">Ask on Section</button>
+          <button class="tab" role="tab" id="tab-master" data-target="master" aria-controls="panel-master" aria-selected="true" title="Tap the section's … menu to give feedback">Ask on Section</button>
           <button class="tab" role="tab" id="tab-modal" data-target="whisper-modal" aria-controls="panel-whisper-modal" aria-selected="false" title="Open a small pop‑up to choose feedback options">Pop‑up Panel</button>
-          <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false" title="Prompt appears inline near what you’re reading">Inline Suggestion</button>
+          <button class="tab" role="tab" id="tab-inline" data-target="whisper-inline" aria-controls="panel-whisper-inline" aria-selected="false" title="Prompt appears inline near what you're reading">Inline Suggestion</button>
         </div>
       </div>
       <div class="sidebar-separator" role="separator" aria-orientation="horizontal"></div>
+      -->
       <div class="sidebar-group">
         <div class="sidebar-label">Suggest Missing Topics</div>
         <div class="tablist" role="tablist" aria-label="Stub suggestions">
-          <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="false" title="Suggest topics to add when an article is a stub">Suggest Topics</button>
+          <button class="tab" role="tab" id="tab-sidebar" data-target="whisper-sidebar" aria-controls="panel-whisper-sidebar" aria-selected="true" title="Suggest topics to add when an article is a stub">Suggest Topics</button>
         </div>
       </div>
     </aside>
     <main class="stage">
       <div class="stage-inner">
+        <!-- TEMPORARILY HIDDEN: Improve Existing Sections iframes
         <iframe class="variant-frame active" id="panel-master" title="Baseline" src="variants/master/index.html?embed=1" loading="lazy"></iframe>
         <iframe class="variant-frame" id="panel-whisper-modal" title="Whisper modal" data-src="variants/whisper-modal/index.html?embed=1" loading="lazy"></iframe>
         <iframe class="variant-frame" id="panel-whisper-inline" title="Whisper inline" data-src="variants/whisper-inline/index.html?embed=1" loading="lazy"></iframe>
-        <iframe class="variant-frame" id="panel-whisper-sidebar" title="Whisper sidebar" data-src="variants/whisper-sidebar/index.html?embed=1" loading="lazy"></iframe>
+        -->
+        <iframe class="variant-frame active" id="panel-whisper-sidebar" title="Whisper sidebar" src="variants/whisper-sidebar/index.html?embed=1" loading="lazy"></iframe>
       </div>
     </main>
     
