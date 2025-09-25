@@ -2124,7 +2124,6 @@ function createFooterSuggestionPanel() {
     }
   });
   /* static chip wiring removed; using delegated listener */
-  });
 
   footerPanel.querySelector('.footer-close').addEventListener('click', () => {
     hideFooterSuggestions();
