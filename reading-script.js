@@ -40,13 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch (e) {
     console.error('Error in setupEventListeners:', e);
   }
-  try {
-    if (typeof initWhisperChips === 'function') {
-      initWhisperChips();
-    }
-  } catch (e) {
-    console.error('Error in initWhisperChips:', e);
-  }
+  // Variant: inline-cards — use contextual inline cards instead of dots/sheet
+  try { initInlineSectionCards(); } catch (e) { console.error('Error in inline cards init:', e); }
   // variant badge removed
 });
 
@@ -109,6 +104,53 @@ function buildTableOfContents() {
 }
 
 // initVariantBadge removed
+
+// Variant: Inline Section Cards
+function initInlineSectionCards() {
+  const container = document.getElementById('articleBody');
+  if (!container) return;
+  const sections = Array.from(container.querySelectorAll('.article-section'));
+  sections.forEach(sec => {
+    const titleEl = sec.querySelector('.article-section__title');
+    const bodyEl = sec.querySelector('.article-section__content');
+    if (!titleEl || !bodyEl) return;
+    const text = (bodyEl.textContent || '').trim();
+    const wc = text.split(/\s+/).filter(Boolean).length;
+    // Light heuristic: only show card on relatively short sections
+    if (wc > 160) return;
+    const sectionId = titleEl.id || slugify(titleEl.textContent || 'section');
+    if (!titleEl.id) titleEl.id = sectionId;
+
+    const card = document.createElement('div');
+    card.className = 'inline-suggest-card';
+    card.setAttribute('data-section-id', sectionId);
+    card.setAttribute('data-section-title', (titleEl.textContent || '').trim());
+    card.innerHTML = `
+      <div class="inline-suggest-title">Interested in more about "${(titleEl.textContent || '').trim()}"?</div>
+      <div class="inline-suggest-chips">
+        <button class="inline-suggest-chip" data-type="expand_details">More details</button>
+        <button class="inline-suggest-chip" data-type="add_examples">Add examples</button>
+        <button class="inline-suggest-chip" data-type="add_images">Add pictures/diagram</button>
+      </div>
+    `;
+    bodyEl.appendChild(card);
+  });
+
+  // Delegate clicks for inline chips
+  container.addEventListener('click', (e) => {
+    const chip = e.target.closest('.inline-suggest-chip');
+    if (!chip) return;
+    const card = chip.closest('.inline-suggest-card');
+    if (!card) return;
+    const sectionId = card.getAttribute('data-section-id') || 'article';
+    const sectionTitle = card.getAttribute('data-section-title') || 'Section';
+    const t = chip.getAttribute('data-type');
+    recordWhisperSignal({ sectionId, sectionTitle, chips: [t], note: '' });
+    chip.classList.add('voted');
+    if (!/✓$/.test(chip.textContent)) chip.textContent += ' ✓';
+    showWhisperToast('Thanks!');
+  });
+}
 
 function convertMediaWikiToHTML(mediaWikiText) {
   let html = mediaWikiText;

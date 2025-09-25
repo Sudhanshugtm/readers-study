@@ -256,6 +256,31 @@ body {
   padding: 0 20px;
 }
 
+/* Inline Cards (variant: inline-cards) */
+.inline-suggest-card {
+  margin: 12px 0 4px;
+  padding: 12px;
+  background: var(--background-color-neutral-subtle, #f8f9fa);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.inline-suggest-title {
+  font-size: 13px;
+  color: var(--subtle);
+  margin: 0 0 8px 0;
+}
+.inline-suggest-chips { display:flex; flex-wrap:wrap; gap: 8px; }
+.inline-suggest-chip {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.inline-suggest-chip:hover { background: var(--progressive-subtle); border-color: var(--progressive); color: var(--progressive); }
+.inline-suggest-chip.voted { background: #0645ad; color: #fff; border-color: #0645ad; }
+
 .article-layout {
   display: flex;
   gap: 20px;
