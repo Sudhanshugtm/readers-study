@@ -2004,8 +2004,7 @@ function initFloatingPoll() {
   floatingPoll.style.cssText = `
     position: fixed;
     right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 20px;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -2050,14 +2049,13 @@ function revealFloatingPoll() {
     style.id = 'pollAnimationStyles';
     style.textContent = `
       @keyframes pollPulse {
-        0%, 100% { transform: translateY(-50%) scale(1); }
-        50% { transform: translateY(-50%) scale(1.1); }
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
       }
       .floating-poll-dialog {
         position: fixed;
         right: 80px;
-        top: 50%;
-        transform: translateY(-50%);
+        bottom: 80px;
         background: white;
         border: 1px solid #c8ccd1;
         border-radius: 12px;
@@ -2104,12 +2102,12 @@ function revealFloatingPoll() {
       @media (max-width: 768px) {
         .floating-poll-dot {
           right: 15px !important;
+          bottom: 15px !important;
         }
         .floating-poll-dialog {
           right: 15px !important;
           left: 15px !important;
-          right: auto !important;
-          transform: translateY(-50%) !important;
+          bottom: 70px !important;
           max-width: none !important;
         }
       }
