@@ -1997,3 +1997,246 @@ function showToast(message) {
     }, 300);
   }, 3000);
 }
+
+// === FLOATING POLL DOT FUNCTIONALITY ===
+let floatingPoll = null;
+let pollRevealed = false;
+let pollTimer = null;
+
+function initFloatingPoll() {
+  // Only show on articles with sections (opposite of help chip)
+  const container = document.getElementById('articleBody');
+  if (!container) return;
+
+  const sections = container.querySelectorAll('.article-section, .article-subsection');
+  if (sections.length === 0) return; // Don't show on stubs
+
+  // Create floating poll dot
+  floatingPoll = document.createElement('button');
+  floatingPoll.type = 'button';
+  floatingPoll.className = 'floating-poll-dot';
+  floatingPoll.id = 'floatingPollDot';
+  floatingPoll.setAttribute('aria-haspopup', 'dialog');
+  floatingPoll.setAttribute('aria-expanded', 'false');
+  floatingPoll.setAttribute('aria-label', 'Quick poll: What\'s missing here?');
+  floatingPoll.innerHTML = '<span class="poll-dot-inner">?</span>';
+
+  // Start hidden
+  floatingPoll.classList.add('poll-hidden');
+  floatingPoll.style.cssText = `
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #0645ad;
+    color: white;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+  `;
+
+  document.body.appendChild(floatingPoll);
+
+  // Reveal after 10 seconds of reading
+  setTimeout(() => {
+    if (!pollRevealed) {
+      revealFloatingPoll();
+    }
+  }, 10000);
+
+  // Wire up click handler
+  floatingPoll.addEventListener('click', openFloatingPollDialog);
+}
+
+function revealFloatingPoll() {
+  if (!floatingPoll || pollRevealed) return;
+  pollRevealed = true;
+
+  floatingPoll.classList.remove('poll-hidden');
+  floatingPoll.style.opacity = '1';
+  floatingPoll.style.pointerEvents = 'auto';
+
+  // Add gentle pulse animation
+  floatingPoll.style.animation = 'pollPulse 2s ease-in-out infinite';
+
+  // Add CSS for pulse animation if not exists
+  if (!document.getElementById('pollAnimationStyles')) {
+    const style = document.createElement('style');
+    style.id = 'pollAnimationStyles';
+    style.textContent = `
+      @keyframes pollPulse {
+        0%, 100% { transform: translateY(-50%) scale(1); }
+        50% { transform: translateY(-50%) scale(1.1); }
+      }
+      .floating-poll-dialog {
+        position: fixed;
+        right: 80px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: 1px solid #c8ccd1;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        z-index: 1001;
+        min-width: 280px;
+        max-width: 320px;
+      }
+      .poll-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #202122;
+      }
+      .poll-option {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        background: #f8f9fa;
+        border: 1px solid #eaecf0;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: left;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      .poll-option:hover {
+        background: #e1f3ff;
+        border-color: #0645ad;
+      }
+      .poll-option:last-child {
+        margin-bottom: 15px;
+      }
+      .poll-close {
+        font-size: 12px;
+        color: #54595d;
+        background: none;
+        border: none;
+        cursor: pointer;
+        float: right;
+      }
+      @media (max-width: 768px) {
+        .floating-poll-dot {
+          right: 15px !important;
+        }
+        .floating-poll-dialog {
+          right: 15px !important;
+          left: 15px !important;
+          right: auto !important;
+          transform: translateY(-50%) !important;
+          max-width: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+function openFloatingPollDialog() {
+  if (!floatingPoll) return;
+
+  // Stop pulse animation
+  floatingPoll.style.animation = 'none';
+
+  // Create dialog
+  const dialog = document.createElement('div');
+  dialog.className = 'floating-poll-dialog';
+  dialog.innerHTML = `
+    <button class="poll-close" type="button" aria-label="Close poll">&times;</button>
+    <div class="poll-title">What's missing here?</div>
+    <button class="poll-option" data-topic="examples">More examples</button>
+    <button class="poll-option" data-topic="images">Pictures or diagrams</button>
+    <button class="poll-option" data-topic="context">Local context</button>
+    <button class="poll-option" data-topic="recent">Recent developments</button>
+  `;
+
+  document.body.appendChild(dialog);
+
+  // Wire up handlers
+  dialog.querySelector('.poll-close').addEventListener('click', closeFloatingPoll);
+  dialog.querySelectorAll('.poll-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const topic = e.target.dataset.topic;
+      handleFloatingPollVote(topic);
+    });
+  });
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', onFloatingPollOutsideClick, true);
+    document.addEventListener('keydown', onFloatingPollKeyDown, true);
+  }, 100);
+
+  floatingPoll.setAttribute('aria-expanded', 'true');
+}
+
+function handleFloatingPollVote(topic) {
+  const topicLabels = {
+    'examples': 'More examples',
+    'images': 'Pictures or diagrams',
+    'context': 'Local context',
+    'recent': 'Recent developments'
+  };
+
+  // Record the vote
+  recordWhisperSignal({
+    sectionId: 'floating-poll',
+    sectionTitle: 'Quick Poll',
+    chips: [topic],
+    note: ''
+  });
+
+  // Show confirmation
+  showWhisperToast(`Voted: ${topicLabels[topic]}`);
+
+  // Close poll
+  closeFloatingPoll();
+
+  // Hide floating dot permanently
+  if (floatingPoll) {
+    floatingPoll.style.opacity = '0';
+    floatingPoll.style.pointerEvents = 'none';
+  }
+}
+
+function closeFloatingPoll() {
+  const dialog = document.querySelector('.floating-poll-dialog');
+  if (dialog && dialog.parentNode) {
+    dialog.parentNode.removeChild(dialog);
+  }
+
+  document.removeEventListener('click', onFloatingPollOutsideClick, true);
+  document.removeEventListener('keydown', onFloatingPollKeyDown, true);
+
+  if (floatingPoll) {
+    floatingPoll.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function onFloatingPollOutsideClick(e) {
+  const dialog = document.querySelector('.floating-poll-dialog');
+  if (!dialog) return;
+
+  if (!dialog.contains(e.target) && e.target !== floatingPoll) {
+    closeFloatingPoll();
+  }
+}
+
+function onFloatingPollKeyDown(e) {
+  if (e.key === 'Escape') {
+    closeFloatingPoll();
+  }
+}
+
+// Initialize floating poll when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initFloatingPoll, 1000);
+});
