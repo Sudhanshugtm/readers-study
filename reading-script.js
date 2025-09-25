@@ -1997,3 +1997,333 @@ function showToast(message) {
     }, 300);
   }, 3000);
 }
+
+// === SECTION GAP INLINE SUGGESTIONS ===
+let sectionGapsInitialized = false;
+let activeGapSuggestion = null;
+
+function initSectionGapSuggestions() {
+  if (sectionGapsInitialized) return;
+  sectionGapsInitialized = true;
+
+  const container = document.getElementById('articleBody');
+  if (!container) return;
+
+  const sections = container.querySelectorAll('.article-section');
+  if (sections.length < 2) return; // Need at least 2 sections
+
+  // Insert gap suggestions between major sections
+  sections.forEach((section, index) => {
+    if (index < sections.length - 1) { // Not the last section
+      insertGapSuggestion(section, index);
+    }
+  });
+
+  // Add CSS for gap suggestions
+  if (!document.getElementById('gapSuggestionStyles')) {
+    const style = document.createElement('style');
+    style.id = 'gapSuggestionStyles';
+    style.textContent = `
+      .section-gap {
+        margin: 40px 0;
+        text-align: center;
+        position: relative;
+      }
+
+      .gap-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #eaecf0 20%, #eaecf0 80%, transparent);
+        position: relative;
+        margin: 20px 0;
+      }
+
+      .gap-dots {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 0 15px;
+        font-size: 18px;
+        color: #a2a9b1;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.3s ease;
+        border: none;
+        background: #f8f9fa;
+        border-radius: 20px;
+        line-height: 1;
+        opacity: 0.7;
+      }
+
+      .gap-dots:hover, .gap-dots.active {
+        opacity: 1;
+        color: #0645ad;
+        background: #e1f3ff;
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+
+      .gap-suggestion-popup {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border: 1px solid #c8ccd1;
+        border-radius: 8px;
+        padding: 15px 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 1000;
+        margin-top: 10px;
+        min-width: 300px;
+        max-width: 400px;
+      }
+
+      .gap-suggestion-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #54595d;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+
+      .gap-suggestion-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .gap-suggestion-chip {
+        padding: 6px 12px;
+        background: #f8f9fa;
+        border: 1px solid #eaecf0;
+        border-radius: 16px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .gap-suggestion-chip:hover {
+        background: #e1f3ff;
+        border-color: #0645ad;
+        color: #0645ad;
+      }
+
+      .gap-suggestion-chip:active {
+        background: #0645ad;
+        color: white;
+      }
+
+      .gap-votes {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #eaecf0;
+        font-size: 11px;
+        color: #72777d;
+      }
+
+      @media (max-width: 768px) {
+        .gap-suggestion-popup {
+          left: 10px;
+          right: 10px;
+          transform: none;
+          min-width: auto;
+          max-width: none;
+        }
+
+        .gap-suggestion-options {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .gap-suggestion-chip {
+          text-align: center;
+          border-radius: 6px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Handle scroll-based activation
+  let scrollTimeout;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      activateVisibleGaps();
+    }, 500); // Activate gaps when scrolling pauses for 500ms
+  });
+}
+
+function insertGapSuggestion(section, index) {
+  const gap = document.createElement('div');
+  gap.className = 'section-gap';
+  gap.dataset.gapIndex = index;
+
+  gap.innerHTML = `
+    <div class="gap-divider">
+      <button class="gap-dots" type="button" aria-label="Show suggested topics for this section gap">•••</button>
+    </div>
+  `;
+
+  // Insert after the current section
+  section.insertAdjacentElement('afterend', gap);
+
+  // Wire up click handler
+  const dotsBtn = gap.querySelector('.gap-dots');
+  dotsBtn.addEventListener('click', () => openGapSuggestion(gap, index));
+}
+
+function activateVisibleGaps() {
+  const gaps = document.querySelectorAll('.section-gap');
+
+  gaps.forEach(gap => {
+    const rect = gap.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+
+    if (isVisible) {
+      const dots = gap.querySelector('.gap-dots');
+      if (dots) {
+        dots.classList.add('active');
+        // Remove active class after 3 seconds
+        setTimeout(() => {
+          dots.classList.remove('active');
+        }, 3000);
+      }
+    }
+  });
+}
+
+function openGapSuggestion(gapElement, gapIndex) {
+  // Close any existing suggestion
+  closeGapSuggestion();
+
+  activeGapSuggestion = gapElement;
+
+  // Generate contextual suggestions based on gap position
+  const suggestions = getContextualSuggestions(gapIndex);
+
+  const popup = document.createElement('div');
+  popup.className = 'gap-suggestion-popup';
+  popup.innerHTML = `
+    <div class="gap-suggestion-title">Readers also wanted to know about...</div>
+    <div class="gap-suggestion-options">
+      ${suggestions.map(s => `
+        <button class="gap-suggestion-chip" data-topic="${s.key}">${s.label}</button>
+      `).join('')}
+    </div>
+    <div class="gap-votes">
+      <span>👍 Quick suggestions</span>
+      <span>👎 Not helpful</span>
+    </div>
+  `;
+
+  gapElement.appendChild(popup);
+
+  // Wire up chip handlers
+  popup.querySelectorAll('.gap-suggestion-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const topic = e.target.dataset.topic;
+      handleGapSuggestionVote(topic, gapIndex, 'positive');
+      e.target.style.background = '#0645ad';
+      e.target.style.color = 'white';
+    });
+  });
+
+  // Wire up feedback handlers
+  popup.querySelector('.gap-votes span:first-child').addEventListener('click', () => {
+    handleGapSuggestionVote('helpful', gapIndex, 'meta');
+    closeGapSuggestion();
+  });
+
+  popup.querySelector('.gap-votes span:last-child').addEventListener('click', () => {
+    handleGapSuggestionVote('not_helpful', gapIndex, 'meta');
+    closeGapSuggestion();
+  });
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', onGapSuggestionOutsideClick, true);
+    document.addEventListener('keydown', onGapSuggestionKeyDown, true);
+  }, 100);
+}
+
+function getContextualSuggestions(gapIndex) {
+  // Different suggestions based on position in article
+  const suggestionSets = [
+    [ // Early sections
+      { key: 'history', label: 'Historical context' },
+      { key: 'background', label: 'Background info' },
+      { key: 'significance', label: 'Why it matters' }
+    ],
+    [ // Middle sections
+      { key: 'examples', label: 'Real examples' },
+      { key: 'process', label: 'How it works' },
+      { key: 'comparison', label: 'Compare with similar' }
+    ],
+    [ // Later sections
+      { key: 'impact', label: 'Current impact' },
+      { key: 'future', label: 'Future developments' },
+      { key: 'criticism', label: 'Different viewpoints' }
+    ]
+  ];
+
+  const setIndex = Math.min(gapIndex, suggestionSets.length - 1);
+  return suggestionSets[setIndex];
+}
+
+function handleGapSuggestionVote(topic, gapIndex, voteType) {
+  recordWhisperSignal({
+    sectionId: `section-gap-${gapIndex}`,
+    sectionTitle: `Section Gap ${gapIndex + 1}`,
+    chips: [topic],
+    note: `Vote type: ${voteType}`
+  });
+
+  if (voteType === 'positive') {
+    showWhisperToast(`Voted: ${topic}`);
+    // Keep popup open for multiple votes
+  } else {
+    showWhisperToast(voteType === 'meta' ? 'Feedback received!' : 'Thanks for the feedback');
+  }
+}
+
+function closeGapSuggestion() {
+  if (activeGapSuggestion) {
+    const popup = activeGapSuggestion.querySelector('.gap-suggestion-popup');
+    if (popup && popup.parentNode) {
+      popup.parentNode.removeChild(popup);
+    }
+  }
+
+  document.removeEventListener('click', onGapSuggestionOutsideClick, true);
+  document.removeEventListener('keydown', onGapSuggestionKeyDown, true);
+
+  activeGapSuggestion = null;
+}
+
+function onGapSuggestionOutsideClick(e) {
+  if (!activeGapSuggestion) return;
+
+  const popup = activeGapSuggestion.querySelector('.gap-suggestion-popup');
+  if (!popup) return;
+
+  if (!popup.contains(e.target) && !e.target.closest('.gap-dots')) {
+    closeGapSuggestion();
+  }
+}
+
+function onGapSuggestionKeyDown(e) {
+  if (e.key === 'Escape') {
+    closeGapSuggestion();
+  }
+}
+
+// Initialize section gaps when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initSectionGapSuggestions, 2000);
+});
