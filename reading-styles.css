@@ -1704,36 +1704,6 @@ body {
 .whisper-note__input { box-sizing: border-box; }
 .whisper-starters { display: none !important; }
 
-/* Overflow dot button on section headings */
-.whisper-dot {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 8px; /* keep inside heading area */
-  width: 26px;
-  height: 26px;
-  display: none; /* toggled to inline-flex via JS when visible */
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0; /* remove default button padding */
-  border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--subtle);
-  cursor: pointer;
-  line-height: 1;
-  font-size: 16px; /* dot glyph size */
-}
-
-.whisper-dot:hover {
-  background: var(--background-color-progressive-subtle, #eaf3ff);
-  color: var(--progressive);
-}
-
-@media (max-width: 768px) {
-  .whisper-dot { right: 6px; }
-}
 
 /* Desktop presentation: lightweight anchored panel (non-modal) */
 @media (min-width: 769px) {
