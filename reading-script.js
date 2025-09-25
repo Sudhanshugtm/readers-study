@@ -2018,15 +2018,12 @@ function createFooterSuggestionPanel() {
     style.id = 'footerSuggestionStyles';
     style.textContent = `
       .footer-suggestion-panel {
-        position: sticky;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        position: relative;
         background: #f8f9fa;
         border-top: 1px solid #eaecf0;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        z-index: 1000;
         margin-top: 40px;
+        width: 100%;
       }
 
       .footer-suggestion-content {
@@ -2132,7 +2129,13 @@ function createFooterSuggestionPanel() {
     hideFooterSuggestions();
   });
 
-  document.body.appendChild(footerPanel);
+  // Append after the main content
+  const main = document.querySelector('main') || document.querySelector('#content') || document.querySelector('.mw-body-content');
+  if (main) {
+    main.appendChild(footerPanel);
+  } else {
+    document.body.appendChild(footerPanel);
+  }
 }
 
 
