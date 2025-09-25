@@ -2003,11 +2003,9 @@ function createFooterSuggestionPanel() {
       <div class="footer-suggestion-title">What would improve this article?</div>
       <div class="footer-suggestion-options">
         <button class="footer-chip" data-topic="examples">More examples</button>
-        <button class="footer-chip" data-topic="history">Historical context</button>
-        <button class="footer-chip" data-topic="images">Pictures/diagrams</button>
-        <button class="footer-chip" data-topic="process">How it works</button>
-        <button class="footer-chip" data-topic="comparison">Compare with similar</button>
+        <button class="footer-chip" data-topic="details">More detailed explanations</button>
         <button class="footer-chip" data-topic="recent">Recent developments</button>
+        <button class="footer-chip" data-topic="applications">Real-world applications</button>
       </div>
     </div>
   `;
