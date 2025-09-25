@@ -1987,8 +1987,8 @@ function initFooterSuggestions() {
   // Create footer suggestion panel
   createFooterSuggestionPanel();
 
-  // Show panel when user reaches near end of article
-  setupScrollTrigger();
+  // Show panel immediately (always visible)
+  showFooterSuggestions();
 }
 
 function createFooterSuggestionPanel() {
@@ -2018,20 +2018,15 @@ function createFooterSuggestionPanel() {
     style.id = 'footerSuggestionStyles';
     style.textContent = `
       .footer-suggestion-panel {
-        position: fixed;
+        position: sticky;
         bottom: 0;
         left: 0;
         right: 0;
         background: #f8f9fa;
         border-top: 1px solid #eaecf0;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         z-index: 1000;
-        transform: translateY(100%);
-        transition: transform 0.4s ease;
-      }
-
-      .footer-suggestion-panel.visible {
-        transform: translateY(0);
+        margin-top: 40px;
       }
 
       .footer-suggestion-content {
@@ -2140,41 +2135,16 @@ function createFooterSuggestionPanel() {
   document.body.appendChild(footerPanel);
 }
 
-function setupScrollTrigger() {
-  let hasShown = false;
-
-  window.addEventListener('scroll', () => {
-    if (hasShown) return;
-
-    const scrollHeight = document.documentElement.scrollHeight;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const clientHeight = window.innerHeight;
-
-    // Show when user has scrolled 80% of the page
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
-
-    if (scrollPercentage > 0.8) {
-      showFooterSuggestions();
-      hasShown = true;
-    }
-  });
-}
 
 function showFooterSuggestions() {
   if (footerPanel) {
     footerPanel.style.display = 'block';
-    setTimeout(() => {
-      footerPanel.classList.add('visible');
-    }, 50);
   }
 }
 
 function hideFooterSuggestions() {
   if (footerPanel) {
-    footerPanel.classList.remove('visible');
-    setTimeout(() => {
-      footerPanel.style.display = 'none';
-    }, 400);
+    footerPanel.style.display = 'none';
   }
 }
 
