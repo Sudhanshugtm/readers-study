@@ -114,19 +114,22 @@ function initInlineSectionCards() {
     const titleEl = sec.querySelector('.article-section__title');
     const bodyEl = sec.querySelector('.article-section__content');
     if (!titleEl || !bodyEl) return;
+    const sectionTitle = (titleEl.textContent || '').trim();
+    if (!sectionTitle || /^(see also|references)$/i.test(sectionTitle)) return;
     const text = (bodyEl.textContent || '').trim();
     const wc = text.split(/\s+/).filter(Boolean).length;
     // Light heuristic: only show card on relatively short sections
     if (wc > 160) return;
-    const sectionId = titleEl.id || slugify(titleEl.textContent || 'section');
+    const sectionId = titleEl.id || slugify(sectionTitle || 'section');
     if (!titleEl.id) titleEl.id = sectionId;
 
     const card = document.createElement('div');
     card.className = 'inline-suggest-card';
     card.setAttribute('data-section-id', sectionId);
-    card.setAttribute('data-section-title', (titleEl.textContent || '').trim());
+    card.setAttribute('data-section-title', sectionTitle);
+    const safeTitle = sectionTitle.replace(/"/g, '&quot;');
     card.innerHTML = `
-      <div class="inline-suggest-title">Interested in more about "${(titleEl.textContent || '').trim()}"?</div>
+      <div class="inline-suggest-title">Interested in more about "${safeTitle}"?</div>
       <div class="inline-suggest-chips">
         <button class="inline-suggest-chip" data-type="expand_details">More details</button>
         <button class="inline-suggest-chip" data-type="add_examples">Add examples</button>
