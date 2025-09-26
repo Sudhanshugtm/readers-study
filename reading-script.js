@@ -2216,10 +2216,10 @@ function initHelpExpandChip() {
   // Build popover (lazy)
   let popover = null;
   const suggestions = [
-    { id: 'coffee_history', title: 'History', desc: 'Origins of coffee, its spread from Ethiopia and Yemen, and early coffeehouses.' },
     { id: 'coffee_cultivation', title: 'Cultivation & processing', desc: 'How coffee cherries are grown, harvested, and processed into beans.' },
     { id: 'coffee_varieties', title: 'Bean varieties', desc: 'Differences between arabica, robusta, and other Coffea species.' },
-    { id: 'coffee_brewing', title: 'Brewing methods', desc: 'Techniques such as espresso, pour-over, immersion, and cold brew.' }
+    { id: 'coffee_brewing', title: 'Brewing methods', desc: 'Techniques such as espresso, pour-over, immersion, and cold brew.' },
+    { id: 'coffee_culture', title: 'Culture & traditions', desc: 'Ceremonies, rituals, and social roles of coffee around the world.' }
   ];
   const MAX_SELECT = 3;
 
