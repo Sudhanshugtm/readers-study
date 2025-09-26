@@ -2166,9 +2166,10 @@ try { initGutterFlicks = function(){ /*disabled*/ }; } catch(e) {}
 function initHelpExpandChip() {
   const container = document.getElementById('articleBody');
   if (!container) return;
-  // Only show on stub (no sections present)
-  const hasSections = container.querySelector('.article-section__title, .article-subsection__title');
-  if (hasSections) return;
+  // Only show on stubby articles (allow lead + at most one real section)
+  const sectionTitles = Array.from(container.querySelectorAll('.article-section__title'))
+    .filter(title => !/^(see also|references)$/i.test((title.textContent || '').trim()));
+  if (sectionTitles.length > 1) return;
 
   const leadP = container.querySelector('p');
   // Build chip
