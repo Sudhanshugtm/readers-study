@@ -2178,8 +2178,8 @@ function initHelpExpandChip() {
   chip.id = 'helpExpandChip';
   chip.setAttribute('aria-haspopup', 'dialog');
   chip.setAttribute('aria-expanded', 'false');
-  chip.setAttribute('aria-label', 'Suggest topics to add to this article');
-  chip.textContent = 'Suggest topics';
+  chip.setAttribute('aria-label', 'Suggest coffee topics to add to this article');
+  chip.textContent = 'Suggest coffee topics';
   // Start hidden; reveal after lead is visible for 5s
   chip.classList.add('help-chip-hidden');
   try { chip.tabIndex = -1; } catch {}
@@ -2197,10 +2197,10 @@ function initHelpExpandChip() {
   // Build popover (lazy)
   let popover = null;
   const suggestions = [
-    { id: 'physical_characteristics', title: 'Physical characteristics', desc: 'Interior, surface, and magnetic properties of Mars.' },
-    { id: 'atmosphere', title: 'Atmosphere', desc: 'Composition, weather, and climate patterns.' },
-    { id: 'exploration', title: 'Human observations and exploration', desc: 'How we observed and visited Mars; key missions and findings.' },
-    { id: 'moons', title: 'Moons', desc: 'The small moons Phobos and Deimos.' }
+    { id: 'coffee_history', title: 'History', desc: 'Origins of coffee, its spread from Ethiopia and Yemen, and early coffeehouses.' },
+    { id: 'coffee_cultivation', title: 'Cultivation & processing', desc: 'How coffee cherries are grown, harvested, and processed into beans.' },
+    { id: 'coffee_varieties', title: 'Bean varieties', desc: 'Differences between arabica, robusta, and other Coffea species.' },
+    { id: 'coffee_brewing', title: 'Brewing methods', desc: 'Techniques such as espresso, pour-over, immersion, and cold brew.' }
   ];
   const MAX_SELECT = 3;
 
@@ -2214,7 +2214,7 @@ function initHelpExpandChip() {
     popover.setAttribute('aria-modal', 'false');
     popover.innerHTML = `
       <div class="help-popover__header" id="helpExpandTitle">
-        <span class="help-popover__title">What would you like to learn more about?</span>
+        <span class="help-popover__title">What would you like to learn more about coffee?</span>
         <button type="button" class="help-popover__close" aria-label="Close">×</button>
       </div>
       <div class="help-popover__body">
