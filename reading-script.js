@@ -2172,6 +2172,8 @@ function initHelpExpandChip() {
   if (sectionTitles.length > 1) return;
 
   const leadP = container.querySelector('p');
+  const primarySections = sectionTitles.map(title => title.closest('.article-section')).filter(Boolean);
+  const insertAfter = primarySections.length ? primarySections[primarySections.length - 1] : null;
   // Build chip
   const chip = document.createElement('button');
   chip.type = 'button';
@@ -2185,14 +2187,30 @@ function initHelpExpandChip() {
   chip.classList.add('help-chip-hidden');
   try { chip.tabIndex = -1; } catch {}
 
-  // Insert after lead paragraph or at top
-  if (leadP && leadP.parentNode) leadP.insertAdjacentElement('afterend', chip); else container.insertAdjacentElement('afterbegin', chip);
+  // Place chip after the last primary section, otherwise after lead
+  if (insertAfter && insertAfter.parentNode) {
+    insertAfter.insertAdjacentElement('afterend', chip);
+  } else if (leadP && leadP.parentNode) {
+    leadP.insertAdjacentElement('afterend', chip);
+  } else {
+    container.insertAdjacentElement('afterbegin', chip);
+  }
 
   let chipTimer = null; let revealed = false;
   function revealChip(){ if (revealed) return; revealed = true; chip.classList.remove('help-chip-hidden'); try { chip.tabIndex = 0; } catch {} }
-  if (leadP) {
-    const io = new IntersectionObserver((entries)=>{ entries.forEach(entry=>{ if (entry.target!==leadP) return; if (entry.isIntersecting) { if (!chipTimer) chipTimer = setTimeout(revealChip, 5000); } else { if (chipTimer) { clearTimeout(chipTimer); chipTimer=null; } } }); }, { threshold: 0.5 });
-    io.observe(leadP);
+  const observeTarget = insertAfter || leadP;
+  if (observeTarget) {
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if (entry.target !== observeTarget) return;
+        if (entry.isIntersecting) {
+          if (!chipTimer) chipTimer = setTimeout(revealChip, 4000);
+        } else {
+          if (chipTimer) { clearTimeout(chipTimer); chipTimer = null; }
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(observeTarget);
   } else { setTimeout(revealChip, 5000); }
 
   // Build popover (lazy)
