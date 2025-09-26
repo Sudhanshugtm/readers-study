@@ -105,24 +105,33 @@ function buildTableOfContents() {
 
 // initVariantBadge removed
 
-// Variant: Inline Section Cards
 function initInlineSectionCards() {
   const container = document.getElementById('articleBody');
   if (!container) return;
+
   const sections = Array.from(container.querySelectorAll('.article-section'));
+  const triggerMap = new Map();
+  const sectionsWithCards = [];
   sections.forEach(sec => {
     const titleEl = sec.querySelector('.article-section__title');
     const bodyEl = sec.querySelector('.article-section__content');
     if (!titleEl || !bodyEl) return;
+
     const sectionTitle = (titleEl.textContent || '').trim();
     if (!sectionTitle || /^(see also|references)$/i.test(sectionTitle)) return;
+
     const text = (bodyEl.textContent || '').trim();
     const wc = text.split(/\s+/).filter(Boolean).length;
-    // Light heuristic: only show card on relatively short sections
-    if (wc > 160) return;
+    if (wc > 160) return; // keep prompts for short sections only
+
     const sectionId = titleEl.id || slugify(sectionTitle || 'section');
     if (!titleEl.id) titleEl.id = sectionId;
 
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'inline-suggest-trigger';
+    trigger.setAttribute('aria-label', 'Suggest improvements to this section');
+    trigger.textContent = 'Need more in this section?';
     const card = document.createElement('div');
     card.className = 'inline-suggest-card';
     card.setAttribute('data-section-id', sectionId);
@@ -136,19 +145,51 @@ function initInlineSectionCards() {
         <button class="inline-suggest-chip" data-type="add_images">Add pictures/diagram</button>
       </div>
     `;
+
+    trigger.addEventListener('click', () => {
+      card.classList.add('is-visible');
+      trigger.remove();
+      const firstChip = card.querySelector('.inline-suggest-chip');
+      if (firstChip && typeof firstChip.focus === 'function') {
+        try { firstChip.focus({ preventScroll: true }); }
+        catch (err) { firstChip.focus(); }
+      }
+    });
+
+    bodyEl.appendChild(trigger);
     bodyEl.appendChild(card);
+
+    sec.setAttribute('data-inline-section-id', sectionId);
+    triggerMap.set(sectionId, trigger);
+    sectionsWithCards.push(sec);
   });
 
-  // Delegate clicks for inline chips
+  if (sectionsWithCards.length) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const sec = entry.target;
+        const secId = sec.getAttribute('data-inline-section-id');
+        const trigger = secId ? triggerMap.get(secId) : null;
+        if (!trigger) return;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
+          trigger.classList.add('visible');
+        } else {
+          trigger.classList.remove('visible');
+        }
+      });
+    }, { threshold: [0.25, 0.45, 0.65] });
+
+    sectionsWithCards.forEach(sec => observer.observe(sec));
+  }
   container.addEventListener('click', (e) => {
     const chip = e.target.closest('.inline-suggest-chip');
     if (!chip) return;
     const card = chip.closest('.inline-suggest-card');
     if (!card) return;
     const sectionId = card.getAttribute('data-section-id') || 'article';
-    const sectionTitle = card.getAttribute('data-section-title') || 'Section';
+    const cardTitle = card.getAttribute('data-section-title') || 'Section';
     const t = chip.getAttribute('data-type');
-    recordWhisperSignal({ sectionId, sectionTitle, chips: [t], note: '' });
+    recordWhisperSignal({ sectionId, sectionTitle: cardTitle, chips: [t], note: '' });
     chip.classList.add('voted');
     if (!/✓$/.test(chip.textContent)) chip.textContent += ' ✓';
     showWhisperToast('Thanks!');
