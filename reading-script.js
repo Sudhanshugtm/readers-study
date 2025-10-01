@@ -2275,7 +2275,7 @@ function initHelpExpandChip() {
         });
       });
       closePopover();
-      showWhisperToast('Thanks — your picks were recorded.');
+      showWhisperToast('Thanks! Your suggestions have been sent to the Wikipedia community.');
     });
 
     // A11y + outside click + Esc
