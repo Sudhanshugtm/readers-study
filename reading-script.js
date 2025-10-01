@@ -3,6 +3,7 @@
 
 let quill = null;
 let isEditMode = false;
+let toastHideTimer = null;
 
 // Default article data - will be overridden by specific article pages
 const defaultArticle = {
@@ -110,8 +111,25 @@ function initInlineSectionCards() {
   if (!container) return;
 
   const sections = Array.from(container.querySelectorAll('.article-section'));
-  const triggerMap = new Map();
-  const sectionsWithCards = [];
+  let openCard = null;
+  let openChip = null;
+
+  function closeActiveCard(focusChip = false) {
+    if (openCard) {
+      openCard.classList.remove('is-open');
+      openCard.setAttribute('aria-hidden', 'true');
+    }
+    if (openChip) {
+      openChip.setAttribute('aria-expanded', 'false');
+      if (focusChip) {
+        try { openChip.focus({ preventScroll: true }); }
+        catch (err) { openChip.focus(); }
+      }
+    }
+    openCard = null;
+    openChip = null;
+  }
+
   sections.forEach(sec => {
     const titleEl = sec.querySelector('.article-section__title');
     const bodyEl = sec.querySelector('.article-section__content');
@@ -127,18 +145,28 @@ function initInlineSectionCards() {
     const sectionId = titleEl.id || slugify(sectionTitle || 'section');
     if (!titleEl.id) titleEl.id = sectionId;
 
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.className = 'inline-suggest-trigger';
-    trigger.setAttribute('aria-label', 'Suggest improvements to this section');
-    trigger.textContent = 'Need more in this section?';
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'inline-section-chip';
+    chip.textContent = 'Suggest topics for this section';
+    chip.setAttribute('aria-label', 'Suggest topics for ' + sectionTitle);
+    chip.setAttribute('aria-expanded', 'false');
+
     const card = document.createElement('div');
     card.className = 'inline-suggest-card';
     card.setAttribute('data-section-id', sectionId);
     card.setAttribute('data-section-title', sectionTitle);
+    card.setAttribute('aria-hidden', 'true');
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'false');
+    card.setAttribute('aria-labelledby', `${sectionId}-suggest-title`);
+
     const safeTitle = sectionTitle.replace(/"/g, '&quot;');
     card.innerHTML = `
-      <div class="inline-suggest-title">Interested in more about "${safeTitle}"?</div>
+      <div class="inline-suggest-header">
+        <div class="inline-suggest-title" id="${sectionId}-suggest-title">Help expand "${safeTitle}"</div>
+        <button type="button" class="inline-suggest-close" aria-label="Close suggestions">×</button>
+      </div>
       <div class="inline-suggest-chips">
         <button class="inline-suggest-chip" data-type="expand_details">More details</button>
         <button class="inline-suggest-chip" data-type="add_examples">Add examples</button>
@@ -146,41 +174,51 @@ function initInlineSectionCards() {
       </div>
     `;
 
-    trigger.addEventListener('click', () => {
-      card.classList.add('is-visible');
-      trigger.remove();
+    const closeBtn = card.querySelector('.inline-suggest-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => closeActiveCard(true));
+    }
+
+    chip.addEventListener('click', () => {
+      const willOpen = !(openCard === card && card.classList.contains('is-open'));
+      if (openCard && openCard !== card) {
+        closeActiveCard();
+      }
+      if (!willOpen) {
+        closeActiveCard();
+        return;
+      }
+      card.classList.add('is-open');
+      card.setAttribute('aria-hidden', 'false');
+      chip.setAttribute('aria-expanded', 'true');
+      openCard = card;
+      openChip = chip;
       const firstChip = card.querySelector('.inline-suggest-chip');
-      if (firstChip && typeof firstChip.focus === 'function') {
-        try { firstChip.focus({ preventScroll: true }); }
-        catch (err) { firstChip.focus(); }
+      if (firstChip) {
+        setTimeout(() => {
+          try { firstChip.focus({ preventScroll: true }); }
+          catch (err) { firstChip.focus(); }
+        }, 20);
       }
     });
 
-    bodyEl.appendChild(trigger);
+    bodyEl.appendChild(chip);
     bodyEl.appendChild(card);
-
-    sec.setAttribute('data-inline-section-id', sectionId);
-    triggerMap.set(sectionId, trigger);
-    sectionsWithCards.push(sec);
   });
 
-  if (sectionsWithCards.length) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const sec = entry.target;
-        const secId = sec.getAttribute('data-inline-section-id');
-        const trigger = secId ? triggerMap.get(secId) : null;
-        if (!trigger) return;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
-          trigger.classList.add('visible');
-        } else {
-          trigger.classList.remove('visible');
-        }
-      });
-    }, { threshold: [0.25, 0.45, 0.65] });
+  document.addEventListener('click', (event) => {
+    if (!openCard) return;
+    if (openCard.contains(event.target)) return;
+    if (openChip && openChip.contains(event.target)) return;
+    closeActiveCard();
+  }, true);
 
-    sectionsWithCards.forEach(sec => observer.observe(sec));
-  }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeActiveCard(true);
+    }
+  });
+
   container.addEventListener('click', (e) => {
     const chip = e.target.closest('.inline-suggest-chip');
     if (!chip) return;
@@ -191,8 +229,11 @@ function initInlineSectionCards() {
     const t = chip.getAttribute('data-type');
     recordWhisperSignal({ sectionId, sectionTitle: cardTitle, chips: [t], note: '' });
     chip.classList.add('voted');
-    if (!/✓$/.test(chip.textContent)) chip.textContent += ' ✓';
-    showWhisperToast('Thanks!');
+    if (!/✓$/.test(chip.textContent.trim())) {
+      chip.textContent = chip.textContent.replace(/\s*✓$/, '') + ' ✓';
+    }
+    showWhisperToast('Thanks! Your suggestions have been sent to the Wikipedia community.');
+    setTimeout(() => closeActiveCard(), 400);
   });
 }
 
@@ -810,7 +851,13 @@ function showWhisperToast(text) {
   if (!toast) return;
   toast.textContent = text;
   toast.style.display = 'block';
-  setTimeout(() => { toast.style.display = 'none'; }, 2000);
+  if (toastHideTimer) {
+    clearTimeout(toastHideTimer);
+  }
+  toastHideTimer = setTimeout(() => {
+    toast.style.display = 'none';
+    toastHideTimer = null;
+  }, 4500);
 }
 
 function convertArticleToQuillFormat(article) {
