@@ -1846,7 +1846,7 @@ body {
   opacity: 0.88;
   transition: opacity .15s ease, box-shadow .15s ease, color .15s ease, border-color .15s ease;
   margin: 16px 0 0;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: flex-start;
   width: fit-content;
