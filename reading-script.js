@@ -336,6 +336,7 @@ const SECONDARY_CHIPS = [ 'Simplify wording', 'Local context' ];
 // Starters removed
 
 let whisperState = { sectionId: '', sectionTitle: '', chips: new Set(), note: '', quote: '' };
+let toastHideTimer = null;
 
 function wireWhisperSheet() {
   const sheet = document.getElementById('whisperSheet');
@@ -885,7 +886,13 @@ function showWhisperToast(text) {
   if (!toast) return;
   toast.textContent = text;
   toast.style.display = 'block';
-  setTimeout(() => { toast.style.display = 'none'; }, 2000);
+  if (toastHideTimer) {
+    clearTimeout(toastHideTimer);
+  }
+  toastHideTimer = setTimeout(() => {
+    toast.style.display = 'none';
+    toastHideTimer = null;
+  }, 4500);
 }
 
 function convertArticleToQuillFormat(article) {
