@@ -1709,9 +1709,24 @@ body {
 .whisper-submit.enabled { background: var(--progressive); border-color: var(--progressive); cursor: pointer; }
 
 .whisper-toast {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: 20px; z-index: 1100; background: #202122; color: #fff;
-  padding: 10px 14px; border-radius: 999px; box-shadow: var(--shadow-2);
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 1100;
+  background: rgba(32, 33, 36, 0.94);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  max-width: min(340px, calc(100% - 24px));
+  text-align: left;
+  line-height: 1.4;
+  font-size: 13px;
+  word-wrap: break-word;
+  white-space: normal;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Tweak widths and overflow to feel aligned */
