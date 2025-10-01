@@ -1781,15 +1781,16 @@ body {
   cursor: pointer;
   opacity: 0.82;
   transition: opacity .15s ease, box-shadow .15s ease, color .15s ease, border-color .15s ease;
-  margin: 16px auto 24px;
-  display: flex;
+  margin: 16px 0 24px;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: fit-content;
   max-width: min(320px, 90%);
   white-space: normal;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  align-self: flex-start;
 }
 .help-expand-chip:hover,
 .help-expand-chip:focus {
@@ -1815,10 +1816,11 @@ body {
 /* Mobile sheet */
 @media (max-width: 768px) {
   .help-expand-chip {
-    font-size: 14px;
-    padding: 10px 20px;
+    font-size: 13px;
+    padding: 6px 16px;
     opacity: 1;
-    max-width: calc(100% - 40px);
+    max-width: calc(100% - 32px);
+    margin-left: 0;
   }
   .help-popover.is-mobile {
     left: 0;
