@@ -2183,9 +2183,8 @@ function initHelpExpandChip() {
   chip.setAttribute('aria-expanded', 'false');
   chip.setAttribute('aria-label', 'Suggest coffee topics to add to this article');
   chip.textContent = 'Suggest coffee topics';
-  // Start hidden; reveal after lead is visible for 5s
-  chip.classList.add('help-chip-hidden');
-  try { chip.tabIndex = -1; } catch {}
+  // Make chip available immediately for quicker discovery
+  try { chip.tabIndex = 0; } catch {}
 
   // Place chip after the last primary section, otherwise after lead
   if (insertAfter && insertAfter.parentNode) {
@@ -2196,22 +2195,7 @@ function initHelpExpandChip() {
     container.insertAdjacentElement('afterbegin', chip);
   }
 
-  let chipTimer = null; let revealed = false;
-  function revealChip(){ if (revealed) return; revealed = true; chip.classList.remove('help-chip-hidden'); try { chip.tabIndex = 0; } catch {} }
-  const observeTarget = insertAfter || leadP;
-  if (observeTarget) {
-    const io = new IntersectionObserver((entries)=>{
-      entries.forEach(entry=>{
-        if (entry.target !== observeTarget) return;
-        if (entry.isIntersecting) {
-          if (!chipTimer) chipTimer = setTimeout(revealChip, 4000);
-        } else {
-          if (chipTimer) { clearTimeout(chipTimer); chipTimer = null; }
-        }
-      });
-    }, { threshold: 0.4 });
-    io.observe(observeTarget);
-  } else { setTimeout(revealChip, 5000); }
+  // Chip stays visible without delayed reveal
 
   // Build popover (lazy)
   let popover = null;
