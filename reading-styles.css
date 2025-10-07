@@ -200,6 +200,11 @@ body {
   padding: 8px 12px 7px;
 }
 
+/* Hide Edit tab on all devices for user testing */
+.action-tab:nth-child(2) {
+  display: none !important;
+}
+
 .action-tab.help-improve {
   color: var(--subtle);
   padding: 8px;
