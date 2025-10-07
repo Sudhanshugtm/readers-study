@@ -1,0 +1,80 @@
+Activity 1 - Please read the following instructions out loud:
+Thanks for taking part in this study. You'll see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly (&ldquo;Content request features&rdquo;).
+Important: These are early prototypes, so most elements like links won't be clickable - just focus on finding and trying the content request features. Please think aloud as you explore.
+
+voy a hacer. Hello. Voy a hacer. Igual que antes, eh? No sé hablar español e inglés, pero lo voy a hacer en español por si os sirve.
+
+Activity 2 - When reading Wikipedia, have you ever come across articles that felt too short or were missing information you needed? What did you do? How satisfied were you with this approach?
+
+un prototipo de Wikipedia. Aquí pone en la siguiente. Al leer Wikipedia. Alguna vez te has encontrado con artículos que te parecían demasiado corto? Sí. Sí que es verdad, eh? Hay muchas veces que la información mínima y lo que hago es buscar información en otro
+
+Activity 3 - Imagine you're reading Wikipedia to learn more about coffee. You'll see a prototype Wikipedia article. Most links won't work except for the feature we're testing.
+Please:
+
+Read through the article
+Think about what topics about coffee you'd like to learn more about
+Use the content suggestion feature to request that information
+
+por otra fuente. A ver a ver. Voy a ver esto. Qué significa? el café una bebida preparada a partir. Esta bebida es conocida por su rico sabor y el efecto estimulante de la cafeína natural que contiene el café se sirve en hogares, cafeterías y lugares de trabajo de todo el mundo. Historia de el comercio de granos de café surgió en el mundo árabe en el siglo XV y se extendió a Europa a través de los puertos del Mar Rojo. y el Mediterráneo en el siglo 17. y La primera cafetería europea se convirtieron en el centro de comercio. Publicar cambio, por ejemplo. a ver qué es lo que OK. Un momento, a ver. Vale. damos a Sánchez Café Topic. enviado.
+
+Activity 4 - How clear was it what this feature does?
+
+neutral.
+
+Activity 5 - In your own words, what do you think this feature is for? Who do you think it&rsquo;s designed for?
+
+Estas sugeren- son sugerencias para sobre cosas relacionadas con el artículo.
+
+Activity 6 - What do you think happens after you submit a request?
+
+pues después de enviar la solicitud, la revisarán y me enviarán. eh artículo.
+
+Activity 7 - How much do you trust that your content request would lead to improvements to the article?
+
+tiene que ver en este sentido. Cuánto confía usted en que la solicitud de contenido? Pues confío bastante. um de Wikipedia hay que fiarse mucho porque nunca me ha fallado y
+
+Activity 8 - How useful would you find this feature?
+
+confío mucho. Qué tan útiles resultaría esta función Muy útil porque hay artículos. Betty Usef.
+
+Activity 9 - What, if anything, would stop you from using this feature?
+
+mm. Yo sabía esta.
+
+Activity 10 - Now you'll see a different Wikipedia article about Mars. Again, most links won't work except for the feature we're testing.
+Please:
+
+Browse through this article
+Identify any topics about Mars you'd like to learn more about
+Use the content suggestion feature to request that information
+
+esta función. Gabi aquí. Bien, eh más detalle. Y. ejemplo.
+
+Activity 13 - What do you think happens after you submit a request in this version?
+
+Y ustedes pueden enviar la solicitud. Puede que me enseñen la información que sugiere
+
+Activity 14 - How useful would you find this feature?
+
+el artículo.
+
+Activity 16 - You've now tried suggesting content on two different Wikipedia articles. What do you think this is for and would you find it useful?
+
+Ya he intentado subir contenidos en dos artículos diferentes. Para qué crees que sirve? una información del producto
+
+Activity 17 - Walk us through what you think happens after someone suggests content - who handles it, how does it work, and what concerns or questions does this raise for you?
+
+de lo que estoy buscando. Pues qué crees que sucede puede que alguien sufre el contenido. Quién lo maneja. Pues Google debe de manejarlo. y buscará información por toda la web que hay y me- y pondrá la información.
+
+Activity 18 - After using this feature, do you feel like you understand more about how Wikipedia content is created?
+
+después utilizar esta función ciente que con
+
+Activity 19 - Wikipedia already lets anyone edit articles directly. If both options (editing and suggesting content) were equally available, which would you prefer and why? What would make you more likely to use this feature?
+
+Cómo crees de Wikipedia, Sí. ya permite editar artículos. eh. sugerir. Prefiero sugerir que editar porque si lo edito, puedo crear con
+
+Activity 20 - If you could change or improve this content suggestion feature in one way, what would it be?
+
+funciones.
+

@@ -1,0 +1,92 @@
+Activity 1 - Please read the following instructions out loud:
+Thanks for taking part in this study. You'll see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly (&ldquo;Content request features&rdquo;).
+Important: These are early prototypes, so most elements like links won't be clickable - just focus on finding and trying the content request features. Please think aloud as you explore.
+
+Please read the following instructions out loud. Thanks for taking part in this study. You'll see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly. Contest content requested features. Important, these are early prototypes, so most elements like links won't be clickable. Just focus on finding and trying the content requested features. Please think out loud as you explore.
+
+Activity 2 - When reading Wikipedia, have you ever come across articles that felt too short or were missing information you needed? What did you do? How satisfied were you with this approach?
+
+When we, when reading Wikipedia, have you ever come across articles that felt too short or were missing information you needed? What did you do? How satisfied were you with this approach? I think if I have ever come across um missing information from Wikipedia, I would then just go to another site. So go back to the search, whether that be Google or however I found the Wikipedia article and find um. Excuse me, uh, and find a different website or different source material to use, um, so not completely satisfied with that approach as I'd rather get all the information from one place, but if I have to, then that's
+
+Activity 3 - Imagine you're reading Wikipedia to learn more about coffee. You'll see a prototype Wikipedia article. Most links won't work except for the feature we're testing.
+Please:
+
+Read through the article
+Think about what topics about coffee you'd like to learn more about
+Use the content suggestion feature to request that information
+
+fine. Click start to begin, give your best effort and respond out loud, click the expand to review the instructions anytime. Imagine you're reading Wikipedia to learn more about coffee. You'll see a prototype Wikipedia article. Most links won't work. Read through the article, think about what topics. What topics about coffee you'd like to learn more about, use the content suggestion features to request that information. OK, so let's press start. So this is coffee, it's prepared from beans. Known for its rich flavor and history. Coffee is served at homes, cafes or workplaces. He traded coffee grew from the Arab world. Um, so I would like to see the types of coffee, cultivation and processing bean varieties, definitely bean varieties, broom, oh, and culture, definitely culture. I'm brewing methods, to be honest, so I'll send those. So it's good that it gives you options about what you would like to see more from the page. Your suggestions have been sent to the Wikipedia community.
+
+Activity 4 - How clear was it what this feature does?
+
+Next. I think that's somewhat clear what that does. It doesn't say. If the suggestions will be accepted, it doesn't say the timescales for those suggestions, so it's unclear what the next steps would be, but in terms of the feature itself, I think that's pretty
+
+Activity 5 - In your own words, what do you think this feature is for? Who do you think it&rsquo;s designed for?
+
+clear. In your own words, what do you think this feature is for? Who do you think it's designed for? I think it's for seeing what the appetite maybe is for more content on the page. So if 10 people click one of the suggestions, they know that people are interested in that, and none of the others get clicked, so people can put more research into the one that's more popular potentially. I think it's designed for. Anyone who uses Wikipedia.
+
+Activity 6 - What do you think happens after you submit a request?
+
+What do you think happens after you submit a request? See, this is what I'm not sure about. It's been sent to the team, but I don't know what that means. I don't know who that means, I don't know the timescales, I don't know what action needs to be taken. I don't know if I'll be notified.
+
+Activity 7 - How much do you trust that your content request would lead to improvements to the article?
+
+How much do you trust that your content request would lead to improvements in the article? I wouldn't really trust, I think it's probably 50/50 because I haven't seen that come to fruition, um, and I haven't been told what steps are taken next. So I wouldn't really trust that it would lead to improvements in the article at all, really. So maybe more like 10%.
+
+Activity 8 - How useful would you find this feature?
+
+Useful I think it's slightly useful um if you were doing research on something that you wanted more specifics on then you could request that, so that is slightly useful in. Uh, in sort of putting it out there, what you want to see, however, I don't think it's that useful because, um. It it doesn't give you the information, so you can request it, but it's not as if you've got the information then after you request it. I don't know what the timescales are for that.
+
+Activity 9 - What, if anything, would stop you from using this feature?
+
+What if anything would stop you from using this feature? What, if anything, would stop you from using this feature? I don't understand the options that are given there. I think nothing would stop me using it because you've got nothing to lose, but that's not an option, so I'm just going to put not useful at all.
+
+Activity 10 - Now you'll see a different Wikipedia article about Mars. Again, most links won't work except for the feature we're testing.
+Please:
+
+Browse through this article
+Identify any topics about Mars you'd like to learn more about
+Use the content suggestion feature to request that information
+
+Now you'll see a different Wikipedia article about Mars. Most links won't work. Please browse through the article, identify any topics you'd like to learn about and use a content suggestion feature to request. Excuse me, request that information. Stop. OK. Mars 4th planet from the sun, 2nd smallest. Red planet. Polar ice caps, that's interesting. A regularly shaped natural satellite. Moons. The atmosphere water vapor. Not now. Mm. Hm, I don't think there was anything else I would like to know about exploration. Obviously you could click into these certain uh Expeditions individually. Who can say one. Past life, that is very interesting. More details. And examples, I would like to know what previous life or past life people might think was on Mars. So in terms of human missions, I would like to know if there's any plans to do that. So more details maybe on that. Yeah, that's a good page. OK.
+
+Activity 11 - How clear was it what this feature does?
+
+Again, I think it's my answers are going to be pretty similar for this page as to the previous one, so somewhat clear what the feature does. Um, it's nice that it gives you options of exactly what you want to see, so whether that's text or pictures, um, but it doesn't say when that would be uploaded.
+
+Activity 12 - What, if anything, was different about this second scenario compared to the first one?
+
+Uh, so the thing that was different was the options to have, uh, information in picture format or what specifically you would like, some more examples, um, which I think is a good way of going about it.
+
+Activity 13 - What do you think happens after you submit a request in this version?
+
+Again, similarly, I don't know what happens after you submit a request. I don't know who that goes to. I don't know if it would be um. Validated if it would be. If the request would be followed through, I'm not entirely sure.
+
+Activity 14 - How useful would you find this feature?
+
+How useful would you find this feature, I think moderately useful. If it was successful, if it came to fruition.
+
+Activity 15 - What, if anything, would stop you from using this feature?
+
+What if anything would stop you from using this feature, again, nothing would stop you from using that feature, but the options don't align with those, that choice.
+
+Activity 16 - You've now tried suggesting content on two different Wikipedia articles. What do you think this is for and would you find it useful?
+
+You've now tried suggesting content on two different Wikipedia articles. What do you think this is for, and would you find it useful? I think it's to get more information and to suggest content and have that fulfilled. So I think that is useful. Um, however, obviously with the development of AI and things like that, it's whether people would actually use that as opposed to just searching for that on an AI website. Um, I think it would be useful, but I'm not sure for how many people.
+
+Activity 17 - Walk us through what you think happens after someone suggests content - who handles it, how does it work, and what concerns or questions does this raise for you?
+
+Walk us through what you think happens after someone suggests content, who handles it, how does it work, what concerns or questions does this raise for you? So like I've mentioned before, I'm not sure. So I don't know who would handle that. Is that someone at Wikipedia? Is that the community? I don't know what the Wikipedia community really looks like. In terms of how it works. Again, I'm not sure. I don't know how. If someone in particular does it or whether it's crowdsourced, I don't know. And in terms of the questions that it raises. Um, yeah, I think it would just be on that communication. So if someone does request a piece of content, how would you then follow up with them and make sure they know it's been, um, fulfilled or expanded on?
+
+Activity 18 - After using this feature, do you feel like you understand more about how Wikipedia content is created?
+
+After using this feature, do you feel like you understand more about how Wikipedia content is created? No, I don't feel like I understand more because I don't know if that's how the current process works or if this is different to the current process, so I'm not sure I've learned anything about the current situation at Wikipedia.
+
+Activity 19 - Wikipedia already lets anyone edit articles directly. If both options (editing and suggesting content) were equally available, which would you prefer and why? What would make you more likely to use this feature?
+
+Wikipedia already lets anyone edit articles directly. Both options, editing and suggesting content were equally available. Which would you prefer and why? What would make you more likely to use this feature? Well, I think if I'm suggesting content, I want to know more, I want to learn more, um, and I would find something interesting, so I don't know that I would necessarily have the knowledge myself to update that page. So I think I would find suggesting more useful. Um, and more likely, it's also less effort to suggest and type and put in the effort yourself.
+
+Activity 20 - If you could change or improve this content suggestion feature in one way, what would it be?
+
+If you could change or improve this content suggestion feature in one way, what would it be? I would say give. Um, a timeline within that suggestion, say if you request pictures, that could take 10 weeks. If you request texts, that would take 5 working days. Come back and check, um, rather than just letting it suggest and then disappear.
+

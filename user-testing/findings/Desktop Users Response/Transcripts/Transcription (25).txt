@@ -1,0 +1,88 @@
+Activity 1 - Please read the following instructions out loud:
+Thanks for taking part in this study. You'll see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly (&ldquo;Content request features&rdquo;).
+Important: These are early prototypes, so most elements like links won't be clickable - just focus on finding and trying the content request features. Please think aloud as you explore.
+
+Please read the following instructions out loud. Thanks for taking part in the study. You will see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly. Content request features important. These are early prototypes, so most elements like links won't be clickable. Uh, just focus on findings and trying the concept of request uh features. Please think out aloud as you
+
+Activity 2 - When reading Wikipedia, have you ever come across articles that felt too short or were missing information you needed? What did you do? How satisfied were you with this approach?
+
+explore. Yeah, sure. When reading Wikipedia, have you ever come across articles that fell too short or they missing information you needed? What did you do? How satisfied were you with this approach? Uh, yeah, sometimes actually. Uh, so you will get limited information about, uh, uh, certain, uh, person, personalities, and, um, Uh, in that, uh, their, uh, personal information will be very limited, uh, whether the the sibling information or their parents' information. Uh, so the spouse's information, so this information will be limited,
+
+Activity 3 - Imagine you're reading Wikipedia to learn more about coffee. You'll see a prototype Wikipedia article. Most links won't work except for the feature we're testing.
+Please:
+
+Read through the article
+Think about what topics about coffee you'd like to learn more about
+Use the content suggestion feature to request that information
+
+uh, in some cases. Imagine you are reading Wikipedia to learn more about coffee. You will see prototype Wikipedia articles. Most links won't work except for the features we are testing. Read through the article. Think about what topics about coffee you would like to learn more about. Use the content suggestion features to request that information. Coffee is brewed, drink prepared from roasted coffee beans. The seeds of berries from certain coffee. species and the drink is known for its rich flavor and the stimulating effect of its naturally occurring coffee. Coffee is served in home cafes and workplaces around the world. History. The trade in coffee beans grew from the Arab world in the 15th century, spreading through ports over the Red Sea and Mediterranean into Europe by the 17th century. Early European coffee houses became a centers for discussion and commerce. So I can see over here, like a coffee beans is provided over here as an extra additional link. Coffee is provided and red tea is provided. S Yeah, so I think uh uh that maybe the kinds of coffee, uh that is available and uh uh maybe the varieties of coffee, uh, beans that is available. And uh, yeah, so maybe some preparation, uh, details. So those uh details, I think, uh, will be. Uh, can be added in this link. Would you like to learn more about coffee, uh, so cultivating and processing, uh, beans, varieties, yes. Uh, brewing methods. Yes, culture and tradition, cultivating and processing, so. OK. Yeah. So the ions has been sent.
+
+Activity 4 - How clear was it what this feature does?
+
+Yeah. How clear was it with this feature that it was very, uh, clear, so. Let me put it very
+
+Activity 5 - In your own words, what do you think this feature is for? Who do you think it&rsquo;s designed for?
+
+clear. In your own words, what do you think this feature is for? What do you think it's designed for? Uh, maybe, uh, while reading through a page, uh, you felt like, OK, you need more information, uh, regarding a particular Uh, section, uh, so, or say this consider this case of coffee bean and you want to know like what are the kinds of coffee beans, or coffee that is available. So you can request Wikipedia to add those information as well in that particular
+
+Activity 6 - What do you think happens after you submit a request?
+
+page. So that is a major use of this. What do you think happens after you submit a request? Uh, maybe, uh, what I think is, uh, for the other users who are visiting this page, maybe Wikipedia will ask those users to add those, uh, information, uh, uh, or maybe from the Wikipedia side itself, if somebody is able to add that, they will add it. Otherwise, from the people who are doing that. Uh, maybe Wikipedia, maybe sending the links to those people who are having a Wikipedia account, or they will be asking people who are visiting this particular page of Coffee Bean
+
+Activity 7 - How much do you trust that your content request would lead to improvements to the article?
+
+to add this information if they are aware about it. How much do you trust that your content requests would lead to improvements to the article? So I very much actually trust that process because uh uh this will be, uh, this will become as a trigger to other processes, a kind of when we, when I ask for this certain information, maybe Wikipedia may use other uh. Other sources to get this
+
+Activity 8 - How useful would you find this feature?
+
+information and add it in this page. How useful would you find this feature?
+
+Activity 9 - What, if anything, would stop you from using this feature?
+
+It's very useful. What, if anything, would stop you from using this thing? But if anything would stop you from using this feature, there is nothing actually,
+
+Activity 10 - Now you'll see a different Wikipedia article about Mars. Again, most links won't work except for the feature we're testing.
+Please:
+
+Browse through this article
+Identify any topics about Mars you'd like to learn more about
+Use the content suggestion feature to request that information
+
+so it's very useful. Now you see a different Wikipedia article about Mars. Again, most links won't work except for the feature we are testing. Browse through this article, identify any topic about Mars you would like to learn more about. Use the content suggestion feature to request that information. OK. So I can see the Mars over here, details about Mars over here and the physical characteristics, atmosphere, surface, and geography, exploration, habitability and life, human mission, see also. Uh, Uh, but subsurface ice and occasional brines exist in numerous missions seek. Radiation exposure in radi and landing. Yeah. See also terraforming of Mars, colonization of Mars, and astrobiology. Yeah, maybe I just stop it for this section. Uh, add, uh, pictures and diagrams, uh, habitability and life, uh, maybe add more details on that. And the exploration. Viking Program, Mars Pathfinder, Mars Exploration Rover, Mars Science Laboratory. Yeah, I think like uh these details are fine. So, Add pictures. So this would help.
+
+Activity 11 - How clear was it what this feature does?
+
+So what I think is like more pictures. People nowadays look for more picture or video information. Uh, so if those information can, it could be added for each of these sections, it will be really helpful.
+
+Activity 12 - What, if anything, was different about this second scenario compared to the first one?
+
+So, it's very clear. What if anything was different about the second scenario compared to the first one? So here actually, uh, it is limited. Uh, the suggestions are limited. So what I think is like, uh, if I want to add a custom information. Say, uh, the future, uh, mission that is coming for to, to Mars. So I want to add this custom, uh, this custom information also to this particular page. Uh, but in this case, I think like it is limited what I can uh ask for, ask to Wikipedia to add in this particular page.
+
+Activity 13 - What do you think happens after you submit a request in this version?
+
+What do you think happens after you submit a request in this version? So maybe uh Wikipedia will uh take this request and will add this information, uh, referring to uh certain uh
+
+Activity 14 - How useful would you find this feature?
+
+other sources. How useful would you find this feature? It's very useful. So let me tell you, like, it can be moderately useful because I can't
+
+Activity 15 - What, if anything, would stop you from using this feature?
+
+add any custom input in this case, and it is very limited, the requests that I can ask for. So what if anything would stop you from using this feature? So, uh, what I think is like, uh, maybe sometimes I won't need any picture from this thing, but the, my, uh, requirement will be entirely different from what, what, whatever that is populated in this suggested topic for this section. Excuse me, I suggest topics for this section. So, in that case, actually, it can be moderately useful.
+
+Activity 17 - Walk us through what you think happens after someone suggests content - who handles it, how does it work, and what concerns or questions does this raise for you?
+
+Walk us through what you think happens after someone suggests content, how handles it, how does it work, and what concerns or questions does this raise for you? Yeah, so, uh, Yeah, so, uh, maybe, uh, likewise I previously said this may go to, uh, maybe the Wikipedia account holders as well as people who are visiting this particular page. Uh, they will be receiving this request and they will be adding this request, but how the genuinity of that information, uh, can be sometimes questioned. But that Wikipedia will take care of that I uh that I know. Uh, but uh what I think is like uh this, this information can be retrieved from some other sources or this information can be easily added by uh the person who are uh viewing this page, who is aware of this particular process. Say in the case of coffee beans, who's who's from someone, someone who's cultivating this particular product, uh, they can add this information. So, but the, uh, but, uh, the process of cultivation can be different at different places. So how much we can rely on those information, uh, it, it, it,
+
+Activity 18 - After using this feature, do you feel like you understand more about how Wikipedia content is created?
+
+it varies. After using this feature, do you feel like you understand more about how Wikipedia content is created? Uh, yes, I think that like it's based
+
+Activity 19 - Wikipedia already lets anyone edit articles directly. If both options (editing and suggesting content) were equally available, which would you prefer and why? What would make you more likely to use this feature?
+
+on user suggestions. Wikipedia already lets anyone edit the article directly. If both options, editing and suggestion content were equally available, which would you prefer and why? What would make you more likely to use this feature? Uh, so maybe editing, if I am aware about that, OK, I will go for the edit. If I can suggest certain information which I am not aware about, I think like in that case, I may go with uh,
+
+Activity 20 - If you could change or improve this content suggestion feature in one way, what would it be?
+
+uh, suggesting it. If you could change or improve this contention feature in one way, what would it be? Yeah, maybe, uh, like I should be able to add custom solution. Uh, so based on the custom suggestions, uh, uh, like, uh, I should be, uh, other people should be able to add more information. So maybe because of whatever info uh suggestions that, uh, the Wikipedia is providing may not be my requirement. I may need other requirements. OK, maybe, uh, how much time it may take to roast the coffee beans. That information may not be there in the, uh, Wikipedia content or in the suggestion, but I need this information. Maybe, uh, the time for mm, uh, roasting or the, the temperature that it can. To the temperature to which it can be roasted to. So this information actually can be made custom so that if this information is, uh, someone is aware about, I can actually they can add this
+

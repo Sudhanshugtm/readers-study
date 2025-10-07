@@ -1,0 +1,92 @@
+Activity 1 - Please read the following instructions out loud:
+Thanks for taking part in this study. You'll see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly (&ldquo;Content request features&rdquo;).
+Important: These are early prototypes, so most elements like links won't be clickable - just focus on finding and trying the content request features. Please think aloud as you explore.
+
+Takes took quite a while for it to load up, uh, we're now on one of 20. Please read the following instructions out loud, thanks for participating in this study. You'll see two prototypes that show different ways readers might request more Wikipedia content without editing Wikipedia directly. Important, these are early prototypes, so most elements like the links won't be clickable, just focus on finding and trying the content request feature. Please think aloud as you explore.
+
+Activity 2 - When reading Wikipedia, have you ever come across articles that felt too short or were missing information you needed? What did you do? How satisfied were you with this approach?
+
+220. When reading Wikipedia, have you ever come across articles that felt too short or missing information you needed? What did you do? How satisfied were you with this approach? To be honest, um, you've gotta bear in mind there's there's very few topics where I probably actually know more than Wikipedia does. So I think um a lot of the time it would probably be omissions as opposed to me finding out things are incorrect, etc. um, so data that you just haven't included that you would think logically would be in there. Um, what I would do is I would try other sources, um, more than anything else. My logic is that if you've omitted it, you've omitted it for some reason, whether it be ethical or you don't think it's trustworthy, etc. How satisfied am I with it, it's a bit frustrating because you'd rather get all your information in, 11 source, but realistically, it happens.
+
+Activity 3 - Imagine you're reading Wikipedia to learn more about coffee. You'll see a prototype Wikipedia article. Most links won't work except for the feature we're testing.
+Please:
+
+Read through the article
+Think about what topics about coffee you'd like to learn more about
+Use the content suggestion feature to request that information
+
+3 We've got a prototype just loading up, here we go. 320, imagine you're reading Wikipedia to learn more about coffee, you see a prototype Wikipedia article, most links won't work here except for the feature we're testing. Please read through the article, think about what topics about coffee you'd like to learn about, use the information to suggest, uh feature to request that information, use content suggestion sorry to feature to request, right, let's have a look. So, coffee, coffee is a brewed drink paired from roast coffee beans and the seeds of berries from certain coffee species. The drink is known for its rich flavor and stimulating effect is naturally occurring caffeine, coffee is served in homes, cafes, workplaces around the world. Trade in coffee beans grow from the Arab world in the 15th century, spreading through ports of the Red Sea and the Mediterranean Europe by the 17th century. Early European coffee houses became centers for discussion and commerce. OK. So nice and brief, um, and your points are, read through the article, think about what topics about coffee you'd like to learn more about, use the content suggestion feature to request that information. So, um, obviously you wanna probably know about the different locations where the beans come from, the different roasts, the different effects, I probably like more science into the effects of caffeine. Um So looking at this, we've got edit view history star, er we've got talk, coffee, suggest coffee topics. So let's have a look at that. What would you like to learn more about, oh yeah this is really interesting, so cultivation processes, yes, bean varieties, brewing methods, culture, OK. So I would like those. OK, so I can only pick 3 of the 4. OK, and I would send that. Thanks for your suggestions have been sent to Wikipedia community, that was really easy. Um, I also make sure I do cover everything. Um, so I've started that. Um, OK, most links won't work, OK, so I've done that, so let's do next. Excuse me,
+
+Activity 4 - How clear was it what this feature does?
+
+I've got a terrible cold. How clear was, was it that the feature does, well it was very clear and it was really well located to suggest coffee topics, so I would go, it was very clear.
+
+Activity 5 - In your own words, what do you think this feature is for? Who do you think it&rsquo;s designed for?
+
+In your own words, what do you think this feature is for, who do you think it's designed for, right, so first part, what do you think this feature is for? It's for um expanding. The depth of the reading. And I imagine it's to find out from your audience what topics are. Most of interest, nothing worse than just it being absolutely bogged down and stuff, so I think it's good that you canvass people. I think it's also good really that that all the information might be there and you can just select what you want. Who do you think this feature is designed for, I think it's for the um administrators to look at the content and grow it, but it's also for the readers to put their opinion across and expand it.
+
+Activity 6 - What do you think happens after you submit a request?
+
+What do you think happens after you submit the press, I imagine it goes to the administrators. At Wikipedia who review it, collate and tally up and see um if there's a demand for that information. This is step 6 of 20.
+
+Activity 7 - How much do you trust that your content request would lead to improvements to the article?
+
+7, how much do you trust that your content requests would lead to improvements in the article? I think you'd have to give it some time to see if you do see the changes. I think since the fact that you're asking for it and Wikipedia is my go to place, um, I'd be confident you'd do something with it. There's no point canvassing people's opinion, it's more hassle for you if you're not gonna
+
+Activity 8 - How useful would you find this feature?
+
+take it. How useful do you find this feature? I think it would be. Um, I think it'd be very useful, I mean anything that gives you the ability to learn. Is very useful, I think especially on key topics. I mean the coffee of the article here is incredibly small. Um, but I do think there is a problem with overinformation these days, and sometimes it's best to be concise and expand than the other way and cut back.
+
+Activity 9 - What, if anything, would stop you from using this feature?
+
+9. What if anything would stop you from using this feature? Uh, my ignorance, uh, a lack of interest in a topic. Um, what, if anything, would stop you from using this feature? Well, the answers don't make sense here. What, what, if anything would stop you from using the feature, so not useful at all, slightly useful, moderately useful. I don't think those questions really answer what Nine is. I've told you why. Why I wouldn't use it um except I didn't know anything enough about the topic to actually make suggestions, but what if anything would stop you from using this, I'm just gonna put slightly useful, um, I'll put moderately useful cos I'm not too sure. That this is an appropriate multiple
+
+Activity 10 - Now you'll see a different Wikipedia article about Mars. Again, most links won't work except for the feature we're testing.
+Please:
+
+Browse through this article
+Identify any topics about Mars you'd like to learn more about
+Use the content suggestion feature to request that information
+
+choice question. Right, so we're loading up now. We've now got Mars by the looks of it. Now you'll see a different Wikipedia about Mars. Again, most links won't work. Most of the article identify topics about Mars you'd like to learn more about and use the content suggestion. OK, so let's start. So Mars, Mars is the 4th planet from the sun, the 2nd smallest planet in the solar system being larger than only Mercury. OK. In English, Mars carries the name of Mars mythology. It's often returned with the red planet. The latter refers to the iron oxidized, uh, prevalence on Mars's surface, which gives it its reddest appearance. So you've got physical characteristics, Mars is a terrestrial planet with a thin atmosphere. Its surface features, impact craters, volleys, dunes, and polar ice caps. Mars has two small irregularly shaped natural satellites. Phobos and Demos, um, which may be captured asteroids. OK, it's really interesting atmosphere. The atmosphere masks this of 9% carbon dioxide, 3% nitrogen, 1% argon, 1.6% argon, trace amounts of oxygen and water vapor are also present. Um, surface pressure is less than 1% of Earth's, wow. Service in geology, er, Mars hosts Olympus Mons, the largest volcano, and the highest known mountain on any planet in the solar system, wow. OK, one of the largest canyons. Most of the surface is covered by ballistic ball, is it balls, bas basastic rock and iron-rich dust. OK, so you got, uh, further exploration. Obituary of life, human missions, wow, so you've got a lot more topics on this now. So for each one, I can, the physical characteristics I can ask for more topics. And I what pictures And then exploration Humans have sent dozens of spacecraft to Mars, that some missions include, fine, so then I can pick some more for this, and I've lots of pictures. Um, habitability and life evidence indicates that Mars once had a liquid in its surface, present day conditions are cold and arid, but subsurface ice and occasional brines exist. Numerous missions seek uh biosignatures or organic compounds, OK, so again I'm gonna put pictures, and human missions. And I can actually suggest there, and I want some examples for that, that's brilliant, I like that. OK, um, he allows you to expand each time. OK,
+
+Activity 11 - How clear was it what this feature does?
+
+next. It was very clear what it does, um, I thought it was very effective, it makes you keep your thoughts in order, um. And it gives you an introduction to each topic which makes me have more informed
+
+Activity 12 - What, if anything, was different about this second scenario compared to the first one?
+
+decisions about what I want to expand upon. 12. So as I said, what if anything is different, so this time the request for information. Is divided into subsections, and each of the subsections has an introduction to it which means you are better informed, to ask what you want, because you're given a glimpse into it um, It's kind of like being asked to write a book review and you haven't read the book, at least here I'm getting a synopsis of the book before I'm asked
+
+Activity 13 - What do you think happens after you submit a request in this version?
+
+to do it. 13, what do you think happens after you submit the request, it goes to the administrators who will collate and look at the desire to expand, the demand to expand.
+
+Activity 14 - How useful would you find this feature?
+
+14, I thought the feature was very useful.
+
+Activity 15 - What, if anything, would stop you from using this feature?
+
+15, what if anything would stop you using this feature again? Um, my first answer to this was my ignorance, I don't think we've got that ignorance anymore because you've given me a summary so I'm gonna put it's very useful.
+
+Activity 16 - You've now tried suggesting content on two different Wikipedia articles. What do you think this is for and would you find it useful?
+
+You've now tried suggestion content on two different Wikipedia. What do you think this is for and who, and who would find it useful? I think it's for anybody who uses Wikipedia. The interface for us is to expand information but only put information where there's a demand for it, otherwise people just get overloaded. And obviously you are receiving this information to make informed decisions about where to expand.
+
+Activity 17 - Walk us through what you think happens after someone suggests content - who handles it, how does it work, and what concerns or questions does this raise for you?
+
+17, walk us through some, uh, what you think happens after someone suggests content, who handles it. How does it work and what concerns or questions do you have, so it'll go someone who collates this in Wikipedia, who looks at the demand for the topics. er if there's suitable demand, then certain expansion is probably written and audited. Um, I don't think it has any concerns as long as the sources are verified and corroborated. Um, Is it limited in the sense that I can only pick from what you've suggested? Should there be an open source for me to put what I think needs to be changed or improved upon?
+
+Activity 18 - After using this feature, do you feel like you understand more about how Wikipedia content is created?
+
+After using this feature, do you feel like? You understand more about how Wikidia content is created. Somewhat, um, I can only imagine, um, having access to all this information. I imagine AI will make this a lot better now, so maybe even an AI will review this and add the expansion. So it's more automated. I'd have no problem with either of that.
+
+Activity 19 - Wikipedia already lets anyone edit articles directly. If both options (editing and suggesting content) were equally available, which would you prefer and why? What would make you more likely to use this feature?
+
+19, Wikipedia already lets anyone edit articles directly. Both options editing is just in content weekly available, what would you prefer and why? I prefer to uh request it. I don't think there's many topics, really any topics. Where I am, um. Suitably informed enough to amend someone else's work, unless they were writing about me. Uh, what would make you more likely to use this feature, uh, experience and reviews.
+
+Activity 20 - If you could change or improve this content suggestion feature in one way, what would it be?
+
+20 if you could just one change or improvement, uh, what would it be? Maybe the fact that you are kind of making me order from a preset menu, maybe there would be an ability for me to have an open format, open suggestion for what could be changed. Well this is really good, um. I, I think it's really suitable as long as you've given enough information for me to make er some suggestions, I'm really impressed.
+
